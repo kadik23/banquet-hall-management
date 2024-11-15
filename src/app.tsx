@@ -1,21 +1,26 @@
-import React, { useState } from "react";
-import ReactDom from "react-dom";
-import Home from "./components/Home";
-import './index.css';
-
-const mainElement = document.createElement("div");
-document.body.appendChild(mainElement);
-
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import LoginForm from './LoginForm';
+import Dashboard from './Dashboard';
+import Client from './Client';
+import Reservation from './Reservation';
+import Paiement from './Paiement';
+import Recu from './Recu';
 const App = () => {
-  const [count, setCount] = useState(0);
   return (
-    <>
-      <h1 className="text-3xl font-bold underline text-red-500">Hi from a react app</h1>
-      <Home />
-      {count}
-      <button onClick={(ev) => setCount((prev) => prev + 1)}>+</button>
-    </>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<LoginForm />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/clients" element={<Client />} />
+          <Route path="/reservations" element={<Reservation />} />
+          <Route path="/paiements" element={<Paiement />} />
+          <Route path="/recus" element={<Recu />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 
-ReactDom.render(<App />, mainElement);
+export default App;
