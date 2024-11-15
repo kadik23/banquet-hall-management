@@ -6,7 +6,7 @@ import Sidebar from './Sidebar';
 import Paymenthome from './Paymenthome';
 
 
-import './App.css'; 
+import '../App.css'; 
 
 function Paiement() {
   const navigate = useNavigate(); 

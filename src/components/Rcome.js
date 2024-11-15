@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import './Rcome.css';
+import '../Rcome.css';
 
 function Rcome() {
   const [reservations, setReservations] = useState([

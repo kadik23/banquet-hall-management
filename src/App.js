@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import LoginForm from './LoginForm';
-import Dashboard from './Dashboard';
-import Client from './Client';
-import Reservation from './Reservation';
-import Paiement from './Paiement';
-import Recu from './Recu';
+import LoginForm from './components/LoginForm';
+import Dashboard from './components/Dashboard';
+import Client from './components/Client';
+import Reservation from './components/Reservation';
+import Paiement from './components/Paiement';
+import Recu from './components/Recu';
 const App = () => {
   return (
     <Router>

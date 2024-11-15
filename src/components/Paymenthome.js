@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import './Paymenthome.css';
-import './Hcome.css'
+import '../Paymenthome.css';
+import '../Hcome.css'
 
 function Paymenthome() {
   const [payments, setPayments] = useState([

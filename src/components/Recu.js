@@ -4,7 +4,7 @@ import Header from './Header';
 import Home from './Home'; 
 import Sidebar from './Sidebar';
 
-import './App.css'; 
+import '../App.css'; 
 
 function Recu() {
   const navigate = useNavigate(); 

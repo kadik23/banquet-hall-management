@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import './Hcome.css';
+import '../Hcome.css';
 
 function Hcome() {
   const [clients, setClients] = useState([
