@@ -5,7 +5,10 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   devtool: 'source-map',
-  entry: './electron/main.ts',
+  entry: {
+    main: './electron/main.ts',
+    preload: './electron/preload.ts', 
+  },
   target: 'electron-main',
   module: {
     rules: [
@@ -18,8 +21,11 @@ module.exports = {
       },
     ],
   },
+  externals: {
+    'better-sqlite3': 'commonjs better-sqlite3',
+  },
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: 'main.js',
-  },
+    filename: '[name].js'
+    },
 };
