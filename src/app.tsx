@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import ReactDom from "react-dom";
-import Home from "./components/Home";
 import "./index.css";
 import ReactDOM from "react-dom/client";
+import LoginForm from "./components/LoginForm";
 
 const mainElement = document.createElement("div");
 document.body.appendChild(mainElement);
@@ -33,10 +32,7 @@ const App = () => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline text-red-500">
-        Hi from a react application
-      </h1>
-      <Home />
+      <LoginForm />
       <ul>
         {clients.map((client) => (
           <li key={client.id}>
