@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import '../MainPaiement.css';
+import '../App.css';
 
 function MainPaiement() {
   const [payments, setPayments] = useState([
@@ -114,12 +114,22 @@ function MainPaiement() {
       reservationAssocie: '2024-11-15',
       statut: 'Payé'
     },
-    // Ajoutez plus de paiements pour tester...
+    { 
+      id: 12, 
+      montantTotal: 2500, 
+      montantPaye: 2500, 
+      soldeRestant: 0, 
+      datePaiement: '2024-11-02', 
+      clientAssocie: 'Marie Martin',
+      reservationAssocie: '2024-11-15',
+      statut: 'Payé'
+    },
+    // Ajoutez d'autres données si nécessaire
   ]);
 
-  const [filter, setFilter] = useState('Tous'); // État pour le filtre
-  const [isModalOpen, setIsModalOpen] = useState(false); // Gérer l'état du modal
-  const [isEditMode, setIsEditMode] = useState(false); // Gérer le mode édition
+  const [filter, setFilter] = useState('Tous');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [newPayment, setNewPayment] = useState({
     id: null,
     montantTotal: '',
@@ -130,33 +140,27 @@ function MainPaiement() {
     reservationAssocie: '',
     statut: ''
   });
-  const [currentPage, setCurrentPage] = useState(1); // Page courante
-  const paymentsPerPage = 9; // Nombre de paiements par page
+  const [currentPage, setCurrentPage] = useState(1);
+  const paymentsPerPage = 8; // Nombre de paiements par page
 
-  // Calculer l'index des premiers et derniers paiements à afficher pour la pagination
   const indexOfLastPayment = currentPage * paymentsPerPage;
   const indexOfFirstPayment = indexOfLastPayment - paymentsPerPage;
 
-  // Gérer le changement de filtre
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
-    setCurrentPage(1); // Revenir à la première page lors d'un changement de filtre
+    setCurrentPage(1);
   };
 
-  // Filtrer les paiements en fonction du statut sélectionné
   const filteredPayments = payments.filter(
     (payment) => filter === 'Tous' || payment.statut === filter
   );
 
-  // Paiements de la page actuelle
   const currentPayments = filteredPayments.slice(indexOfFirstPayment, indexOfLastPayment);
 
-  // Fonction pour changer de page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Ouvrir le modal pour ajouter ou modifier un paiement
   const handleAddPaymentClick = () => {
-    setIsEditMode(false); // Assurer qu'on est en mode ajout
+    setIsEditMode(false);
     setNewPayment({
       id: null,
       montantTotal: '',
@@ -171,17 +175,15 @@ function MainPaiement() {
   };
 
   const handleEditPaymentClick = (payment) => {
-    setIsEditMode(true); // Mode édition
-    setNewPayment(payment); // Préremplir le formulaire
+    setIsEditMode(true);
+    setNewPayment(payment);
     setIsModalOpen(true);
   };
 
-  // Fermer le modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
-  // Gérer les changements dans le formulaire
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewPayment({
@@ -190,7 +192,6 @@ function MainPaiement() {
     });
   };
 
-  // Soumettre le formulaire
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isEditMode) {
@@ -202,17 +203,14 @@ function MainPaiement() {
     setIsModalOpen(false);
   };
 
-  // Supprimer un paiement spécifique
   const handleDeletePayment = (id) => {
     setPayments(payments.filter(payment => payment.id !== id));
   };
 
-  // Supprimer tous les paiements
   const handleDeleteAll = () => {
     setPayments([]);
   };
 
-  // Calculer le nombre de pages
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(filteredPayments.length / paymentsPerPage); i++) {
     pageNumbers.push(i);
@@ -225,26 +223,23 @@ function MainPaiement() {
         <span className="payment-count">Nombre de paiements : {filteredPayments.length}</span>
       </div>
 
-
       <div className="footer-buttons">
-  <button className="add-payment-btn" onClick={handleAddPaymentClick}>
-    Ajouter un paiement
-  </button>
-  <div className="filter-buttons">
-    <label htmlFor="filter-select" className='filt'>Filtrer par statut : </label>
-    <select id="filter-select" value={filter} onChange={handleFilterChange}>
-      <option value="Tous">Tous</option>
-      <option value="En attente">En attente</option>
-      <option value="Payé">Payé</option>
-    </select>
-  </div>
-  <button className="delete-all-btn" onClick={handleDeleteAll}>
-    Supprimer tout
-  </button>
-</div>
+        <button className="add-payment-btn" onClick={handleAddPaymentClick}>
+          Ajouter un paiement
+        </button>
+        <div className="filter-buttons">
+          <label htmlFor="filter-select" className="filt">Filtrer par statut :</label>
+          <select id="filter-select" value={filter} onChange={handleFilterChange}>
+            <option value="Tous">Tous</option>
+            <option value="En attente">En attente</option>
+            <option value="Payé">Payé</option>
+          </select>
+        </div>
+        <button className="delete-all-btn" onClick={handleDeleteAll}>
+          Supprimer tout
+        </button>
+      </div>
 
-
-      {/* Modal Formulaire */}
       {isModalOpen && (
         <div className="modal">
           <div className="modal-content">
@@ -316,7 +311,6 @@ function MainPaiement() {
         </div>
       )}
 
-      {/* Tableau des paiements */}
       <table className="payments-table">
         <thead>
           <tr>
@@ -366,10 +360,9 @@ function MainPaiement() {
       </table>
 
       {/* Pagination */}
-             {/* Pagination */}
-             <div className="pagination">
+<div className="pagination">
   <span className="page-info">
-    {paymentsPerPage } sur {payments.length} paiements
+    {currentPayments.length} sur {payments.length} paiements
   </span>
   <button 
     onClick={() => paginate(currentPage - 1)} 
@@ -384,7 +377,8 @@ function MainPaiement() {
     &gt;
   </button>
 </div>
-</div>
+
+    </div>
   );
 }
 
