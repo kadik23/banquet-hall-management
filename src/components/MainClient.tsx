@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import '../MainClient.css';
+import '../App.css';
 
 function MainClient() {
   const [clients, setClients] = useState([
@@ -30,7 +30,7 @@ function MainClient() {
   });
 
   const [currentPage, setCurrentPage] = useState(1); // Page courante
-  const clientsPerPage = 9; // Nombre de clients par page
+  const clientsPerPage = 8; // Nombre de clients par page
 
   // Calculer l'index des premiers et derniers clients à afficher pour la pagination
   const indexOfLastClient = currentPage * clientsPerPage;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import '../LoginForm.css';
+import '../App.css';
 
 function LoginForm() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

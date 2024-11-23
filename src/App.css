@@ -153,9 +153,6 @@ li {
   z-index: 12 !important;
 }
 
-.btnn {
-  /* margin-top: 155px; */
-}
 
 .wedding-icon {
   font-size: 38px;
@@ -302,3 +299,354 @@ li {
 }
 
 /* End of main section */
+
+
+
+/* CSS clients and reservations and payments */
+
+
+.main-container2 {
+  grid-area: main;
+  overflow: hidden; /* Masque la barre de défilement du conteneur principal */
+  padding: 20px 20px;
+  color: rgba(0, 0, 0, 0.95);
+}
+
+.header-cl {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-cl h3{
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+
+.client-count, .reservation-count  {
+  font-size: 18px;
+  color: #161414;
+}
+
+
+
+.clients-table ,.reservations-table, .payments-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Assurer que la table ne dépasse pas la largeur de son parent */
+  overflow: hidden; /* Masque la barre de défilement dans la table */
+}
+
+
+.clients-table th, .reservations-table th {
+  background-color: #c164e665;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payments-table th,
+.payments-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #000000;
+  word-wrap: break-word;
+}
+
+.payments-table th {
+  background-color: #c164e665;
+}
+
+
+/* ppppp */
+
+
+
+
+.payments-table .action-icon {
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.payments-table .edit-icon {
+  color: #622D77;
+}
+
+
+
+.payments-table .edit-icon:hover,
+.payments-table .delete-icon:hover {
+  opacity: 0.7;
+}
+
+/* Style pour la pagination spécifique à la table */
+.payments-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+
+/* Styles du bouton d'ajout de réservation */
+.add-payment-btn, .delete-all-btn {
+  padding: 10px 20px;
+  background-color: #622D77;
+  color: white;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+
+.filter-buttons .filt{
+  font-weight:600;
+  font-size: 1.06rem;
+}
+
+
+
+/* Style pour le texte de la valeur par défaut dans le select */
+#filter-select {
+color: white;  /* Rendre le texte de la valeur par défaut en blanc */
+background-color: #622D77; /* Fond violet pour le select */
+border: none; /* Enlever les bordures par défaut */
+padding: 10px; /* Ajouter un peu de padding */
+padding-right: 10px;
+padding-left: 10px;
+border-radius: 5px; /* Ajouter des coins arrondis */
+}
+
+/* Style pour les options du select */
+#filter-select option {
+color: white;  /* Rendre le texte des options en blanc */
+background-color: #622D77; /* Fond violet pour les options */
+}
+
+
+/* fin ppp */
+
+
+.clients-table th, .clients-table td,
+.reservations-table th, .reservations-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #000000;
+  word-wrap: break-word; 
+}
+
+
+
+
+
+.action-icon {
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.edit-icon {
+  color: #622D77;
+}
+
+.delete-icon {
+  color: #dc3545;
+}
+
+/* Styles pour les boutons */
+.footer-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.add-client-btn, .delete-all-btn, .add-reservation-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+.add-client-btn, .add-reservation-btn {
+  background-color: #622D77;
+  color: white;
+}
+
+.delete-all-btn {
+  background-color: #622D77;
+  color: white;
+}
+
+/* Styles pour le modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-top: 10px;
+}
+
+form input {
+  margin-bottom: 10px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+form button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #622D77;
+  color: white;
+  margin-top: 10px;
+}
+
+form button[type="button"] {
+  background-color: #f44336; /* Rouge pour le bouton Annuler */
+}
+
+/* Styles pour la pagination */
+.pagination {
+  display: flex;
+  justify-content: flex-end; /* Aligner à droite */
+  align-items: center;
+  margin-top: 20px;
+}
+
+
+.pagination button {
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #622D77;
+  color: white;
+  margin: 0 5px;
+}
+
+.pagination button:disabled {
+  background-color: #943cb677; /* Désactiver les boutons avec une couleur différente */
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 16px;
+  color: #161414;
+  margin-right: 15px;
+}
+
+
+
+
+
+/* login */
+.login-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; 
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #622D77; 
+}
+
+.login-form {
+  background: #B57CC8;
+  padding: 20px;
+  padding-top: 3px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 28%; 
+}
+
+.login-form h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.login-form div {
+  margin-bottom: 10px;
+}
+
+.login-form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  border: none;
+  height: 35px;
+}
+
+.login-form input:focus {
+  border: 2px solid #622D77; 
+  outline: none; 
+}
+
+.login-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #622D77;
+  height: 35px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-top: 22px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.login-form button:hover {
+  background-color: #8b34a8;
+}
+
+
+

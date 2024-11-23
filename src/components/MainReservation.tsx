@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import '../MainReservation.css';
+import '../App.css';
 
 function MainReservation() {
   const [reservations, setReservations] = useState([
@@ -121,7 +121,7 @@ function MainReservation() {
   });
 
   const [currentPage, setCurrentPage] = useState(1); // Page courante
-  const reservationsPerPage = 9; // Nombre de réservations par page
+  const reservationsPerPage = 8; // Nombre de réservations par page
 
   // Calculer l'index des premiers et derniers clients à afficher pour la pagination
   const indexOfLastReservation = currentPage * reservationsPerPage;
