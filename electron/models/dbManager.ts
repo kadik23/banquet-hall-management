@@ -15,13 +15,7 @@ const createTable = () => {
     `;
     db.prepare(createTableQuery).run();  
 
-    const insertSampleClient = db.prepare(`
-      INSERT INTO clients (name, surname, phone, address) 
-      VALUES ('John', 'Doe', '123456789', 'medea 26')
-    `);
-    insertSampleClient.run(); 
-
-    console.log("Table created and sample data inserted.");
+    console.log("Table created.");
 
   } catch (error) {
     console.error("Error creating table or inserting sample data:", error);

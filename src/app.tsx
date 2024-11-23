@@ -7,16 +7,14 @@ const mainElement = document.createElement("div");
 document.body.appendChild(mainElement);
 
 const App = () => {
-
   const [clients, setClients] = useState<Client[]>([]);
   const [error, setError] = useState<string | null>(null);
-  // const [count, setCount] = useState(0);
 
   useEffect(() => {
     const fetchClients = async () => {
       try {
         // Invoke the 'get-clients' IPC handler
-        const data: Client[] = await window.sqlite.getClients();
+        const data: Client[] = await window.sqliteClients.getClients(1);
         setClients(data);
       } catch (err) {
         setError(`Error: ${err}`);
@@ -40,11 +38,9 @@ const App = () => {
           </li>
         ))}
       </ul>
-      {/* {count} */}
-      {/* <button onClick={(ev) => setCount((prev) => prev + 1)}>+</button> */}
     </>
   );
 };
 
-const root = ReactDOM.createRoot(mainElement); 
+const root = ReactDOM.createRoot(mainElement);
 root.render(<App />);
