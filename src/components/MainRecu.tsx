@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash, FaPrint } from 'react-icons/fa';
-import '../MainClient.css';
+
 
 function MainRecu() {
   const [clients, setClients] = useState([
