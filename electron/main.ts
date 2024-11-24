@@ -1,7 +1,7 @@
-import { app, BrowserWindow, ipcMain } from "electron";
-let mainWindow: Electron.BrowserWindow | null;
-// import {db} from './models/dbManger'
+import { app, BrowserWindow } from "electron";
 const path = require('path')
+
+let mainWindow: Electron.BrowserWindow | null;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
@@ -21,18 +21,6 @@ function createWindow() {
     mainWindow = null;
   });
 }
-
-// ipcMain.handle('get-clients', async () => {
-//   return new Promise((resolve, reject) => {
-//       db.all('SELECT * FROM clients', [], (err:Error, rows:any) => {
-//           if (err) {
-//               reject(err.message);
-//           } else {
-//               resolve(rows);
-//           }
-//       });
-//   });
-// });
 
 app.on("ready", createWindow);
 app.allowRendererProcessReuse = true;
