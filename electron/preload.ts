@@ -7,6 +7,15 @@ const {
   deleteAllClients,
 } = require("./controllers/clientsController");
 
+const {
+  getNumClients,
+  getNumReservation,
+  getNumPendingPayments,
+  getNumConfirmPayments,
+  getNumReceipts,
+  getNumProducts,
+} = require("./controllers/statisticsController");
+
 contextBridge.exposeInMainWorld("sqliteClients", {
   getClients: (page: number) => getClients(page),
   createClient: (name: string, email: string, phone: string) =>
@@ -15,4 +24,13 @@ contextBridge.exposeInMainWorld("sqliteClients", {
     editClient(id, name, email, phone),
   deleteClient: (id: number) => deleteClient(id),
   deleteAllClients: () => deleteAllClients(),
+});
+
+contextBridge.exposeInMainWorld("sqliteStatistics", {
+  getNumClients:() => getNumClients(),
+  getNumReservation:() => getNumReservation(),
+  getNumPendingPayments:() => getNumPendingPayments(),
+  getNumConfirmPayments:() => getNumConfirmPayments(),
+  getNumReceipts:() => getNumReceipts(),
+  getNumProducts:() => getNumProducts(),
 });

@@ -75,7 +75,11 @@ const createTables = () => {
     db.prepare(createPaymentTableQuery).run();
     db.prepare(createReceiptTableQuery).run();
     db.prepare(createProductTableQuery).run();
-
+    const insertSampleClient = db.prepare(`
+      INSERT INTO clients (name, surname, phone, address) 
+      VALUES ('John', 'Doe', 123456789, 'medea 26')
+  `);
+    insertSampleClient.run();
     console.log("Tables created successfully.");
   } catch (error) {
     console.error("Error creating tables:", error);
