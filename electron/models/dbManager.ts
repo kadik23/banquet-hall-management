@@ -21,7 +21,7 @@ const createTables = () => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_id INTEGER NOT NULL,
         start_date TEXT NOT NULL,
-        period TEXT NOT NULL,
+        period TEXT NOT NULL CHECK (period IN ('morning', 'evening')),
         start_hour TEXT NOT NULL,
         end_hour TEXT NOT NULL,
         nbr_invites INTEGER NOT NULL,
@@ -52,7 +52,7 @@ const createTables = () => {
         reservation_id INTEGER NOT NULL,
         payment_id INTEGER NOT NULL,
         pdf_path TEXT NOT NULL,
-        status TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('waiting', 'confirmed')),
         FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (reservation_id) REFERENCES reservations (id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (payment_id) REFERENCES payments (id) ON DELETE CASCADE ON UPDATE CASCADE

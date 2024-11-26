@@ -1,4 +1,13 @@
 const { contextBridge } = require("electron");
+
+const {
+  getReservations,
+  createReservation,
+  editReservation,
+  deleteReservation,
+  deleteAllReservations,
+} = require("./controllers/reservationsController");
+
 const {
   getClients,
   createClient,
@@ -33,4 +42,28 @@ contextBridge.exposeInMainWorld("sqliteStatistics", {
   getNumConfirmPayments:() => getNumConfirmPayments(),
   getNumReceipts:() => getNumReceipts(),
   getNumProducts:() => getNumProducts(),
+});
+
+contextBridge.exposeInMainWorld("sqliteReservation", {
+  getReservations: (page: number) => getReservations(page),
+  createReservation: (client_id: Number,
+    start_date: string,
+    period: "morning" | "evening",
+    start_hour: string,
+    end_hour: string,
+    nbr_invites: number,
+    date_reservation: string) =>
+      createReservation(client_id, start_date, period,start_hour,end_hour,nbr_invites,date_reservation),
+  editReservation: (
+    id: number,
+    client_id: Number,
+    start_date: string,
+    period: "morning" | "evening",
+    start_hour: string,
+    end_hour: string,
+    nbr_invites: number,
+    date_reservation: string) =>
+    editReservation(id,client_id, start_date, period,start_hour,end_hour,nbr_invites,date_reservation),
+  deleteReservation: (id: number) => deleteReservation(id),
+  deleteAllReservations: () => deleteAllReservations(),
 });
