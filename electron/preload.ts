@@ -25,6 +25,14 @@ const {
   getNumProducts,
 } = require("./controllers/statisticsController");
 
+const {
+  getPaiments,
+  createPaiment,
+  editPaiment,
+  deletePaiment,
+  deleteAllPaiments,
+} = require("./controllers/reservationsController");
+
 contextBridge.exposeInMainWorld("sqliteClients", {
   getClients: (page: number) => getClients(page),
   createClient: (name: string, email: string, phone: string) =>
@@ -36,24 +44,34 @@ contextBridge.exposeInMainWorld("sqliteClients", {
 });
 
 contextBridge.exposeInMainWorld("sqliteStatistics", {
-  getNumClients:() => getNumClients(),
-  getNumReservation:() => getNumReservation(),
-  getNumPendingPayments:() => getNumPendingPayments(),
-  getNumConfirmPayments:() => getNumConfirmPayments(),
-  getNumReceipts:() => getNumReceipts(),
-  getNumProducts:() => getNumProducts(),
+  getNumClients: () => getNumClients(),
+  getNumReservation: () => getNumReservation(),
+  getNumPendingPayments: () => getNumPendingPayments(),
+  getNumConfirmPayments: () => getNumConfirmPayments(),
+  getNumReceipts: () => getNumReceipts(),
+  getNumProducts: () => getNumProducts(),
 });
 
 contextBridge.exposeInMainWorld("sqliteReservation", {
   getReservations: (page: number) => getReservations(page),
-  createReservation: (client_id: Number,
+  createReservation: (
+    client_id: Number,
     start_date: string,
     period: "morning" | "evening",
     start_hour: string,
     end_hour: string,
     nbr_invites: number,
-    date_reservation: string) =>
-      createReservation(client_id, start_date, period,start_hour,end_hour,nbr_invites,date_reservation),
+    date_reservation: string
+  ) =>
+    createReservation(
+      client_id,
+      start_date,
+      period,
+      start_hour,
+      end_hour,
+      nbr_invites,
+      date_reservation
+    ),
   editReservation: (
     id: number,
     client_id: Number,
@@ -62,8 +80,62 @@ contextBridge.exposeInMainWorld("sqliteReservation", {
     start_hour: string,
     end_hour: string,
     nbr_invites: number,
-    date_reservation: string) =>
-    editReservation(id,client_id, start_date, period,start_hour,end_hour,nbr_invites,date_reservation),
+    date_reservation: string
+  ) =>
+    editReservation(
+      id,
+      client_id,
+      start_date,
+      period,
+      start_hour,
+      end_hour,
+      nbr_invites,
+      date_reservation
+    ),
   deleteReservation: (id: number) => deleteReservation(id),
   deleteAllReservations: () => deleteAllReservations(),
+});
+
+contextBridge.exposeInMainWorld("sqlitePaiment", {
+  getPaiments: (page: number) => getPaiments(page),
+  createPaiment: (
+    client_id: number,
+    reservation_id: number,
+    total_amount: number,
+    amount_paid: number,
+    remaining_balance: number,
+    payment_date: string,
+    status: "waiting" | "confirmed"
+  ) =>
+    createPaiment(
+      client_id,
+      reservation_id,
+      total_amount,
+      amount_paid,
+      remaining_balance,
+      payment_date,
+      status
+    ),
+  editPaiment: (
+    id: number,
+    client_id: Number,
+    reservation_id: number,
+    total_amount: number,
+    amount_paid: number,
+    remaining_balance: number,
+    payment_date: string,
+    status: "waiting" | "confirmed"
+  ) =>
+    editPaiment(
+      id,
+      client_id,
+      reservation_id,
+      total_amount,
+      amount_paid,
+      remaining_balance,
+      payment_date,
+      status
+    ),
+  deletePaiment: (id: number) => deletePaiment(id),
+  deleteAllPaiments: () => deleteAllPaiments(),
 });

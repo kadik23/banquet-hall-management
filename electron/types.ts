@@ -16,3 +16,20 @@ export interface ReservationResponse {
   message?: string;
   reservationId?: number;
 }
+
+export interface PaimentResponse {
+    success: boolean;
+    message?: string;
+    paimentId?: number;
+}
+
+export interface Paiment{
+    id:number;
+    client_id: number;
+    reservation_id: number;
+    total_amount: number;
+    amount_paid: number;
+    remaining_balance: number;
+    payment_date: string;
+    status: 'waiting' | 'confirmed';
+}
