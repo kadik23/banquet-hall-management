@@ -33,6 +33,14 @@ const {
   deleteAllPaiments,
 } = require("./controllers/reservationsController");
 
+const {
+  getProducts,
+  createProduct,
+  editProduct,
+  deleteProduct,
+  deleteAllProducts,
+} = require("./controllers/productsController");
+
 contextBridge.exposeInMainWorld("sqliteClients", {
   getClients: (page: number) => getClients(page),
   createClient: (name: string, email: string, phone: string) =>
@@ -138,4 +146,40 @@ contextBridge.exposeInMainWorld("sqlitePaiment", {
     ),
   deletePaiment: (id: number) => deletePaiment(id),
   deleteAllPaiments: () => deleteAllPaiments(),
+});
+
+contextBridge.exposeInMainWorld("sqliteProduct", {
+  getProducts: (page: number) => getProducts(page),
+  createProduct: (
+    name: string,
+    unique_price: number,
+    quantity: number,
+    total_amount: number,
+    status: 'waiting' | 'confirmed'
+  ) =>
+    createProduct(
+      name,
+      unique_price,
+      quantity,
+      total_amount,
+      status
+    ),
+  editProduct: (
+    id: number,
+    name: string,
+    unique_price: number,
+    quantity: number,
+    total_amount: number,
+    status: 'waiting' | 'confirmed'
+  ) =>
+    editProduct(
+      id,
+      name,
+      unique_price,
+      quantity,
+      total_amount,
+      status
+    ),
+  deleteProduct: (id: number) => deleteProduct(id),
+  deleteAllProducts: () => deleteAllProducts(),
 });

@@ -33,3 +33,18 @@ export interface Paiment{
     payment_date: string;
     status: 'waiting' | 'confirmed';
 }
+
+export interface ProductResponse {
+  success: boolean;
+  message?: string;
+  productId?: number;
+}
+
+export interface Product{
+  id:number;
+  name: string;
+  unique_price: number;
+  quantity: number;
+  total_amount: number;
+  status: 'waiting' | 'confirmed';
+}
