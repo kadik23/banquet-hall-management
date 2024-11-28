@@ -1,63 +1,115 @@
 import React, { useState } from 'react';
-import { FaEdit, FaTrash, FaPrint } from 'react-icons/fa';
-
+import { FaPrint, FaTrash } from 'react-icons/fa';
 
 function MainRecu() {
-  const [clients, setClients] = useState([
+  const [recus, setRecus] = useState([
     { id: 1, nom: 'Dupont', prenom: 'Jean', dateReservation: '2024-11-01', dateDebut: '2024-11-10', total: 500, montantPaye: 300, soldeRestant: 200, statut: 'En attente' },
     { id: 2, nom: 'Martin', prenom: 'Marie', dateReservation: '2024-11-02', dateDebut: '2024-11-12', total: 600, montantPaye: 600, soldeRestant: 0, statut: 'Payé' },
-    { id: 3, nom: 'Lemoine', prenom: 'Pierre', dateReservation: '2024-11-03', dateDebut: '2024-11-15', total: 700, montantPaye: 500, soldeRestant: 200, statut: 'En attente' },
-    { id: 4, nom: 'Durand', prenom: 'Sophie', dateReservation: '2024-11-04', dateDebut: '2024-11-16', total: 550, montantPaye: 550, soldeRestant: 0, statut: 'Payé' },
+    // Ajoutez plus de données ici si nécessaire
   ]);
 
+  const [modalitesFile, setModalitesFile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalitesFile, setModalitesFile] = useState(null); // Pour stocker le fichier téléchargé
-  const [currentPage, setCurrentPage] = useState(1);
-  const clientsPerPage = 9;
 
-  const indexOfLastClient = currentPage * clientsPerPage;
-  const indexOfFirstClient = indexOfLastClient - clientsPerPage;
-  const currentClients = clients.slice(indexOfFirstClient, indexOfLastClient);
+  const [currentPage, setCurrentPage] = useState(1);
+  const recusPerPage = 8;
+  const indexOfLastRecu = currentPage * recusPerPage;
+  const indexOfFirstRecu = indexOfLastRecu - recusPerPage;
+  const currentRecus = recus.slice(indexOfFirstRecu, indexOfLastRecu);
+  const pageNumbers = Array.from({ length: Math.ceil(recus.length / recusPerPage) }, (_, i) => i + 1);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleAddModalitesClick = () => {
-    setIsModalOpen(true); // Ouvre le modal pour télécharger un fichier
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false); // Ferme le modal
+    setIsModalOpen(false);
   };
 
   const handleFileChange = (e) => {
-    setModalitesFile(e.target.files[0]); // Enregistre le fichier téléchargé
-  };
-
-  const handleFileDelete = () => {
-    setModalitesFile(null); // Supprime le fichier téléchargé
+    const file = e.target.files[0];
+    if (file) {
+      setModalitesFile(file);
+    }
   };
 
   const handleSaveFile = (e) => {
     e.preventDefault();
-    // Simuler un enregistrement de fichier ici (par exemple, en l'envoyant à un backend)
-    console.log('Fichier enregistré:', modalitesFile.name); // Par exemple, enregistrer le fichier
-    setIsModalOpen(false); // Ferme le modal après l'enregistrement
+    // Sauvegarder le fichier ou faire l'action désirée
+    alert('Le fichier a été enregistré');
+    handleCloseModal();
   };
 
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(clients.length / clientsPerPage); i++) {
-    pageNumbers.push(i);
-  }
+  const handleFileDelete = () => {
+    setModalitesFile(null);
+    alert('Le fichier des modalités a été supprimé');
+  };
+
+  const handleDeleteAll = () => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer tous les reçus ?')) {
+      setRecus([]);
+    }
+  };
+
+  const handlePrintRecu = (recu) => {
+    const printWindow = window.open('', '_blank');
+    const content = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+            .recu-container { border: 1px solid #ccc; padding: 20px; max-width: 600px; margin: auto; }
+            h2, h4 { text-align: center; margin: 0 0 10px; }
+            .details { margin: 20px 0; }
+            .details p { margin: 5px 0; }
+            .footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #555; }
+            .footer p { margin: 5px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="recu-container">
+            <h2>Reçu de Réservation</h2>
+            <h4>Salle des Fêtes XYZ</h4>
+            <div class="details">
+              <p><strong>Nom :</strong> ${recu.nom}</p>
+              <p><strong>Prénom :</strong> ${recu.prenom}</p>
+              <p><strong>Date de réservation :</strong> ${recu.dateReservation}</p>
+              <p><strong>Date de début :</strong> ${recu.dateDebut}</p>
+              <p><strong>Total :</strong> ${recu.total} DZD</p>
+              <p><strong>Montant payé :</strong> ${recu.montantPaye} DZD</p>
+              <p><strong>Solde restant :</strong> ${recu.soldeRestant} DZD</p>
+              <p><strong>Statut :</strong> ${recu.statut}</p>
+            </div>
+            <div class="footer">
+              <p>Merci pour votre réservation.</p>
+              <p>Salle des Fêtes XYZ, Wilaya de VotreVille</p>
+              <p><strong>Contact :</strong> +213 6 1234 5678</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    printWindow.document.open();
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   return (
     <div className="main-container2">
       <div className="header-cl">
         <h3>GESTION DES REÇUS</h3>
-        <span className="client-count">Tous les reçus : {clients.length}</span>
+        <span className="recu-count">Tous les reçus : {recus.length}</span>
       </div>
+
       <div className="footer-buttons">
-        <button className="add-client-btn" onClick={handleAddModalitesClick}>
+        <button className="add-recu-btn" onClick={handleAddModalitesClick}>
           {modalitesFile ? 'Imprimer les modalités' : 'Ajouter les modalités'}
+        </button>
+        <button className="delete-all-btn" onClick={handleDeleteAll}>
+          Supprimer tout
         </button>
       </div>
 
@@ -95,7 +147,7 @@ function MainRecu() {
         </div>
       )}
 
-      <table className="clients-table">
+      <table className="recus-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -111,25 +163,35 @@ function MainRecu() {
           </tr>
         </thead>
         <tbody>
-          {currentClients.length === 0 ? (
+          {currentRecus.length === 0 ? (
             <tr>
-              <td colSpan="10" style={{ textAlign: 'center' }}>Aucun client disponible</td>
+              <td colSpan="10" style={{ textAlign: 'center' }}>Aucun reçu disponible</td>
             </tr>
           ) : (
-            currentClients.map((client) => (
-              <tr key={client.id}>
-                <td>{client.id}</td>
-                <td>{client.nom}</td>
-                <td>{client.prenom}</td>
-                <td>{client.dateReservation}</td>
-                <td>{client.dateDebut}</td>
-                <td>{client.total}</td>
-                <td>{client.montantPaye}</td>
-                <td>{client.soldeRestant}</td>
-                <td>{client.statut}</td>
+            currentRecus.map((recu) => (
+              <tr key={recu.id}>
+                <td>{recu.id}</td>
+                <td>{recu.nom}</td>
+                <td>{recu.prenom}</td>
+                <td>{recu.dateReservation}</td>
+                <td>{recu.dateDebut}</td>
+                <td>{recu.total}</td>
+                <td>{recu.montantPaye}</td>
+                <td>{recu.soldeRestant}</td>
+                <td>{recu.statut}</td>
                 <td>
-                  <FaEdit className="action-icon edit-icon" title="Éditer" />
-                  <FaTrash className="action-icon delete-icon" title="Supprimer" />
+                  <FaPrint
+                    className="action-icon"
+                    title="Imprimer"
+                    onClick={() => handlePrintRecu(recu)}
+                  />
+                  <FaTrash
+                    className="action-icon delete-icon"
+                    title="Supprimer"
+                    onClick={() =>
+                      setRecus(recus.filter((r) => r.id !== recu.id))
+                    }
+                  />
                 </td>
               </tr>
             ))
@@ -138,9 +200,21 @@ function MainRecu() {
       </table>
 
       <div className="pagination">
-        <span className="page-info">{indexOfFirstClient + 1} sur {clients.length} clients</span>
-        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>&lt;</button>
-        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === pageNumbers.length}>&gt;</button>
+        <span className="page-info">
+          {currentRecus.length} sur {recus.length} reçus
+        </span>
+        <button 
+          onClick={() => paginate(currentPage - 1)} 
+          disabled={currentPage === 1}
+        >
+          &lt;
+        </button>
+        <button 
+          onClick={() => paginate(currentPage + 1)} 
+          disabled={currentPage === pageNumbers.length}
+        >
+          &gt;
+        </button>
       </div>
     </div>
   );

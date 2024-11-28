@@ -331,7 +331,7 @@ li {
 
 
 
-.clients-table ,.reservations-table, .payments-table {
+.clients-table ,.reservations-table, .payments-table ,.recus-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed; /* Assurer que la table ne dépasse pas la largeur de son parent */
@@ -339,23 +339,22 @@ li {
 }
 
 
-.clients-table th, .reservations-table th {
+.clients-table th, .reservations-table th, .recus-table th, .payments-table th {
   background-color: #c164e665;
   width: 100%;
   border-collapse: collapse;
 }
 
-.payments-table th,
-.payments-table td {
+.payments-table td,
+.payments-table td,
+.recus-table td {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid #000000;
   word-wrap: break-word;
 }
 
-.payments-table th {
-  background-color: #c164e665;
-}
+
 
 
 /* ppppp */
@@ -363,7 +362,7 @@ li {
 
 
 
-.payments-table .action-icon {
+/* .payments-table .action-icon {
   cursor: pointer;
   margin-right: 10px;
   font-size: 18px;
@@ -371,7 +370,7 @@ li {
 
 .payments-table .edit-icon {
   color: #622D77;
-}
+} */
 
 
 
@@ -389,7 +388,7 @@ li {
 
 
 /* Styles du bouton d'ajout de réservation */
-.add-payment-btn, .delete-all-btn {
+.delete-all-btn, .add-recu-btn {
   padding: 10px 20px;
   background-color: #622D77;
   color: white;
@@ -444,11 +443,10 @@ background-color: #622D77; /* Fond violet pour les options */
   cursor: pointer;
   margin-right: 10px;
   font-size: 18px;
-}
-
-.edit-icon {
   color: #622D77;
 }
+
+
 
 .delete-icon {
   color: #dc3545;
@@ -461,23 +459,17 @@ background-color: #622D77; /* Fond violet pour les options */
   margin-bottom: 15px;
 }
 
-.add-client-btn, .delete-all-btn, .add-reservation-btn {
+.add-client-btn, .delete-all-btn, .add-reservation-btn, .add-payment-btn {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
   border: none;
   border-radius: 5px;
-}
-
-.add-client-btn, .add-reservation-btn {
   background-color: #622D77;
   color: white;
 }
 
-.delete-all-btn {
-  background-color: #622D77;
-  color: white;
-}
+
 
 /* Styles pour le modal */
 .modal {
@@ -650,3 +642,10 @@ form button[type="button"] {
 
 
 
+.reserved-date {
+  color: red;
+}
+
+.available-date {
+  color: blue;
+}

@@ -1,114 +1,35 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import '../App.css';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 function MainReservation() {
   const [reservations, setReservations] = useState([
-    { 
-      id: 1, 
-      dateDebut: '2024-11-10', 
-      periode: 'Matin', 
-      heureDebut: '10:00', 
-      heureFin: '12:00', 
-      nombreInvites: 50, 
-      dateReservation: '2024-11-01', 
-      clientAssocie: 'Jean Dupont'
+    {
+      id: 1,
+      dateDebut: '29-11-2024',
+      periode: 'Matin',
+      heureDebut: '10:00',
+      heureFin: '12:00',
+      nombreInvites: 50,
+      dateReservation: '01-11-2024',
+      clientAssocie: 'Jean Dupont',
     },
-    { 
-      id: 2, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
+    {
+      id: 2,
+      dateDebut: '03-12-2024',
+      periode: 'Après-midi',
+      heureDebut: '14:00',
+      heureFin: '16:00',
+      nombreInvites: 100,
+      dateReservation: '02-11-2024',
+      clientAssocie: 'Marie Martin',
     },
-    { 
-      id: 3, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
-    },
-    { 
-      id: 4, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
-    },
-    { 
-      id: 5, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
-    },
-    { 
-      id: 6, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
-    },
-    { 
-      id: 7, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
-    },
-    { 
-      id: 8, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
-    },
-    { 
-      id: 9, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
-    },
-    { 
-      id: 10, 
-      dateDebut: '2024-11-15', 
-      periode: 'Après-midi', 
-      heureDebut: '14:00', 
-      heureFin: '16:00', 
-      nombreInvites: 100, 
-      dateReservation: '2024-11-02', 
-      clientAssocie: 'Marie Martin'
-    },
-    // Ajoutez plus de réservations pour tester...
   ]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // Gérer l'état du modal
-  const [isEditMode, setIsEditMode] = useState(false); // Gérer le mode édition
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [newReservation, setNewReservation] = useState({
     id: null,
     dateDebut: '',
@@ -117,23 +38,28 @@ function MainReservation() {
     heureFin: '',
     nombreInvites: '',
     dateReservation: '',
-    clientAssocie: ''
+    clientAssocie: '',
   });
 
-  const [currentPage, setCurrentPage] = useState(1); // Page courante
-  const reservationsPerPage = 8; // Nombre de réservations par page
+  const [startDate, setStartDate] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const reservationsPerPage = 8;
 
-  // Calculer l'index des premiers et derniers clients à afficher pour la pagination
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
-  const currentReservations = reservations.slice(indexOfFirstReservation, indexOfLastReservation);
+  const currentReservations = reservations.slice(
+    indexOfFirstReservation,
+    indexOfLastReservation
+  );
 
-  // Fonction pour changer de page
+  const reservedDates = reservations.map((res) =>
+    new Date(res.dateDebut.split('-').reverse().join('-'))
+  );
+
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Ouvrir le modal pour ajouter une réservation
   const handleAddReservationClick = () => {
-    setIsEditMode(false); // Assurer qu'on est en mode ajout
+    setIsEditMode(false);
     setNewReservation({
       id: null,
       dateDebut: '',
@@ -142,45 +68,56 @@ function MainReservation() {
       heureFin: '',
       nombreInvites: '',
       dateReservation: '',
-      clientAssocie: ''
-    }); // Réinitialiser le formulaire
+      clientAssocie: '',
+    });
+    setStartDate(null);
     setIsModalOpen(true);
   };
 
-  // Ouvrir le modal pour modifier une réservation
   const handleEditReservationClick = (reservation) => {
-    setIsEditMode(true); // Passer en mode édition
-    setNewReservation(reservation); // Remplir le formulaire avec les données de la réservation sélectionnée
+    setIsEditMode(true);
+    setNewReservation(reservation);
+    setStartDate(new Date(reservation.dateDebut.split('-').reverse().join('-')));
     setIsModalOpen(true);
   };
 
-  // Fermer le modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
-  // Gérer les changements dans le formulaire
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewReservation({
       ...newReservation,
-      [name]: value
+      [name]: value,
     });
   };
 
-  // Soumettre le formulaire
+  const handleDateChange = (date) => {
+    setStartDate(date);
+    setNewReservation({
+      ...newReservation,
+      dateDebut: date ? date.toLocaleDateString('fr-FR') : '',
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isEditMode) {
-      // Mise à jour d'une réservation existante
-      setReservations(reservations.map(reservation => reservation.id === newReservation.id ? newReservation : reservation));
+      setReservations(
+        reservations.map((reservation) =>
+          reservation.id === newReservation.id ? newReservation : reservation
+        )
+      );
     } else {
-      // Ajouter une nouvelle réservation avec un ID unique
       const newReservationWithId = {
-        id: Date.now(), // Utiliser l'heure actuelle pour un ID unique
-        ...newReservation
+        id: Date.now(),
+        ...newReservation,
       };
-      setReservations(prevReservations => [...prevReservations, newReservationWithId]);
+      setReservations((prevReservations) => [
+        ...prevReservations,
+        newReservationWithId,
+      ]);
     }
     setNewReservation({
       dateDebut: '',
@@ -189,22 +126,26 @@ function MainReservation() {
       heureFin: '',
       nombreInvites: '',
       dateReservation: '',
-      clientAssocie: ''
+      clientAssocie: '',
     });
-    setIsModalOpen(false); // Fermer le modal après soumission
+    setIsModalOpen(false);
   };
 
-  // Supprimer une réservation spécifique
   const handleDeleteReservation = (id) => {
-    setReservations(reservations.filter(reservation => reservation.id !== id));
+    setReservations(reservations.filter((reservation) => reservation.id !== id));
   };
 
-  // Supprimer toutes les réservations
   const handleDeleteAll = () => {
-    setReservations([]); // Vide la liste des réservations
+    setReservations([]);
   };
 
-  // Calculer le nombre de pages
+  const dayClassName = (date) => {
+    if (reservedDates.some((reservedDate) => reservedDate.getTime() === date.getTime())) {
+      return 'reserved-date'; // Classe pour dates réservées
+    }
+    return ''; // Pas de classe spéciale pour les dates disponibles
+  };
+
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(reservations.length / reservationsPerPage); i++) {
     pageNumbers.push(i);
@@ -214,26 +155,38 @@ function MainReservation() {
     <div className="main-container2">
       <div className="header-cl">
         <h3>GESTION DES RÉSERVATIONS</h3>
-        <span className="reservation-count">Toutes les réservations : {reservations.length}</span>
+        <span className="reservation-count">
+          Toutes les réservations : {reservations.length}
+        </span>
       </div>
       <div className="footer-buttons">
-        <button className="add-reservation-btn" onClick={handleAddReservationClick}>Ajouter une réservation</button>
-        <button className="delete-all-btn" onClick={handleDeleteAll}>Supprimer tout</button>
+        <button className="add-reservation-btn" onClick={handleAddReservationClick}>
+          Ajouter une réservation
+        </button>
+        <button className="delete-all-btn" onClick={handleDeleteAll}>
+          Supprimer tout
+        </button>
       </div>
 
-      {/* Modal Formulaire */}
       {isModalOpen && (
         <div className="modal">
           <div className="modal-content">
-            <span className="close-btn" onClick={handleCloseModal}>&times;</span>
+            <span className="close-btn" onClick={handleCloseModal}>
+              &times;
+            </span>
             <h3>{isEditMode ? 'Modifier une réservation' : 'Ajouter une réservation'}</h3>
             <form onSubmit={handleSubmit}>
               <label>Date de début:</label>
-              <input
-                type="date"
-                name="dateDebut"
-                value={newReservation.dateDebut}
-                onChange={handleInputChange}
+              <DatePicker
+                selected={startDate}
+                onChange={handleDateChange}
+                dateFormat="dd-MM-yyyy"
+                minDate={new Date()} // Dates passées interdites
+                excludeDates={reservedDates} // Dates réservées exclues
+                dayClassName={dayClassName} // Couleur des jours
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
                 required
               />
               <label>Période:</label>
@@ -286,7 +239,9 @@ function MainReservation() {
               />
               <div className="modal-buttons">
                 <button type="submit">{isEditMode ? 'Modifier' : 'Ajouter'}</button>
-                <button type="button" onClick={handleCloseModal}>Annuler</button>
+                <button type="button" onClick={handleCloseModal}>
+                  Annuler
+                </button>
               </div>
             </form>
           </div>
@@ -310,7 +265,9 @@ function MainReservation() {
         <tbody>
           {currentReservations.length === 0 ? (
             <tr>
-              <td colSpan="9" style={{ textAlign: 'center' }}>Aucune réservation disponible</td>
+              <td colSpan="9" style={{ textAlign: 'center' }}>
+                Aucune réservation disponible
+              </td>
             </tr>
           ) : (
             currentReservations.map((reservation) => (
@@ -325,14 +282,12 @@ function MainReservation() {
                 <td>{reservation.clientAssocie}</td>
                 <td>
                   <FaEdit
-                    className="action-icon edit-icon"
-                    title="Éditer"
+                    className="edit-icon"
                     onClick={() => handleEditReservationClick(reservation)}
                   />
-                  <FaTrash 
-                    className="action-icon delete-icon" 
-                    title="Supprimer" 
-                    onClick={() => handleDeleteReservation(reservation.id)} 
+                  <FaTrash
+                    className="delete-icon"
+                    onClick={() => handleDeleteReservation(reservation.id)}
                   />
                 </td>
               </tr>
@@ -341,25 +296,17 @@ function MainReservation() {
         </tbody>
       </table>
 
-      {/* Pagination */}
       <div className="pagination">
-  <span className="page-info">
-    {indexOfLastReservation} sur {reservations.length} réservations
-  </span>
-  <button 
-    onClick={() => paginate(currentPage - 1)} 
-    disabled={currentPage === 1}
-  >
-    &lt;
-  </button>
-  <button 
-    onClick={() => paginate(currentPage + 1)} 
-    disabled={currentPage === pageNumbers.length}
-  >
-    &gt;
-  </button>
-</div>
-
+        {pageNumbers.map((number) => (
+          <button
+            key={number}
+            onClick={() => paginate(number)}
+            className={currentPage === number ? 'active' : ''}
+          >
+            {number}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
