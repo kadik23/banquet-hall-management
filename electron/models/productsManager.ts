@@ -7,8 +7,8 @@ exports.getProducts = (page = 1): Product[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `SELECT * FROM products LIMIT ? OFFSET ?`;
-  let stmt = database.prepare(qry);
-  let res = stmt.all(limit, offset);
+  const stmt = database.prepare(qry);
+  const res = stmt.all(limit, offset);
   return res;
 };
 
@@ -22,10 +22,10 @@ exports.createProduct = (
   const qry = `
     INSERT INTO products 
     (name, unique_price, quantity, total_amount, status) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?)
   `;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(
+  const stmt = database.prepare(qry);
+  const info = stmt.run(
     name,
     unique_price,
     quantity,
@@ -65,8 +65,8 @@ exports.editProduct = (
     `;
   valuesToUpdate.push(id);
 
-  let stmt = database.prepare(qry);
-  let info = stmt.run(...valuesToUpdate);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(...valuesToUpdate);
 
   if (info.changes === 0) {
     return {
@@ -80,8 +80,8 @@ exports.editProduct = (
 
 exports.deleteProduct = (id: number): ProductResponse  => {
   const qry = `DELETE FROM products WHERE id = ?`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(id);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(id);
   if (info.changes === 0) {
     return { success: false, message: "Product not found" };
   }
@@ -90,8 +90,8 @@ exports.deleteProduct = (id: number): ProductResponse  => {
 
 exports.deleteAllProducts = (): ProductResponse  => {
   const qry = `DELETE FROM products`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run();
+  const stmt = database.prepare(qry);
+  const info = stmt.run();
   return {
     success: true,
     message: `${info.changes} products deleted successfully`,

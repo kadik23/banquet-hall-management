@@ -45,6 +45,7 @@ const {
   getReceipts,
   deleteReceipt,
   deleteAllReceipts,
+  createReceipt
 } = require("./controllers/receiptsController");
 
 contextBridge.exposeInMainWorld("sqliteClients", {
@@ -161,51 +162,28 @@ contextBridge.exposeInMainWorld("sqliteProduct", {
     unique_price: number,
     quantity: number,
     total_amount: number,
-    status: 'waiting' | 'confirmed'
-  ) =>
-    createProduct(
-      name,
-      unique_price,
-      quantity,
-      total_amount,
-      status
-    ),
+    status: "waiting" | "confirmed"
+  ) => createProduct(name, unique_price, quantity, total_amount, status),
   editProduct: (
     id: number,
     name: string,
     unique_price: number,
     quantity: number,
     total_amount: number,
-    status: 'waiting' | 'confirmed'
-  ) =>
-    editProduct(
-      id,
-      name,
-      unique_price,
-      quantity,
-      total_amount,
-      status
-    ),
+    status: "waiting" | "confirmed"
+  ) => editProduct(id, name, unique_price, quantity, total_amount, status),
   deleteProduct: (id: number) => deleteProduct(id),
   deleteAllProducts: () => deleteAllProducts(),
 });
 
 contextBridge.exposeInMainWorld("sqliteReceipt", {
   getReceipts: (page: number) => getReceipts(page),
-  // createReceipt: (
-  //   name: string,
-  //   unique_price: number,
-  //   quantity: number,
-  //   total_amount: number,
-  //   status: 'waiting' | 'confirmed'
-  // ) =>
-  //   createReceipt(
-  //     name,
-  //     unique_price,
-  //     quantity,
-  //     total_amount,
-  //     status
-  //   ),
+  createReceipt: (
+    client_id: number,
+    reservation_id: number,
+    paiment_id: number,
+    pdf_path: string
+  ) => createReceipt(client_id, reservation_id, paiment_id, pdf_path),
   // editReceipt: (
   //   id: number,
   //   name: string,

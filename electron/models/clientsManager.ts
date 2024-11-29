@@ -5,15 +5,15 @@ exports.getClients = (page = 1) => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `SELECT * FROM clients LIMIT ? OFFSET ?`;
-  let stmt = database.prepare(qry);
-  let res = stmt.all(limit, offset);
+  const stmt = database.prepare(qry);
+  const res = stmt.all(limit, offset);
   return res;
 };
 
 exports.createClient = (name: string, email: string, phone: string) => {
   const qry = `INSERT INTO clients (name, email, phone) VALUES (?, ?, ?)`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(name, email, phone);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(name, email, phone);
   return { success: true, clientId: info.lastInsertRowid };
 };
 
@@ -24,8 +24,8 @@ exports.editClient = (
   phone: string
 ) => {
   const qry = `UPDATE clients SET name = ?, email = ?, phone = ? WHERE id = ?`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(name, email, phone, id);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(name, email, phone, id);
   if (info.changes === 0) {
     return { success: false, message: "Client not found or no changes made" };
   }
@@ -34,8 +34,8 @@ exports.editClient = (
 
 exports.deleteClient = (id: number) => {
   const qry = `DELETE FROM clients WHERE id = ?`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(id);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(id);
   if (info.changes === 0) {
     return { success: false, message: "Client not found" };
   }
@@ -44,8 +44,8 @@ exports.deleteClient = (id: number) => {
 
 exports.deleteAllClients = () => {
   const qry = `DELETE FROM clients`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run();
+  const stmt = database.prepare(qry);
+  const info = stmt.run();
   return {
     success: true,
     message: `${info.changes} clients deleted successfully`,

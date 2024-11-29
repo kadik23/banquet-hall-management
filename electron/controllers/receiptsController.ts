@@ -4,36 +4,27 @@ export const getReceipts = (page = 1) => {
   return receiptMgr.getReceipts(page);
 };
 
-// export const createPaiment = (
-//   client_id: number,
-//   reservation_id: number,
-//   total_amount: number,
-//   amount_paid: number,
-//   remaining_balance: number,
-//   payment_date: string,
-//   status: "waiting" | "confirmed"
-// ) => {
-//   if (
-//     !client_id ||
-//     !reservation_id ||
-//     !total_amount ||
-//     !amount_paid ||
-//     !remaining_balance ||
-//     !payment_date ||
-//     !status
-//   ) {
-//     return { success: false, message: "missing required data" };
-//   }
-//   return receiptMgr.createPaiment(
-//     client_id,
-//     reservation_id,
-//     total_amount,
-//     amount_paid,
-//     remaining_balance,
-//     payment_date,
-//     status
-//   );
-// };
+export const createPaiment = (
+  client_id: number,
+  reservation_id: number,
+  paiment_id: number,
+  pdf_path: string
+) => {
+  if (
+    !client_id ||
+    !reservation_id ||
+    !paiment_id ||
+    !pdf_path
+  ) {
+    return { success: false, message: "missing required data" };
+  }
+  return receiptMgr.createPaiment(
+    client_id,
+    reservation_id,
+    paiment_id,
+    pdf_path
+  );
+};
 
 // export const editPaiment = (
 //   id: number,

@@ -7,8 +7,8 @@ exports.getPaiments = (page = 1): Paiment[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `SELECT * FROM paiments LIMIT ? OFFSET ?`;
-  let stmt = database.prepare(qry);
-  let res = stmt.all(limit, offset);
+  const stmt = database.prepare(qry);
+  const res = stmt.all(limit, offset);
   return res;
 };
 
@@ -26,8 +26,8 @@ exports.createPaiment = (
     (client_id, reservation_id, total_amount, amount_paid, remaining_balance, payment_date, status) 
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(
+  const stmt = database.prepare(qry);
+  const info = stmt.run(
     client_id,
     reservation_id,
     total_amount,
@@ -41,7 +41,7 @@ exports.createPaiment = (
 
 exports.editPaiment = (
   id: number,
-  client_id: Number | null,
+  client_id: number | null,
   reservation_id: number| null,
   total_amount: number| null,
   amount_paid: number| null,
@@ -73,8 +73,8 @@ exports.editPaiment = (
     `;
   valuesToUpdate.push(id);
 
-  let stmt = database.prepare(qry);
-  let info = stmt.run(...valuesToUpdate);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(...valuesToUpdate);
 
   if (info.changes === 0) {
     return {
@@ -88,8 +88,8 @@ exports.editPaiment = (
 
 exports.deletePaiment = (id: number): PaimentResponse => {
   const qry = `DELETE FROM paiments WHERE id = ?`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(id);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(id);
   if (info.changes === 0) {
     return { success: false, message: "Paiment not found" };
   }
@@ -98,8 +98,8 @@ exports.deletePaiment = (id: number): PaimentResponse => {
 
 exports.deleteAllPaiments = (): PaimentResponse => {
   const qry = `DELETE FROM paiments`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run();
+  const stmt = database.prepare(qry);
+  const info = stmt.run();
   return {
     success: true,
     message: `${info.changes} paiments deleted successfully`,

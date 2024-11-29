@@ -5,14 +5,13 @@ export const getReservations = (page = 1) => {
 };
 
 export const createReservation = (
-  client_id: Number,
+  client_id: number,
   start_date: string,
   period: "morning" | "evening",
   start_hour: string,
   end_hour: string,
   nbr_invites: number,
   date_reservation: string,
-  pdf_path: string
 ) => {
   if (
     !client_id ||
@@ -21,8 +20,7 @@ export const createReservation = (
     !start_date ||
     !end_hour ||
     !nbr_invites ||
-    !date_reservation||
-    !pdf_path
+    !date_reservation
   ) {
     return { success: false, message: "missing required data" };
   }
@@ -34,13 +32,12 @@ export const createReservation = (
     end_hour,
     nbr_invites,
     date_reservation,
-    pdf_path
   );
 };
 
 export const editReservation = (
   id: number,
-  client_id: Number | null,
+  client_id: number | null,
   start_date: string | null,
   period: "morning" | "evening" | null,
   start_hour: string | null,

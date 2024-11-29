@@ -29,22 +29,21 @@ exports.getReceipts = (page = 1): Receipt => {
   return res;
 };
 
-// exports.createProduct = (
-//   name: string,
-//   unique_price: number,
-//   quantity: number,
-//   total_amount: number,
-//   status: "waiting" | "confirmed"
-// ): ProductResponse => {
-//   const qry = `
-//     INSERT INTO products 
-//     (name, unique_price, quantity, total_amount, status) 
-//     VALUES (?, ?, ?, ?, ?, ?, ?)
-//   `;
-//   let stmt = database.prepare(qry);
-//   let info = stmt.run(name, unique_price, quantity, total_amount, status);
-//   return { success: true, productId: info.lastInsertRowid };
-// };
+exports.createProduct = (
+  client_id: number,
+  reservation_id: number,
+  paiment_id: number,
+  pdf_path: string
+): ReceiptResponse => {
+  const receiptQuery = `
+  INSERT INTO receipts 
+  (client_id, reservation_id, paiment_id, pdf_path) 
+  VALUES (?, ?, ?, ?)
+`;
+  const receiptStmt = database.prepare(receiptQuery);
+  receiptStmt.run(client_id, reservation_id, paiment_id, pdf_path);
+  return { success: true, receiptId: receiptStmt.lastInsertRowid };
+};
 
 // exports.editProduct = (
 //   id: number,
@@ -70,8 +69,8 @@ exports.getReceipts = (page = 1): Receipt => {
 //   }
 //   const setClause = keysToUpdate.map((key) => `${key} = ?`).join(", ");
 //   const qry = `
-//       UPDATE products 
-//       SET ${setClause} 
+//       UPDATE products
+//       SET ${setClause}
 //       WHERE id = ?
 //     `;
 //   valuesToUpdate.push(id);

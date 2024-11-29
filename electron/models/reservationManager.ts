@@ -7,8 +7,8 @@ exports.getReservations = (page = 1): Reservation[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `SELECT * FROM reservations LIMIT ? OFFSET ?`;
-  let stmt = database.prepare(qry);
-  let res = stmt.all(limit, offset);
+  const stmt = database.prepare(qry);
+  const res = stmt.all(limit, offset);
   return res;
 };
 
@@ -20,12 +20,10 @@ exports.createReservation = (
   end_hour: string,
   nbr_invites: number,
   date_reservation: string,
-  pdf_path: string
 ): { success: boolean; reservationId?: number; message?: string } => {
   try {
     let reservationId: number | undefined;
 
-    database.transaction(() => {
       const reservationQuery = `
         INSERT INTO reservations 
         (client_id, start_date, period, start_hour, end_hour, nbr_invites, date_reservation) 
@@ -42,24 +40,15 @@ exports.createReservation = (
         date_reservation
       );
 
+      // eslint-disable-next-line prefer-const
       reservationId = reservationInfo.lastInsertRowid;
-
-      const receiptQuery = `
-        INSERT INTO receipts 
-        (client_id, reservation_id, pdf_path) 
-        VALUES (?, ?, ?)
-      `;
-      const receiptStmt = database.prepare(receiptQuery);
-      receiptStmt.run(client_id, reservationId, pdf_path);
-
-    })();
-
+      
     return {
       success: true,
       reservationId,
-      message: "Reservation and receipt created successfully.",
+      message: "Reservation created successfully.",
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       success: false,
       message: `Error creating reservation and receipt: ${error.message}`,
@@ -69,7 +58,7 @@ exports.createReservation = (
 
 exports.editReservation = (
   id: number,
-  client_id: Number | null,
+  client_id: number | null,
   start_date: string | null,
   period: "morning" | "evening" | null,
   start_hour: string | null,
@@ -101,8 +90,8 @@ exports.editReservation = (
     `;
   valuesToUpdate.push(id);
 
-  let stmt = database.prepare(qry);
-  let info = stmt.run(...valuesToUpdate);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(...valuesToUpdate);
 
   if (info.changes === 0) {
     return {
@@ -116,8 +105,8 @@ exports.editReservation = (
 
 exports.deleteReservation = (id: number): ReservationResponse => {
   const qry = `DELETE FROM reservations WHERE id = ?`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(id);
+  const stmt = database.prepare(qry);
+  const info = stmt.run(id);
   if (info.changes === 0) {
     return { success: false, message: "Reservation not found" };
   }
@@ -126,8 +115,8 @@ exports.deleteReservation = (id: number): ReservationResponse => {
 
 exports.deleteAllReservations = (): ReservationResponse => {
   const qry = `DELETE FROM reservations`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run();
+  const stmt = database.prepare(qry);
+  const info = stmt.run();
   return {
     success: true,
     message: `${info.changes} reservations deleted successfully`,
