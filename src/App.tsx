@@ -7,41 +7,41 @@ const mainElement = document.createElement("div");
 document.body.appendChild(mainElement);
 
 const App = () => {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [clientsNbr, setClientsNbr] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null);
+  // const [clients, setClients] = useState<Client[]>([]);
+  // const [clientsNbr, setClientsNbr] = useState<number>(0);
+  // const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        // Invoke the 'get-clients' IPC handler
-        const data: Client[] = await window.sqliteClients.getClients(1);
-        const nbrCl: number = await window.sqliteStatistics.getNumClients();
-        setClients(data);
-        setClientsNbr(nbrCl);
-      } catch (err) {
-        setError(`Error: ${err}`);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchClients = async () => {
+  //     try {
+  //       // Invoke the 'get-clients' IPC handler
+  //       const data: Client[] = await window.sqliteClients.getClients(1);
+  //       const nbrCl: number = await window.sqliteStatistics.getNumClients();
+  //       setClients(data);
+  //       setClientsNbr(nbrCl);
+  //     } catch (err) {
+  //       setError(`Error: ${err}`);
+  //     }
+  //   };
 
-    fetchClients();
-  }, []);
+  //   fetchClients();
+  // }, []);
 
-  const DeleteAll =async () => {
-    try {
-      const data = await window.sqliteClients.deleteAllClients();
-      if(data.success){
-        setClientsNbr(0);
-        setClients([])
-      }
-    } catch (err) {
-      setError(`Error: ${err}`);
-    }
-  };
+  // const DeleteAll =async () => {
+  //   try {
+  //     const data = await window.sqliteClients.deleteAllClients();
+  //     if(data.success){
+  //       setClientsNbr(0);
+  //       setClients([])
+  //     }
+  //   } catch (err) {
+  //     setError(`Error: ${err}`);
+  //   }
+  // };
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  // if (error) {
+  //   return <div>{error}</div>;
+  // }
 
   return (
     <>

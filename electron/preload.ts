@@ -41,6 +41,12 @@ const {
   deleteAllProducts,
 } = require("./controllers/productsController");
 
+const {
+  getReceipts,
+  deleteReceipt,
+  deleteAllReceipts,
+} = require("./controllers/receiptsController");
+
 contextBridge.exposeInMainWorld("sqliteClients", {
   getClients: (page: number) => getClients(page),
   createClient: (name: string, email: string, phone: string) =>
@@ -182,4 +188,40 @@ contextBridge.exposeInMainWorld("sqliteProduct", {
     ),
   deleteProduct: (id: number) => deleteProduct(id),
   deleteAllProducts: () => deleteAllProducts(),
+});
+
+contextBridge.exposeInMainWorld("sqliteReceipt", {
+  getReceipts: (page: number) => getReceipts(page),
+  // createReceipt: (
+  //   name: string,
+  //   unique_price: number,
+  //   quantity: number,
+  //   total_amount: number,
+  //   status: 'waiting' | 'confirmed'
+  // ) =>
+  //   createReceipt(
+  //     name,
+  //     unique_price,
+  //     quantity,
+  //     total_amount,
+  //     status
+  //   ),
+  // editReceipt: (
+  //   id: number,
+  //   name: string,
+  //   unique_price: number,
+  //   quantity: number,
+  //   total_amount: number,
+  //   status: 'waiting' | 'confirmed'
+  // ) =>
+  //   editReceipt(
+  //     id,
+  //     name,
+  //     unique_price,
+  //     quantity,
+  //     total_amount,
+  //     status
+  //   ),
+  deleteReceipt: (id: number) => deleteReceipt(id),
+  deleteAllReceipts: () => deleteAllReceipts(),
 });

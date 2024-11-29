@@ -48,3 +48,22 @@ export interface Product{
   total_amount: number;
   status: 'waiting' | 'confirmed';
 }
+
+export interface Receipt{
+  id:number;
+  name: string;
+  surname: string;
+  date_reservation: string;
+  start_date: string;
+  total_amount: number;
+  amount_paid: number;
+  remaining_balance: number;
+  pdf_path: number
+  status: 'waiting' | 'confirmed';
+}
+
+export interface ReceiptResponse {
+  success: boolean;
+  message?: string;
+  receiptId?: number;
+}

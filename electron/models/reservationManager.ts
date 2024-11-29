@@ -13,30 +13,58 @@ exports.getReservations = (page = 1): Reservation[] => {
 };
 
 exports.createReservation = (
-  client_id: Number,
+  client_id: number,
   start_date: string,
   period: "morning" | "evening",
   start_hour: string,
   end_hour: string,
   nbr_invites: number,
-  date_reservation: string
-): ReservationResponse => {
-  const qry = `
-    INSERT INTO reservations 
-    (client_id, start_date, period, start_hour, end_hour, nbr_invites, date_reservation) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-  let stmt = database.prepare(qry);
-  let info = stmt.run(
-    client_id,
-    start_date,
-    period,
-    start_hour,
-    end_hour,
-    nbr_invites,
-    date_reservation
-  );
-  return { success: true, reservationId: info.lastInsertRowid };
+  date_reservation: string,
+  pdf_path: string
+): { success: boolean; reservationId?: number; message?: string } => {
+  try {
+    let reservationId: number | undefined;
+
+    database.transaction(() => {
+      const reservationQuery = `
+        INSERT INTO reservations 
+        (client_id, start_date, period, start_hour, end_hour, nbr_invites, date_reservation) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+      const reservationStmt = database.prepare(reservationQuery);
+      const reservationInfo = reservationStmt.run(
+        client_id,
+        start_date,
+        period,
+        start_hour,
+        end_hour,
+        nbr_invites,
+        date_reservation
+      );
+
+      reservationId = reservationInfo.lastInsertRowid;
+
+      const receiptQuery = `
+        INSERT INTO receipts 
+        (client_id, reservation_id, pdf_path) 
+        VALUES (?, ?, ?)
+      `;
+      const receiptStmt = database.prepare(receiptQuery);
+      receiptStmt.run(client_id, reservationId, pdf_path);
+
+    })();
+
+    return {
+      success: true,
+      reservationId,
+      message: "Reservation and receipt created successfully.",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: `Error creating reservation and receipt: ${error.message}`,
+    };
+  }
 };
 
 exports.editReservation = (
@@ -48,7 +76,7 @@ exports.editReservation = (
   end_hour: string | null,
   nbr_invites: number | null,
   date_reservation: string | null
-): ReservationResponse  => {
+): ReservationResponse => {
   const updates = {
     client_id,
     start_date,
@@ -86,7 +114,7 @@ exports.editReservation = (
   return { success: true, message: "Reservation updated successfully" };
 };
 
-exports.deleteReservation = (id: number): ReservationResponse  => {
+exports.deleteReservation = (id: number): ReservationResponse => {
   const qry = `DELETE FROM reservations WHERE id = ?`;
   let stmt = database.prepare(qry);
   let info = stmt.run(id);
@@ -96,7 +124,7 @@ exports.deleteReservation = (id: number): ReservationResponse  => {
   return { success: true, message: "Reservation deleted successfully" };
 };
 
-exports.deleteAllReservations = (): ReservationResponse  => {
+exports.deleteAllReservations = (): ReservationResponse => {
   const qry = `DELETE FROM reservations`;
   let stmt = database.prepare(qry);
   let info = stmt.run();

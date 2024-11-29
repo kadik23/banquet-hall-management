@@ -39,7 +39,7 @@ const createTables = () => {
         amount_paid INTEGER NOT NULL,
         remaining_balance INTEGER NOT NULL,
         payment_date TEXT NOT NULL,
-        status TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('waiting', 'confirmed'))
         FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (reservation_id) REFERENCES reservations (id) ON DELETE CASCADE ON UPDATE CASCADE
       );
@@ -50,9 +50,8 @@ const createTables = () => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_id INTEGER NOT NULL,
         reservation_id INTEGER NOT NULL,
-        payment_id INTEGER NOT NULL,
+        payment_id INTEGER,
         pdf_path TEXT NOT NULL,
-        status TEXT NOT NULL CHECK (status IN ('waiting', 'confirmed')),
         FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (reservation_id) REFERENCES reservations (id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (payment_id) REFERENCES payments (id) ON DELETE CASCADE ON UPDATE CASCADE
