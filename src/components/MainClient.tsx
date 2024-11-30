@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import '../App.css';
+// import '../App.css';
 
 function MainClient() {
   const [clients, setClients] = useState([
@@ -161,7 +161,7 @@ function MainClient() {
         </div>
       )}
 
-      <table className="clients-table">
+<table className="clients-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -179,29 +179,42 @@ function MainClient() {
             </tr>
           ) : (
             currentClients.map((client) => (
-              <tr key={client.id}>
-                <td>{client.id}</td>
-                <td>{client.nom}</td>
-                <td>{client.prenom}</td>
-                <td>{client.adresse}</td>
-                <td>{client.telephone}</td>
-                <td>
-                  <FaEdit
-                    className="action-icon edit-icon"
-                    title="Éditer"
-                    onClick={() => handleEditClientClick(client)}
-                  />
-                  <FaTrash 
-                    className="action-icon delete-icon" 
-                    title="Supprimer" 
-                    onClick={() => handleDeleteClient(client.id)} 
-                  />
-                </td>
-              </tr>
+              <React.Fragment key={client.id}>
+                {/* Ligne principale du client */}
+                <tr>
+                  <td>{client.id}</td>
+                  <td>{client.nom}</td>
+                  <td>{client.prenom}</td>
+                  <td>{client.adresse}</td>
+                  <td>{client.telephone}</td>
+                  <td className="status-column">
+                    <FaEdit
+                      className="action-icon edit-icon"
+                      title="Éditer"
+                    />
+                    <FaTrash
+                      className="action-icon delete-icon"
+                      title="Supprimer"
+                      onClick={() => handleDeleteClient(client.id)}
+                    />
+                  </td>
+                </tr>
+
+                {/* Ligne de séparation fine */}
+                <tr className="separator-line">
+                  {/* <td colSpan="6"></td> */}
+                </tr>
+              </React.Fragment>
             ))
           )}
         </tbody>
       </table>
+
+
+
+
+
+
 
       {/* Pagination */}
       <div className="pagination">

@@ -30,7 +30,7 @@ li {
 /* Header */
 .header {
   grid-area: header;
-  height: 60px;
+  height: 66px;
   display: flex;
   background-color: #622D77;
   align-items: center;
@@ -79,6 +79,7 @@ li {
 .menu-icon {
   display: none;
 }
+
 
 /* Sidebar */
 #sidebar {
@@ -642,10 +643,3 @@ form button[type="button"] {
 
 
 
-.reserved-date {
-  color: red;
-}
-
-.available-date {
-  color: blue;
-}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import '../App.css';
+// import '../App.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -248,53 +248,62 @@ function MainReservation() {
         </div>
       )}
 
-      <table className="reservations-table">
-        <thead>
+<table className="reservations-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Date de début</th>
+      <th>Période</th>
+      <th>Heure de début</th>
+      <th>Heure de fin</th>
+      <th>Nombre d’invités</th>
+      <th>Date de réservation</th>
+      <th>Client associé</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {currentReservations.length === 0 ? (
+      <tr>
+        <td colSpan="9" style={{ textAlign: 'center' }}>
+          Aucune réservation disponible
+        </td>
+      </tr>
+    ) : (
+      currentReservations.map((reservation) => (
+        <React.Fragment key={reservation.id}>
+          {/* Ligne principale de la réservation */}
           <tr>
-            <th>ID</th>
-            <th>Date de début</th>
-            <th>Période</th>
-            <th>Heure de début</th>
-            <th>Heure de fin</th>
-            <th>Nombre d’invités</th>
-            <th>Date de réservation</th>
-            <th>Client associé</th>
-            <th>Actions</th>
+            <td>{reservation.id}</td>
+            <td>{reservation.dateDebut}</td>
+            <td>{reservation.periode}</td>
+            <td>{reservation.heureDebut}</td>
+            <td>{reservation.heureFin}</td>
+            <td>{reservation.nombreInvites}</td>
+            <td>{reservation.dateReservation}</td>
+            <td>{reservation.clientAssocie}</td>
+            <td className='status-column'>
+            <FaEdit
+                      className="action-icon edit-icon"
+                      title="Éditer"
+                    />
+                    <FaTrash
+                      className="action-icon delete-icon"
+                      title="Supprimer"
+                      onClick={() => handleDeleteClient(client.id)}
+                    />
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {currentReservations.length === 0 ? (
-            <tr>
-              <td colSpan="9" style={{ textAlign: 'center' }}>
-                Aucune réservation disponible
-              </td>
-            </tr>
-          ) : (
-            currentReservations.map((reservation) => (
-              <tr key={reservation.id}>
-                <td>{reservation.id}</td>
-                <td>{reservation.dateDebut}</td>
-                <td>{reservation.periode}</td>
-                <td>{reservation.heureDebut}</td>
-                <td>{reservation.heureFin}</td>
-                <td>{reservation.nombreInvites}</td>
-                <td>{reservation.dateReservation}</td>
-                <td>{reservation.clientAssocie}</td>
-                <td>
-                  <FaEdit
-                    className="edit-icon"
-                    onClick={() => handleEditReservationClick(reservation)}
-                  />
-                  <FaTrash
-                    className="delete-icon"
-                    onClick={() => handleDeleteReservation(reservation.id)}
-                  />
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+
+          {/* Ligne de séparation avec bordure */}
+          <tr className="separator-line">
+            {/* Pas de cellules, juste la ligne de séparation */}
+          </tr>
+        </React.Fragment>
+      ))
+    )}
+  </tbody>
+</table>
 
       <div className="pagination">
         {pageNumbers.map((number) => (
