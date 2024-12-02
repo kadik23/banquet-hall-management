@@ -60,10 +60,11 @@ function Sidebar({ openSidebarToggle, openSidebar, onLogout }) {
             <BsFileEarmarkTextFill className='icon' /> Gestion des reçus
           </Link>
         </li>
+       
 
         {/* Lien "Gestion des produits" avec l'icône de boîte remplie */}
-        <li className={`sidebar-list-item ${location.pathname === "/produits" ? "active" : ""}`}>
-          <Link to="/produits">
+        <li className={`sidebar-list-item ${location.pathname === "/produit" ? "active" : ""}`}>
+          <Link to="/produit">
             <BsFillBoxFill className='icon' /> Gestion des produits
           </Link>
         </li>

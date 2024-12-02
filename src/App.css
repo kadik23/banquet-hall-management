@@ -319,6 +319,9 @@ li {
   align-items: center;
 }
 
+
+
+
 .header-cl h3{
   margin-bottom: 20px;
   font-size: 24px;
@@ -332,7 +335,7 @@ li {
 
 
 
-.clients-table ,.reservations-table, .payments-table ,.recus-table {
+.clients-table ,.reservations-table, .payments-table ,.recus-table, .products-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed; /* Assurer que la table ne dépasse pas la largeur de son parent */
@@ -340,7 +343,7 @@ li {
 }
 
 
-.clients-table th, .reservations-table th, .recus-table th, .payments-table th {
+.clients-table th, .reservations-table th, .recus-table th, .payments-table th, .products-table th {
   background-color: #c164e665;
   width: 100%;
   border-collapse: collapse;
@@ -348,7 +351,8 @@ li {
 
 .payments-table td,
 .payments-table td,
-.recus-table td {
+.recus-table td,
+.products-table td {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid #000000;
@@ -420,6 +424,7 @@ border-radius: 5px; /* Ajouter des coins arrondis */
 
 /* Style pour les options du select */
 #filter-select option {
+/* text-align: center; */
 color: white;  /* Rendre le texte des options en blanc */
 background-color: #622D77; /* Fond violet pour les options */
 }
@@ -429,7 +434,7 @@ background-color: #622D77; /* Fond violet pour les options */
 
 
 .clients-table th, .clients-table td,
-.reservations-table th, .reservations-table td {
+.reservations-table th, .reservations-table td, .products-table th {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid #000000;
@@ -460,7 +465,7 @@ background-color: #622D77; /* Fond violet pour les options */
   margin-bottom: 15px;
 }
 
-.add-client-btn, .delete-all-btn, .add-reservation-btn, .add-payment-btn {
+.add-client-btn, .delete-all-btn, .add-reservation-btn, .add-payment-btn, .add-product-btn {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
@@ -643,3 +648,109 @@ form button[type="button"] {
 
 
 
+/* btn */
+.footer-buttons {
+  display: flex;
+  justify-content: space-between; /* Sépare les éléments à gauche et à droite */
+  align-items: center;
+  /* padding: 10px; */
+}
+
+.left-buttons {
+  display: flex;
+  gap: 15px; /* Espace entre les boutons et les filtres à gauche */
+  align-items: center;
+}
+
+.right-buttons {
+  display: flex;
+  gap: 15px; /* Espace entre les champs de date et le bouton à droite */
+  align-items: center;
+}
+
+.filter-status, .filter-date {
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+}
+
+.add-product-btn, .delete-all-btn {
+  padding: 8px 15px;
+  background-color: #622D77;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-product-btn:hover, .delete-all-btn:hover {
+  /* background-color: #0056b3; */
+}
+
+.filt {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#filter-select, #filter-date {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #622D77;
+  color: #ffffff;
+}
+
+#filter-select:hover, #filter-date:hover {
+  border-color: #007bff;
+}
+
+
+
+
+/* #filter-select, #filter-date {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #622D77;
+  color: #ffffff;
+} */
+
+
+#filter-date::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Rend l'icône blanche */
+  cursor: pointer;
+}
+
+#filter-date::-ms-expand {
+  display: none; /* Cache l'icône sur Internet Explorer */
+}
+
+#filter-date:hover, #filter-select:hover {
+  border-color: #ffffff; /* Change la couleur de la bordure au survol */
+}
+
+
+
+
+.balance-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.balance-item {
+  /* flex: 1; */
+  text-align: center;
+}
+
+.balance-item strong {
+  /* margin-right: 10px; */
+}

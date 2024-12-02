@@ -1,124 +1,105 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
 function MainClient() {
-  // Charger les clients depuis le localStorage
-  const loadClientsFromLocalStorage = () => {
-    const savedClients = localStorage.getItem('clients');
-    return savedClients ? JSON.parse(savedClients) : [];
-  };
+  const [clients, setClients] = useState([
+    { id: 1, nom: 'Dupont', prenom: 'Jean', adresse: '123 Rue A', telephone: '123456789' },
+    { id: 2, nom: 'Martin', prenom: 'Marie', adresse: '456 Rue B', telephone: '987654321' },
+    { id: 3, nom: 'Lemoine', prenom: 'Pierre', adresse: '789 Rue C', telephone: '564738291' },
+    { id: 4, nom: 'Durand', prenom: 'Sophie', adresse: '321 Rue D', telephone: '849204712' },
+    { id: 5, nom: 'Leclerc', prenom: 'Julien', adresse: '654 Rue E', telephone: '123123123' },
+    { id: 6, nom: 'Boulanger', prenom: 'Claire', adresse: '987 Rue F', telephone: '789789789' },
+    { id: 7, nom: 'Lemoine', prenom: 'Lucie', adresse: '654 Rue G', telephone: '456456456' },
+    { id: 8, nom: 'Dupuis', prenom: 'Marc', adresse: '432 Rue H', telephone: '321321321' },
+    { id: 9, nom: 'Muller', prenom: 'Anne', adresse: '876 Rue I', telephone: '654654654' },
+    { id: 10, nom: 'Perrin', prenom: 'Paul', adresse: '234 Rue J', telephone: '987987987' },
+    { id: 11, nom: 'Leblanc', prenom: 'Emilie', adresse: '123 Rue K', telephone: '876876876' },
+    { id: 12, nom: 'Leblanc', prenom: 'Emilie', adresse: '123 Rue K', telephone: '876876876' },
+    // Ajoute plus de clients pour tester la pagination
+  ]);
 
-  // Charger les données du formulaire depuis le localStorage
-  const loadFormStateFromLocalStorage = () => {
-    const savedFormState = localStorage.getItem('newClient');
-    return savedFormState ? JSON.parse(savedFormState) : { id: '', nom: '', prenom: '', adresse: '', telephone: '' };
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false); // Gérer l'état du modal
+  const [isEditMode, setIsEditMode] = useState(false); // Gérer le mode édition
+  const [newClient, setNewClient] = useState({
+    id: null,
+    nom: '',
+    prenom: '',
+    adresse: '',
+    telephone: ''
+  });
 
-  const [clients, setClients] = useState(loadClientsFromLocalStorage());
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [newClient, setNewClient] = useState(loadFormStateFromLocalStorage());
+  const [currentPage, setCurrentPage] = useState(1); // Page courante
+  const clientsPerPage = 8; // Nombre de clients par page
 
-  // Gestion des pages
-  const [currentPage, setCurrentPage] = useState(1);
-  const clientsPerPage = 8;
+  // Calculer l'index des premiers et derniers clients à afficher pour la pagination
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
   const currentClients = clients.slice(indexOfFirstClient, indexOfLastClient);
 
+  // Fonction pour changer de page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Page numbers pour la pagination
+  // Calculer le nombre de pages
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(clients.length / clientsPerPage); i++) {
     pageNumbers.push(i);
   }
 
-  // Ouvrir la modale pour ajouter un client
+  // Ouvrir le modal pour ajouter un client
   const handleAddClientClick = () => {
-    setIsEditMode(false);
-    const newId = clients.length ? Math.max(...clients.map(client => client.id)) + 1 : 1;
-    setNewClient({ id: newId, nom: '', prenom: '', adresse: '', telephone: '' });
+    setIsEditMode(false); // Assurer qu'on est en mode ajout
+    setNewClient({ id: null, nom: '', prenom: '', adresse: '', telephone: '' }); // Réinitialiser le formulaire
     setIsModalOpen(true);
   };
 
-  // Ouvrir la modale pour modifier un client
+  // Ouvrir le modal pour modifier un client
   const handleEditClientClick = (client) => {
-    setIsEditMode(true);
-    setNewClient(client);
+    setIsEditMode(true); // Passer en mode édition
+    setNewClient(client); // Remplir le formulaire avec les données du client sélectionné
     setIsModalOpen(true);
   };
 
-  // Fermer la modale
+  // Fermer le modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setNewClient({ nom: '', prenom: '', adresse: '', telephone: '' });
-    localStorage.removeItem('newClient'); // Réinitialiser l'état du formulaire
   };
 
-  // Sauvegarder l'état du formulaire dans le localStorage
+  // Gérer les changements dans le formulaire
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === 'telephone') {
-      let formattedValue = value.replace(/\D/g, ''); // Retirer tout sauf les chiffres
-      if (formattedValue.length > 10) {
-        formattedValue = formattedValue.slice(0, 10); // Limiter à 10 chiffres
-      }
-      formattedValue = formattedValue.replace(/(\d{2})(?=\d)/g, '$1 ').trim(); // Formater avec des espaces
-      setNewClient({
-        ...newClient,
-        [name]: formattedValue
-      });
-      localStorage.setItem('newClient', JSON.stringify({ ...newClient, [name]: formattedValue }));
-    } else {
-      setNewClient({
-        ...newClient,
-        [name]: value
-      });
-      localStorage.setItem('newClient', JSON.stringify({ ...newClient, [name]: value }));
-    }
+    setNewClient({
+      ...newClient,
+      [name]: value
+    });
   };
 
-  // Soumettre le formulaire (ajouter ou modifier un client)
+  // Soumettre le formulaire
   const handleSubmit = (e) => {
     e.preventDefault();
-    let updatedClients;
     if (isEditMode) {
-      updatedClients = clients.map(client => client.id === newClient.id ? newClient : client);
+      // Mise à jour d'un client existant
+      setClients(clients.map(client => client.id === newClient.id ? newClient : client));
     } else {
-      updatedClients = [...clients, newClient];
+      // Ajouter un nouveau client avec un ID unique
+      const newClientWithId = {
+        id: Date.now(), // Utiliser l'heure actuelle pour un ID unique
+        ...newClient
+      };
+      setClients(prevClients => [...prevClients, newClientWithId]);
     }
-    setClients(updatedClients);
-    localStorage.setItem('clients', JSON.stringify(updatedClients));
     setNewClient({ nom: '', prenom: '', adresse: '', telephone: '' });
-    localStorage.removeItem('newClient'); // Réinitialiser l'état du formulaire après soumission
-    setIsModalOpen(false);
+    setIsModalOpen(false); // Fermer le modal après soumission
   };
 
-  // Supprimer un client
+  // Supprimer un client spécifique
   const handleDeleteClient = (id) => {
-    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?");
-    if (confirmDelete) {
-      const updatedClients = clients.filter(client => client.id !== id);
-      setClients(updatedClients);
-      localStorage.setItem('clients', JSON.stringify(updatedClients));
-    }
+    setClients(clients.filter(client => client.id !== id));
   };
 
   // Supprimer tous les clients
   const handleDeleteAll = () => {
-    const confirmDeleteAll = window.confirm("Êtes-vous sûr de vouloir supprimer tous les clients ?");
-    if (confirmDeleteAll) {
-      setClients([]);
-      localStorage.removeItem('clients');
-    }
+    setClients([]); // Vide la liste des clients
   };
-
-  useEffect(() => {
-    // Lors du montage, on récupère les clients et l'état du formulaire
-    setNewClient(loadFormStateFromLocalStorage());
-  }, []);
 
   return (
     <div className="main-container2">
@@ -131,24 +112,13 @@ function MainClient() {
         <button className="delete-all-btn" onClick={handleDeleteAll}>Supprimer tout</button>
       </div>
 
+      {/* Modal Formulaire */}
       {isModalOpen && (
         <div className="modal">
           <div className="modal-content">
             <span className="close-btn" onClick={handleCloseModal}>&times;</span>
             <h3>{isEditMode ? 'Modifier un client' : 'Ajouter un client'}</h3>
             <form onSubmit={handleSubmit}>
-              {isEditMode && (
-                <div>
-                  <label>ID:</label>
-                  <input
-                    type="number"
-                    name="id"
-                    value={newClient.id}
-                    onChange={handleInputChange}
-                    readOnly
-                  />
-                </div>
-              )}
               <label>Nom:</label>
               <input
                 type="text"
@@ -167,12 +137,11 @@ function MainClient() {
               />
               <label>Numéro de téléphone:</label>
               <input
-                type="tel"
+                type="text"
                 name="telephone"
                 value={newClient.telephone}
                 onChange={handleInputChange}
                 required
-                placeholder="Ex: 06 56 62 49 81"
               />
               <label>Adresse:</label>
               <input
@@ -205,7 +174,7 @@ function MainClient() {
         <tbody>
           {currentClients.length === 0 ? (
             <tr>
-              <td colSpan="6" style={{ textAlign: 'center' }}>Aucun client ajouté</td>
+              <td colSpan="6" style={{ textAlign: 'center' }}>Aucun client disponible</td>
             </tr>
           ) : (
             currentClients.map((client) => (
@@ -216,10 +185,10 @@ function MainClient() {
                   <td>{client.prenom}</td>
                   <td>{client.adresse}</td>
                   <td>{client.telephone}</td>
-                  <td>
+                  <td className="status-column">
                     <FaEdit
                       className="action-icon edit-icon"
-                      title="Modifier"
+                      title="Éditer"
                       onClick={() => handleEditClientClick(client)}
                     />
                     <FaTrash
@@ -235,6 +204,7 @@ function MainClient() {
         </tbody>
       </table>
 
+      {/* Pagination */}
       <div className="pagination">
         <span className="page-info">
           {Math.min(indexOfLastClient, clients.length)} sur {clients.length} clients
