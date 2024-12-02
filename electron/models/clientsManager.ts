@@ -10,10 +10,10 @@ exports.getClients = (page = 1) => {
   return res;
 };
 
-exports.createClient = (name: string, email: string, phone: string) => {
-  const qry = `INSERT INTO clients (name, email, phone) VALUES (?, ?, ?)`;
+exports.createClient = (name: string, email: string, phone: string, address: string) => {
+  const qry = `INSERT INTO clients (name, email, phone, address) VALUES (?, ?, ?)`;
   const stmt = database.prepare(qry);
-  const info = stmt.run(name, email, phone);
+  const info = stmt.run(name, email, phone, address);
   return { success: true, clientId: info.lastInsertRowid };
 };
 
@@ -21,11 +21,12 @@ exports.editClient = (
   id: number,
   name: string,
   email: string,
-  phone: string
+  phone: string,
+  address: string
 ) => {
-  const qry = `UPDATE clients SET name = ?, email = ?, phone = ? WHERE id = ?`;
+  const qry = `UPDATE clients SET name = ?, email = ?, phone = ?, address = ?, WHERE id = ?`;
   const stmt = database.prepare(qry);
-  const info = stmt.run(name, email, phone, id);
+  const info = stmt.run(name, email, phone, address, id);
   if (info.changes === 0) {
     return { success: false, message: "Client not found or no changes made" };
   }

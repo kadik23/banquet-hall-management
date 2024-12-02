@@ -55,10 +55,10 @@ const {
 
 contextBridge.exposeInMainWorld("sqliteClients", {
   getClients: (page: number) => getClients(page),
-  createClient: (name: string, email: string, phone: string) =>
-    createClient(name, email, phone),
-  editClient: (id: number, name: string, email: string, phone: string) =>
-    editClient(id, name, email, phone),
+  createClient: (name: string, email: string, phone: string, address: string) =>
+    createClient(name, email, phone, address),
+  editClient: (id: number, name: string, email: string, phone: string, address: string) =>
+    editClient(id, name, email, phone, address),
   deleteClient: (id: number) => deleteClient(id),
   deleteAllClients: () => deleteAllClients(),
   searchClients: (searchItem: string,page:number) => searchClients(searchItem, page)

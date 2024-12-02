@@ -5,6 +5,7 @@ type Client = {
   name: string;
   email: string;
   phone: string;
+  address :string
 };
 
 export const getClients = (page: number = 1): Client[] => {
@@ -17,7 +18,8 @@ export const getClients = (page: number = 1): Client[] => {
 export const createClient = (
   name: string,
   email: string,
-  phone: string
+  phone: string,
+  address :string
 ): { success: boolean; clientId: number } => {
   if (typeof name !== "string" || name.trim() === "") {
     throw new Error("Invalid name. It must be a non-empty string.");
@@ -25,25 +27,32 @@ export const createClient = (
   if (typeof email !== "string" || !email.includes("@")) {
     throw new Error("Invalid email. It must be a valid email address.");
   }
+  if (typeof address !== "string" || name.trim() === "") {
+    throw new Error("Invalid email. It must be a valid email address.");
+  }
   if (typeof phone !== "string" || phone.trim().length < 8) {
     throw new Error(
       "Invalid phone number. It must be at least 8 characters long."
     );
   }
 
-  return clientMgr.createClient(name, email, phone);
+  return clientMgr.createClient(name, email, phone, address);
 };
 
 export const editClient = (
   id: number,
   name: string,
   email: string,
-  phone: string
+  phone: string,
+  address: string
 ): { success: boolean; message: string } => {
   if (typeof id !== "number" || id < 1) {
     throw new Error("Invalid ID. It must be a positive number.");
   }
   if (typeof name !== "string" || name.trim() === "") {
+    throw new Error("Invalid name. It must be a non-empty string.");
+  }
+  if (typeof address !== "string" || name.trim() === "") {
     throw new Error("Invalid name. It must be a non-empty string.");
   }
   if (typeof email !== "string" || !email.includes("@")) {
@@ -55,7 +64,7 @@ export const editClient = (
     );
   }
 
-  return clientMgr.editClient(id, name, email, phone);
+  return clientMgr.editClient(id, name, email, phone,address);
 };
 
 export const deleteClient = (
