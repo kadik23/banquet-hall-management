@@ -6,7 +6,7 @@ const database = dbmgr.db;
 exports.getPaiments = (page = 1): Paiment[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
-  const qry = `SELECT * FROM paiments LIMIT ? OFFSET ?`;
+  const qry = `SELECT * FROM payments LIMIT ? OFFSET ?`;
   const stmt = database.prepare(qry);
   const res = stmt.all(limit, offset);
   return res;
@@ -22,7 +22,7 @@ exports.createPaiment = (
   status: "waiting" | "confirmed"
 ): PaimentResponse => {
   const qry = `
-    INSERT INTO paiments 
+    INSERT INTO payments 
     (client_id, reservation_id, total_amount, amount_paid, remaining_balance, payment_date, status) 
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
@@ -67,7 +67,7 @@ exports.editPaiment = (
   }
   const setClause = keysToUpdate.map((key) => `${key} = ?`).join(", ");
   const qry = `
-      UPDATE paiments
+      UPDATE payments
       SET ${setClause} 
       WHERE id = ?
     `;
@@ -87,21 +87,56 @@ exports.editPaiment = (
 };
 
 exports.deletePaiment = (id: number): PaimentResponse => {
-  const qry = `DELETE FROM paiments WHERE id = ?`;
+  const qry = `DELETE FROM payments WHERE id = ?`;
   const stmt = database.prepare(qry);
   const info = stmt.run(id);
   if (info.changes === 0) {
-    return { success: false, message: "Paiment not found" };
+    return { success: false, message: "Payments not found" };
   }
-  return { success: true, message: "Paiment deleted successfully" };
+  return { success: true, message: "Payments deleted successfully" };
 };
 
 exports.deleteAllPaiments = (): PaimentResponse => {
-  const qry = `DELETE FROM paiments`;
+  const qry = `DELETE FROM payments`;
   const stmt = database.prepare(qry);
   const info = stmt.run();
   return {
     success: true,
-    message: `${info.changes} paiments deleted successfully`,
+    message: `${info.changes} payments deleted successfully`,
   };
+};
+
+exports.searchPayments = (searchTerm: string, page = 1) => {
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  
+  const qry = `
+    SELECT * FROM payments 
+    WHERE 
+      id = CAST(? AS INTEGER) OR
+      client_id = CAST(? AS INTEGER) OR
+      reservation_id = CAST(? AS INTEGER) OR
+      total_amount = CAST(? AS INTEGER) OR 
+      amount_paid = CAST(? AS INTEGER) OR 
+      remaining_balance = CAST(? AS INTEGER) OR 
+      payment_date LIKE ? OR
+      status LIKE ?
+    LIMIT ? OFFSET ?
+  `;
+  
+  const stmt = database.prepare(qry);
+  const res = stmt.all(
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    limit, 
+    offset
+  );
+  
+  return res;
 };

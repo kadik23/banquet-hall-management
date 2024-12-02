@@ -4,21 +4,16 @@ export const getReceipts = (page = 1) => {
   return receiptMgr.getReceipts(page);
 };
 
-export const createPaiment = (
+export const createReceipt = (
   client_id: number,
   reservation_id: number,
   paiment_id: number,
   pdf_path: string
 ) => {
-  if (
-    !client_id ||
-    !reservation_id ||
-    !paiment_id ||
-    !pdf_path
-  ) {
+  if (!client_id || !reservation_id || !paiment_id || !pdf_path) {
     return { success: false, message: "missing required data" };
   }
-  return receiptMgr.createPaiment(
+  return receiptMgr.createReceipt(
     client_id,
     reservation_id,
     paiment_id,
@@ -48,10 +43,14 @@ export const createPaiment = (
 //   );
 // };
 
-export const deletePaiment = (id: string) => {
-  return receiptMgr.deletePaiment(id);
+export const deleteReceipt = (id: string) => {
+  return receiptMgr.deleteReceipt(id);
 };
 
-export const deleteAllPaiments = () => {
-  return receiptMgr.deleteAllPaiments();
+export const deleteAllReceipts = () => {
+  return receiptMgr.deleteAllReceipts();
+};
+
+export const searchReceipts = (searchItem: string, page = 1) => {
+  return receiptMgr.searchReceipts(searchItem, page);
 };

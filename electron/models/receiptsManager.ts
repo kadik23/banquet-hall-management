@@ -29,7 +29,7 @@ exports.getReceipts = (page = 1): Receipt => {
   return res;
 };
 
-exports.createProduct = (
+exports.createReceipt = (
   client_id: number,
   reservation_id: number,
   paiment_id: number,
@@ -106,4 +106,62 @@ exports.deleteAllReceipts = (): ReceiptResponse => {
     success: true,
     message: `${info.changes} receipts deleted successfully`,
   };
+};
+
+exports.searchReceipts = (searchTerm: string, page = 1) => {
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  const qry = `
+    SELECT 
+      r.id AS receipt_id,
+      c.name,
+      c.surname,
+      res.date_reservation,
+      res.start_date,
+      p.status,
+      p.total_amount,
+      p.amount_paid,
+      p.remaining_balance,
+      r.pdf_path
+    FROM receipts r
+    JOIN clients c ON r.client_id = c.id
+    JOIN reservations res ON r.reservation_id = res.id
+    JOIN payments p ON r.payment_id = p.id
+    WHERE 
+      c.name LIKE ? OR 
+      c.surname LIKE ? OR 
+      r.id = CAST(? AS INTEGER) OR 
+      r.client_id = CAST(? AS INTEGER) OR 
+      r.reservation_id = CAST(? AS INTEGER) OR 
+      r.payment_id = CAST(? AS INTEGER) OR 
+      res.date_reservation LIKE ? OR 
+      res.start_date LIKE ? OR 
+      p.status LIKE ? OR 
+      p.total_amount = CAST(? AS REAL) OR 
+      p.amount_paid = CAST(? AS REAL) OR 
+      p.remaining_balance = CAST(? AS REAL) OR 
+      r.pdf_path LIKE ?
+    LIMIT ? OFFSET ?
+  `;
+  
+  let stmt = database.prepare(qry);
+  let res = stmt.all(
+    `%${searchTerm}%`,
+    `%${searchTerm}%`,
+    searchTerm,
+    searchTerm,
+    searchTerm,
+    searchTerm,
+    `%${searchTerm}%`,
+    `%${searchTerm}%`,
+    `%${searchTerm}%`,
+    searchTerm,
+    searchTerm,
+    searchTerm,
+    `%${searchTerm}%`,
+    limit,
+    offset
+  );
+  
+  return res;
 };

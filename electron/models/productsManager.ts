@@ -97,3 +97,34 @@ exports.deleteAllProducts = (): ProductResponse  => {
     message: `${info.changes} products deleted successfully`,
   };
 };
+
+exports.searchProducts = (searchTerm: string, page = 1) => {
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  
+  const qry = `
+    SELECT * FROM products 
+    WHERE 
+      id = CAST(? AS INTEGER) OR
+      name LIKE ? OR
+      prix = CAST(? AS INTEGER) OR
+      quantity = CAST(? AS INTEGER) OR
+      total_amount = CAST(? AS INTEGER) OR
+      status LIKE ?
+    LIMIT ? OFFSET ?
+  `;
+  
+  const stmt = database.prepare(qry);
+  const res = stmt.all(
+    searchTerm, 
+    `%${searchTerm}%`, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    `%${searchTerm}%`, 
+    limit, 
+    offset
+  );
+  
+  return res;
+};

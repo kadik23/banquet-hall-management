@@ -51,3 +51,32 @@ exports.deleteAllClients = () => {
     message: `${info.changes} clients deleted successfully`,
   };
 };
+
+exports.searchClients = (searchTerm:string, page = 1) => {
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  
+  const qry = `
+    SELECT * FROM clients 
+    WHERE 
+      id = CAST(? AS INTEGER) OR
+      name LIKE ? OR 
+      surname LIKE ? OR 
+      phone LIKE ? OR 
+      address LIKE ?
+    LIMIT ? OFFSET ?
+  `;
+  
+  const stmt = database.prepare(qry);
+  const res = stmt.all(
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    limit, 
+    offset
+  );
+  
+  return res;
+};

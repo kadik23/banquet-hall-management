@@ -122,3 +122,38 @@ exports.deleteAllReservations = (): ReservationResponse => {
     message: `${info.changes} reservations deleted successfully`,
   };
 };
+
+exports.searchReservations = (searchTerm: string, page = 1) => {
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  
+  const qry = `
+    SELECT * FROM reservations 
+    WHERE 
+      id = CAST(? AS INTEGER) OR
+      client_id = CAST(? AS INTEGER) OR
+      start_date LIKE ? OR
+      period LIKE ? OR 
+      start_hour LIKE ? OR 
+      end_hour LIKE ? OR
+      nbr_invites = CAST(? AS INTEGER) OR
+      date_reservation LIKE ?
+    LIMIT ? OFFSET ?
+  `;
+  
+  const stmt = database.prepare(qry);
+  const res = stmt.all(
+    searchTerm, 
+    searchTerm, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`,
+    searchTerm,
+    `%${searchTerm}%`,
+    limit, 
+    offset
+  );
+  
+  return res;
+};

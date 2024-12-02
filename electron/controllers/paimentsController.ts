@@ -38,12 +38,12 @@ export const createPaiment = (
 export const editPaiment = (
   id: number,
   client_id: Number | null,
-  reservation_id: number| null,
-  total_amount: number| null,
-  amount_paid: number| null,
-  remaining_balance: number| null,
-  payment_date: string| null,
-  status: "waiting" | "confirmed"| null
+  reservation_id: number | null,
+  total_amount: number | null,
+  amount_paid: number | null,
+  remaining_balance: number | null,
+  payment_date: string | null,
+  status: "waiting" | "confirmed" | null
 ) => {
   return paimentMgr.editPaiment(
     id,
@@ -53,7 +53,7 @@ export const editPaiment = (
     amount_paid,
     remaining_balance,
     payment_date,
-    status,
+    status
   );
 };
 
@@ -63,4 +63,8 @@ export const deletePaiment = (id: string) => {
 
 export const deleteAllPaiments = () => {
   return paimentMgr.deleteAllPaiments();
+};
+
+export const searchPaiments = (searchItem: string, page = 1) => {
+  return paimentMgr.searchPayments(searchItem, page);
 };

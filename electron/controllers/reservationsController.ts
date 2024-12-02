@@ -64,3 +64,7 @@ export const deleteReservation = (id: string) => {
 export const deleteAllReservations = () => {
   return reservationMgr.deleteAllReservations();
 };
+
+export const searchReservations = (searchItem: string,page = 1) => {
+  return reservationMgr.searchReservations(searchItem, page);
+};

@@ -9,15 +9,9 @@ export const createProduct = (
   unique_price: number,
   quantity: number,
   total_amount: number,
-  status: 'waiting' | 'confirmed'
+  status: "waiting" | "confirmed"
 ) => {
-  if (
-    !name ||
-    !unique_price ||
-    !quantity ||
-    !total_amount ||
-    !status
-  ) {
+  if (!name || !unique_price || !quantity || !total_amount || !status) {
     return { success: false, message: "missing required data" };
   }
   return productMgr.createProduct(
@@ -25,7 +19,7 @@ export const createProduct = (
     unique_price,
     quantity,
     total_amount,
-    status,
+    status
   );
 };
 
@@ -35,7 +29,7 @@ export const editProduct = (
   unique_price: number,
   quantity: number,
   total_amount: number,
-  status: 'waiting' | 'confirmed'
+  status: "waiting" | "confirmed"
 ) => {
   return productMgr.editProduct(
     id,
@@ -43,7 +37,7 @@ export const editProduct = (
     unique_price,
     quantity,
     total_amount,
-    status,
+    status
   );
 };
 
@@ -53,4 +47,8 @@ export const deleteProduct = (id: string) => {
 
 export const deleteAllProducts = () => {
   return productMgr.deleteAllProducts();
+};
+
+export const searchProducts = (searchItem: string, page = 1) => {
+  return productMgr.searchProducts(searchItem, page);
 };

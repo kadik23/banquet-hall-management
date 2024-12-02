@@ -6,6 +6,7 @@ const {
   editReservation,
   deleteReservation,
   deleteAllReservations,
+  searchReservations
 } = require("./controllers/reservationsController");
 
 const {
@@ -14,6 +15,7 @@ const {
   editClient,
   deleteClient,
   deleteAllClients,
+  searchClients
 } = require("./controllers/clientsController");
 
 const {
@@ -31,7 +33,8 @@ const {
   editPaiment,
   deletePaiment,
   deleteAllPaiments,
-} = require("./controllers/reservationsController");
+  searchPaiments
+} = require("./controllers/paimentsController");
 
 const {
   getProducts,
@@ -39,13 +42,15 @@ const {
   editProduct,
   deleteProduct,
   deleteAllProducts,
+  searchProducts
 } = require("./controllers/productsController");
 
 const {
   getReceipts,
   deleteReceipt,
   deleteAllReceipts,
-  createReceipt
+  createReceipt,
+  searchReceipts
 } = require("./controllers/receiptsController");
 
 contextBridge.exposeInMainWorld("sqliteClients", {
@@ -56,6 +61,7 @@ contextBridge.exposeInMainWorld("sqliteClients", {
     editClient(id, name, email, phone),
   deleteClient: (id: number) => deleteClient(id),
   deleteAllClients: () => deleteAllClients(),
+  searchClients: (searchItem: string,page:number) => searchClients(searchItem, page)
 });
 
 contextBridge.exposeInMainWorld("sqliteStatistics", {
@@ -109,6 +115,7 @@ contextBridge.exposeInMainWorld("sqliteReservation", {
     ),
   deleteReservation: (id: number) => deleteReservation(id),
   deleteAllReservations: () => deleteAllReservations(),
+  searchReservations: (searchItem: string,page:number) => searchReservations(searchItem, page)
 });
 
 contextBridge.exposeInMainWorld("sqlitePaiment", {
@@ -153,6 +160,7 @@ contextBridge.exposeInMainWorld("sqlitePaiment", {
     ),
   deletePaiment: (id: number) => deletePaiment(id),
   deleteAllPaiments: () => deleteAllPaiments(),
+  searchPaiments: (searchItem: string,page:number) => searchPaiments(searchItem, page)
 });
 
 contextBridge.exposeInMainWorld("sqliteProduct", {
@@ -174,6 +182,7 @@ contextBridge.exposeInMainWorld("sqliteProduct", {
   ) => editProduct(id, name, unique_price, quantity, total_amount, status),
   deleteProduct: (id: number) => deleteProduct(id),
   deleteAllProducts: () => deleteAllProducts(),
+  searchProducts: (searchItem: string,page:number) => searchProducts(searchItem, page)
 });
 
 contextBridge.exposeInMainWorld("sqliteReceipt", {
@@ -202,4 +211,5 @@ contextBridge.exposeInMainWorld("sqliteReceipt", {
   //   ),
   deleteReceipt: (id: number) => deleteReceipt(id),
   deleteAllReceipts: () => deleteAllReceipts(),
+  searchReceipts: (searchItem: string,page:number) => searchReceipts(searchItem, page)
 });

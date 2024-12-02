@@ -26,7 +26,9 @@ export const createClient = (
     throw new Error("Invalid email. It must be a valid email address.");
   }
   if (typeof phone !== "string" || phone.trim().length < 8) {
-    throw new Error("Invalid phone number. It must be at least 8 characters long.");
+    throw new Error(
+      "Invalid phone number. It must be at least 8 characters long."
+    );
   }
 
   return clientMgr.createClient(name, email, phone);
@@ -48,13 +50,17 @@ export const editClient = (
     throw new Error("Invalid email. It must be a valid email address.");
   }
   if (typeof phone !== "string" || phone.trim().length < 8) {
-    throw new Error("Invalid phone number. It must be at least 8 characters long.");
+    throw new Error(
+      "Invalid phone number. It must be at least 8 characters long."
+    );
   }
 
   return clientMgr.editClient(id, name, email, phone);
 };
 
-export const deleteClient = (id: number): { success: boolean; message: string } => {
+export const deleteClient = (
+  id: number
+): { success: boolean; message: string } => {
   if (typeof id !== "number" || id < 1) {
     throw new Error("Invalid ID. It must be a positive number.");
   }
@@ -63,4 +69,8 @@ export const deleteClient = (id: number): { success: boolean; message: string } 
 
 export const deleteAllClients = (): { success: boolean; message: string } => {
   return clientMgr.deleteAllClients();
+};
+
+export const searchClients = (searchItem: string, page = 1) => {
+  return clientMgr.searchClients(searchItem, page);
 };
