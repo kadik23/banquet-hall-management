@@ -4,6 +4,14 @@ export const getPaiments = (page = 1) => {
   return paimentMgr.getPaiments(page);
 };
 
+export const getWaitedPaimentsCount = () => {
+  return paimentMgr.getWaitedPaimentsCount();
+};
+
+export const getConfirmedPaimentsCount = () => {
+  return paimentMgr.getConfirmedPaimentsCount();
+};
+
 export const createPaiment = (
   client_id: number,
   reservation_id: number,

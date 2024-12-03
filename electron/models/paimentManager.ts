@@ -17,6 +17,30 @@ exports.getPaiments = (page = 1): Paiment[] => {
   return res;
 };
 
+exports.getConfirmedPaimentsCount = () => {
+  const qry = `
+   SELECT COUNT(*) as count 
+   FROM payments
+   WHERE status = 'confirmed'
+  `;
+  const countStmt = database.prepare(qry);
+  const countResult = countStmt.get();
+
+  return countResult.count;
+};
+
+exports.getWaitedPaimentsCount = () => {
+  const qry = `
+    SELECT COUNT(*) as count 
+    FROM payments 
+    WHERE status = 'waiting'
+  `;
+  const countStmt = database.prepare(qry);
+  const countResult = countStmt.get();
+
+  return countResult.count;
+};
+
 exports.createPaiment = (
   client_id: number,
   reservation_id: number,

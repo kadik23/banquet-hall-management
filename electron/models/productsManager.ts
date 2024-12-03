@@ -12,12 +12,46 @@ exports.getProducts = (page = 1): Product[] => {
   return res;
 };
 
+exports.getPaidProductsCount = () => {
+  const qry = `
+   SELECT COUNT(*) as count 
+   FROM products 
+   WHERE status = 'paid'
+  `;
+  const countStmt = database.prepare(qry);
+  const countResult = countStmt.get();
+
+  return countResult.count;
+};
+
+exports.getNotPaidProductsCount = () => {
+  const qry = `
+  SELECT COUNT(*) as count 
+  FROM products 
+  WHERE status = 'not-paid'
+ `;
+  const countStmt = database.prepare(qry);
+  const countResult = countStmt.get();
+
+  return countResult.count;
+};
+
+exports.getTotalAmount = () => {
+  const qry = `
+    SELECT SUM(total_amount) as total 
+    FROM products 
+  `;
+  const stmt = database.prepare(qry);
+  const result = stmt.get();
+  return result.total || 0;
+};
+
 exports.createProduct = (
   name: string,
   unique_price: number,
   quantity: number,
   total_amount: number,
-  status: 'waiting' | 'confirmed'
+  status: "paid" | "not-paid"
 ): ProductResponse => {
   const qry = `
     INSERT INTO products 
@@ -25,13 +59,7 @@ exports.createProduct = (
     VALUES (?, ?, ?, ?, ?)
   `;
   const stmt = database.prepare(qry);
-  const info = stmt.run(
-    name,
-    unique_price,
-    quantity,
-    total_amount,
-    status
-  );
+  const info = stmt.run(name, unique_price, quantity, total_amount, status);
   return { success: true, productId: info.lastInsertRowid };
 };
 
@@ -41,8 +69,8 @@ exports.editProduct = (
   unique_price: number,
   quantity: number,
   total_amount: number,
-  status: 'waiting' | 'confirmed'
-): ProductResponse  => {
+  status: "paid" | "not-paid"
+): ProductResponse => {
   const updates = {
     name,
     unique_price,
@@ -78,7 +106,7 @@ exports.editProduct = (
   return { success: true, message: "Product updated successfully" };
 };
 
-exports.deleteProduct = (id: number): ProductResponse  => {
+exports.deleteProduct = (id: number): ProductResponse => {
   const qry = `DELETE FROM products WHERE id = ?`;
   const stmt = database.prepare(qry);
   const info = stmt.run(id);
@@ -88,7 +116,7 @@ exports.deleteProduct = (id: number): ProductResponse  => {
   return { success: true, message: "Product deleted successfully" };
 };
 
-exports.deleteAllProducts = (): ProductResponse  => {
+exports.deleteAllProducts = (): ProductResponse => {
   const qry = `DELETE FROM products`;
   const stmt = database.prepare(qry);
   const info = stmt.run();
@@ -101,7 +129,7 @@ exports.deleteAllProducts = (): ProductResponse  => {
 exports.searchProducts = (searchTerm: string, page = 1) => {
   const limit = 10;
   const offset = (page - 1) * limit;
-  
+
   const qry = `
     SELECT * FROM products 
     WHERE 
@@ -113,18 +141,18 @@ exports.searchProducts = (searchTerm: string, page = 1) => {
       status LIKE ?
     LIMIT ? OFFSET ?
   `;
-  
+
   const stmt = database.prepare(qry);
   const res = stmt.all(
-    searchTerm, 
-    `%${searchTerm}%`, 
-    searchTerm, 
-    searchTerm, 
-    searchTerm, 
-    `%${searchTerm}%`, 
-    limit, 
+    searchTerm,
+    `%${searchTerm}%`,
+    searchTerm,
+    searchTerm,
+    searchTerm,
+    `%${searchTerm}%`,
+    limit,
     offset
   );
-  
+
   return res;
 };

@@ -4,12 +4,24 @@ export const getProducts = (page = 1) => {
   return productMgr.getProducts(page);
 };
 
+export const getPaidProductsCount = () => {
+  return productMgr.getPaidProductsCount();
+};
+
+export const getNotPaidProductsCount = () => {
+  return productMgr.getNotPaidProductsCount();
+};
+
+export const getTotalAmount = () => {
+  return productMgr.getTotalAmount();
+};
+
 export const createProduct = (
   name: string,
   unique_price: number,
   quantity: number,
   total_amount: number,
-  status: "waiting" | "confirmed"
+  status: 'paid' | 'not-paid'
 ) => {
   if (!name || !unique_price || !quantity || !total_amount || !status) {
     return { success: false, message: "missing required data" };
@@ -29,7 +41,7 @@ export const editProduct = (
   unique_price: number,
   quantity: number,
   total_amount: number,
-  status: "waiting" | "confirmed"
+  status: 'paid' | 'not-paid'
 ) => {
   return productMgr.editProduct(
     id,

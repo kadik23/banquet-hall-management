@@ -33,7 +33,9 @@ const {
   editPaiment,
   deletePaiment,
   deleteAllPaiments,
-  searchPaiments
+  searchPaiments,
+  getConfirmedPaimentsCount,
+  getWaitedPaimentsCount
 } = require("./controllers/paimentsController");
 
 const {
@@ -42,7 +44,10 @@ const {
   editProduct,
   deleteProduct,
   deleteAllProducts,
-  searchProducts
+  searchProducts,
+  getPaidProductsCount,
+  getNotPaidProductsCount,
+  getTotalAmount
 } = require("./controllers/productsController");
 
 const {
@@ -120,6 +125,8 @@ contextBridge.exposeInMainWorld("sqliteReservation", {
 
 contextBridge.exposeInMainWorld("sqlitePaiment", {
   getPaiments: (page: number) => getPaiments(page),
+  getConfirmedPaimentsCount: () => getConfirmedPaimentsCount(),
+  getWaitedPaimentsCount: () => getWaitedPaimentsCount(),
   createPaiment: (
     client_id: number,
     reservation_id: number,
@@ -165,12 +172,15 @@ contextBridge.exposeInMainWorld("sqlitePaiment", {
 
 contextBridge.exposeInMainWorld("sqliteProduct", {
   getProducts: (page: number) => getProducts(page),
+  getPaidProductsCount: () => getPaidProductsCount(),
+  getNotPaidProductsCount: () => getNotPaidProductsCount(),
+  getTotalAmount: () => getTotalAmount(),
   createProduct: (
     name: string,
     unique_price: number,
     quantity: number,
     total_amount: number,
-    status: "waiting" | "confirmed"
+    status: 'paid' | 'not-paid'
   ) => createProduct(name, unique_price, quantity, total_amount, status),
   editProduct: (
     id: number,
@@ -178,7 +188,7 @@ contextBridge.exposeInMainWorld("sqliteProduct", {
     unique_price: number,
     quantity: number,
     total_amount: number,
-    status: "waiting" | "confirmed"
+    status: 'paid' | 'not-paid'
   ) => editProduct(id, name, unique_price, quantity, total_amount, status),
   deleteProduct: (id: number) => deleteProduct(id),
   deleteAllProducts: () => deleteAllProducts(),

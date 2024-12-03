@@ -65,7 +65,7 @@ const createTables = () => {
         prix INTEGER NOT NULL,
         quantity INTEGER NOT NULL,
         total_amount INTEGER NOT NULL,
-        status TEXT NOT NULL CHECK (status IN ('waiting', 'confirmed'))
+        status TEXT NOT NULL CHECK (status IN ('paid', 'not-paid'))
       );
     `;
 
