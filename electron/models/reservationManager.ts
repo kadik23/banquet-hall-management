@@ -6,7 +6,12 @@ const database = dbmgr.db;
 exports.getReservations = (page = 1): Reservation[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
-  const qry = `SELECT * FROM reservations LIMIT ? OFFSET ?`;
+  const qry = `
+    SELECT r.*, c.name, c.surname 
+    FROM reservations r
+    JOIN clients c ON r.client_id = c.id
+    LIMIT ? OFFSET ?
+  `;
   const stmt = database.prepare(qry);
   const res = stmt.all(limit, offset);
   return res;

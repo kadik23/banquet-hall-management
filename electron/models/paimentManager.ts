@@ -6,7 +6,12 @@ const database = dbmgr.db;
 exports.getPaiments = (page = 1): Paiment[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
-  const qry = `SELECT * FROM payments LIMIT ? OFFSET ?`;
+  const qry = `
+    SELECT p.*, c.name, c.surname 
+    FROM payments p
+    JOIN clients c ON p.client_id = c.id
+    LIMIT ? OFFSET ?
+  `; 
   const stmt = database.prepare(qry);
   const res = stmt.all(limit, offset);
   return res;
