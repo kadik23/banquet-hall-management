@@ -93,17 +93,17 @@ function MainProduit() {
   }, []);
 
   // Fonction pour formater la date en format européen
-  const formatDate = (date) => {
+  const formatDate = (date:Date) => {
     const dateObj = new Date(date);
     return dateObj.toLocaleDateString('fr-FR'); // Format jour/mois/année
   };
 
-  const handleFilterDateChange = (e) => {
+  const handleFilterDateChange = (e:any) => {
     setSelectedDate(e.target.value);
     setCurrentPage(1);
   };
 
-  const handleStatusChange = (e) => {
+  const handleStatusChange = (e:any) => {
     setSelectedStatus(e.target.value);
     setCurrentPage(1);
   };
@@ -122,7 +122,7 @@ function MainProduit() {
     setIsModalOpen(true);
   };
 
-  const handleEditProductClick = (product) => {
+  const handleEditProductClick = (product:any) => {
     setIsEditMode(true);
     setNewProduct(product);
     setIsModalOpen(true);
@@ -132,7 +132,7 @@ function MainProduit() {
     setIsModalOpen(false);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:any) => {
     const { name, value } = e.target;
     setNewProduct({
       ...newProduct,
@@ -140,7 +140,7 @@ function MainProduit() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
     const newProductWithId = { ...newProduct, id: Date.now() };
     const updatedProducts = {
@@ -151,7 +151,7 @@ function MainProduit() {
     setIsModalOpen(false);
   };
 
-  const handleDeleteProduct = (id) => {
+  const handleDeleteProduct = (id:any) => {
     const updatedProducts = {
       ...productsByDate,
       [selectedDate]: productsByDate[selectedDate].filter(product => product.id !== id)
@@ -168,7 +168,7 @@ function MainProduit() {
   };
 
   const currentProducts = productsByDate[selectedDate] || [];
-  const filteredProducts = currentProducts.filter((product) => {
+  const filteredProducts = currentProducts.filter((product:any) => {
     if (selectedStatus && product.statut !== selectedStatus) {
       return false;
     }
@@ -185,13 +185,13 @@ function MainProduit() {
     pageNumbers.push(i);
   }
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
 
   // Calcul des soldes
-  const totalPaid = filteredProducts.filter(product => product.statut === 'Payé')
-    .reduce((sum, product) => sum + parseFloat(product.montantTotal), 0);
-  const totalRemaining = filteredProducts.filter(product => product.statut === 'Non payé')
-    .reduce((sum, product) => sum + parseFloat(product.montantTotal), 0);
+  const totalPaid = filteredProducts.filter((product:any) => product.statut === 'Payé')
+    .reduce((sum:any, product:any) => sum + parseFloat(product.montantTotal), 0);
+  const totalRemaining = filteredProducts.filter((product:any) => product.statut === 'Non payé')
+    .reduce((sum:any, product:any) => sum + parseFloat(product.montantTotal), 0);
   const total = totalPaid + totalRemaining;
 
   return (
@@ -321,10 +321,10 @@ function MainProduit() {
         <tbody>
           {displayedProducts.length === 0 ? (
             <tr>
-              <td colSpan="7" style={{ textAlign: 'center' }}>Aucun produit trouvé</td>
+              <td colSpan={7} style={{ textAlign: 'center' }}>Aucun produit trouvé</td>
             </tr>
           ) : (
-            displayedProducts.map((product) => (
+            displayedProducts.map((product:any) => (
               <tr key={product.id}>
                 <td>{product.id}</td>
                 <td>{product.nom}</td>

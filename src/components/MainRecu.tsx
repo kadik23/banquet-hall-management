@@ -18,7 +18,7 @@ function MainRecu() {
   const currentRecus = recus.slice(indexOfFirstRecu, indexOfLastRecu);
   const pageNumbers = Array.from({ length: Math.ceil(recus.length / recusPerPage) }, (_, i) => i + 1);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const handleAddModalitesClick = () => {
     setIsModalOpen(true);
@@ -28,14 +28,14 @@ function MainRecu() {
     setIsModalOpen(false);
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
       setModalitesFile(file);
     }
   };
 
-  const handleSaveFile = (e) => {
+  const handleSaveFile = (e: any) => {
     e.preventDefault();
     // Sauvegarder le fichier ou faire l'action désirée
     alert('Le fichier a été enregistré');
@@ -53,7 +53,7 @@ function MainRecu() {
     }
   };
 
-  const handlePrintRecu = (recu) => {
+  const handlePrintRecu = (recu: any) => {
     const printWindow = window.open('', '_blank');
     const content = `
       <html>
@@ -91,10 +91,10 @@ function MainRecu() {
         </body>
       </html>
     `;
-    printWindow.document.open();
-    printWindow.document.write(content);
-    printWindow.document.close();
-    printWindow.print();
+    printWindow?.document.open();
+    printWindow?.document.write(content);
+    printWindow?.document.close();
+    printWindow?.print();
   };
 
   return (
@@ -165,7 +165,7 @@ function MainRecu() {
         <tbody>
           {currentRecus.length === 0 ? (
             <tr>
-              <td colSpan="10" style={{ textAlign: 'center' }}>Aucun reçu disponible</td>
+              <td colSpan={10} style={{ textAlign: 'center' }}>Aucun reçu disponible</td>
             </tr>
           ) : (
             currentRecus.map((recu) => (

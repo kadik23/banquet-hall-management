@@ -146,7 +146,7 @@ function MainPaiement() {
   const indexOfLastPayment = currentPage * paymentsPerPage;
   const indexOfFirstPayment = indexOfLastPayment - paymentsPerPage;
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = (e:any) => {
     setFilter(e.target.value);
     setCurrentPage(1);
   };
@@ -157,7 +157,7 @@ function MainPaiement() {
 
   const currentPayments = filteredPayments.slice(indexOfFirstPayment, indexOfLastPayment);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
 
   const handleAddPaymentClick = () => {
     setIsEditMode(false);
@@ -174,7 +174,7 @@ function MainPaiement() {
     setIsModalOpen(true);
   };
 
-  const handleEditPaymentClick = (payment) => {
+  const handleEditPaymentClick = (payment:any) => {
     setIsEditMode(true);
     setNewPayment(payment);
     setIsModalOpen(true);
@@ -184,7 +184,7 @@ function MainPaiement() {
     setIsModalOpen(false);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:any) => {
     const { name, value } = e.target;
     setNewPayment({
       ...newPayment,
@@ -192,10 +192,10 @@ function MainPaiement() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
     if (isEditMode) {
-      setPayments(payments.map(payment => payment.id === newPayment.id ? newPayment : payment));
+      setPayments(payments.map((payment:any) => payment.id === newPayment.id ? newPayment : payment));
     } else {
       const newPaymentWithId = { id: Date.now(), ...newPayment };
       setPayments([...payments, newPaymentWithId]);
@@ -203,7 +203,7 @@ function MainPaiement() {
     setIsModalOpen(false);
   };
 
-  const handleDeletePayment = (id) => {
+  const handleDeletePayment = (id:number) => {
     setPayments(payments.filter(payment => payment.id !== id));
   };
 
@@ -328,7 +328,7 @@ function MainPaiement() {
         <tbody>
           {currentPayments.length === 0 ? (
             <tr>
-              <td colSpan="9" style={{ textAlign: 'center' }}>Aucun paiement disponible</td>
+              <td colSpan={9} style={{ textAlign: 'center' }}>Aucun paiement disponible</td>
             </tr>
           ) : (
             currentPayments.map((payment) => (

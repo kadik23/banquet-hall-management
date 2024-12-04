@@ -11,7 +11,7 @@ import {
 } from 'react-icons/bs';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-function Sidebar({ openSidebarToggle, openSidebar, onLogout }) {
+function Sidebar({ openSidebarToggle, openSidebar, onLogout }:any) {
   const navigate = useNavigate();
   const location = useLocation();  // Utiliser useLocation pour obtenir l'URL actuelle
 

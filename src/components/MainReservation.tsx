@@ -56,7 +56,7 @@ function MainReservation() {
     new Date(res.dateDebut.split('-').reverse().join('-'))
   );
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
 
   const handleAddReservationClick = () => {
     setIsEditMode(false);
@@ -74,7 +74,7 @@ function MainReservation() {
     setIsModalOpen(true);
   };
 
-  const handleEditReservationClick = (reservation) => {
+  const handleEditReservationClick = (reservation:any) => {
     setIsEditMode(true);
     setNewReservation(reservation);
     setStartDate(new Date(reservation.dateDebut.split('-').reverse().join('-')));
@@ -85,7 +85,7 @@ function MainReservation() {
     setIsModalOpen(false);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:any) => {
     const { name, value } = e.target;
     setNewReservation({
       ...newReservation,
@@ -93,7 +93,7 @@ function MainReservation() {
     });
   };
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date:any) => {
     setStartDate(date);
     setNewReservation({
       ...newReservation,
@@ -101,7 +101,7 @@ function MainReservation() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
     if (isEditMode) {
       setReservations(
@@ -114,7 +114,7 @@ function MainReservation() {
         id: Date.now(),
         ...newReservation,
       };
-      setReservations((prevReservations) => [
+      setReservations((prevReservations:any) => [
         ...prevReservations,
         newReservationWithId,
       ]);
@@ -131,7 +131,7 @@ function MainReservation() {
     setIsModalOpen(false);
   };
 
-  const handleDeleteReservation = (id) => {
+  const handleDeleteReservation = (id:any) => {
     setReservations(reservations.filter((reservation) => reservation.id !== id));
   };
 
@@ -139,7 +139,7 @@ function MainReservation() {
     setReservations([]);
   };
 
-  const dayClassName = (date) => {
+  const dayClassName = (date:Date) => {
     if (reservedDates.some((reservedDate) => reservedDate.getTime() === date.getTime())) {
       return 'reserved-date'; // Classe pour dates réservées
     }
@@ -265,7 +265,7 @@ function MainReservation() {
   <tbody>
     {currentReservations.length === 0 ? (
       <tr>
-        <td colSpan="9" style={{ textAlign: 'center' }}>
+        <td colSpan={9} style={{ textAlign: 'center' }}>
           Aucune réservation disponible
         </td>
       </tr>
@@ -290,7 +290,7 @@ function MainReservation() {
                     <FaTrash
                       className="action-icon delete-icon"
                       title="Supprimer"
-                      onClick={() => handleDeleteClient(client.id)}
+                      // onClick={() => handleDeleteClient(client.id)}
                     />
             </td>
           </tr>

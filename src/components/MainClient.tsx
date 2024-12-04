@@ -26,7 +26,7 @@ function MainClient() {
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
   const currentClients = clients.slice(indexOfFirstClient, indexOfLastClient);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   // Page numbers pour la pagination
   const pageNumbers = [];
@@ -37,13 +37,13 @@ function MainClient() {
   // Ouvrir la modale pour ajouter un client
   const handleAddClientClick = () => {
     setIsEditMode(false);
-    const newId = clients.length ? Math.max(...clients.map(client => client.id)) + 1 : 1;
+    const newId = clients.length ? Math.max(...clients.map((client:any) => client.id)) + 1 : 1;
     setNewClient({ id: newId, nom: '', prenom: '', adresse: '', telephone: '' });
     setIsModalOpen(true);
   };
 
   // Ouvrir la modale pour modifier un client
-  const handleEditClientClick = (client) => {
+  const handleEditClientClick = (client:any) => {
     setIsEditMode(true);
     setNewClient(client);
     setIsModalOpen(true);
@@ -57,7 +57,7 @@ function MainClient() {
   };
 
   // Sauvegarder l'état du formulaire dans le localStorage
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     const { name, value } = e.target;
 
     if (name === 'telephone') {
@@ -81,11 +81,11 @@ function MainClient() {
   };
 
   // Soumettre le formulaire (ajouter ou modifier un client)
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
     let updatedClients;
     if (isEditMode) {
-      updatedClients = clients.map(client => client.id === newClient.id ? newClient : client);
+      updatedClients = clients.map((client:any) => client.id === newClient.id ? newClient : client);
     } else {
       updatedClients = [...clients, newClient];
     }
@@ -97,10 +97,10 @@ function MainClient() {
   };
 
   // Supprimer un client
-  const handleDeleteClient = (id) => {
+  const handleDeleteClient = (id:number) => {
     const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?");
     if (confirmDelete) {
-      const updatedClients = clients.filter(client => client.id !== id);
+      const updatedClients = clients.filter((client:any) => client.id !== id);
       setClients(updatedClients);
       localStorage.setItem('clients', JSON.stringify(updatedClients));
     }
@@ -205,10 +205,10 @@ function MainClient() {
         <tbody>
           {currentClients.length === 0 ? (
             <tr>
-              <td colSpan="6" style={{ textAlign: 'center' }}>Aucun client ajouté</td>
+              <td colSpan={6} style={{ textAlign: 'center' }}>Aucun client ajouté</td>
             </tr>
           ) : (
-            currentClients.map((client) => (
+            currentClients.map((client:any) => (
               <React.Fragment key={client.id}>
                 <tr>
                   <td>{client.id}</td>
