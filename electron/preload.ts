@@ -1,33 +1,33 @@
-const { contextBridge } = require("electron");
+import { contextBridge, ipcRenderer } from "electron";
 
-const {
+import {
   getReservations,
   createReservation,
   editReservation,
   deleteReservation,
   deleteAllReservations,
   searchReservations
-} = require("./controllers/reservationsController");
+} from "./controllers/reservationsController";
 
-const {
+import {
   getClients,
   createClient,
   editClient,
   deleteClient,
   deleteAllClients,
   searchClients
-} = require("./controllers/clientsController");
+} from "./controllers/clientsController";
 
-const {
+import {
   getNumClients,
   getNumReservation,
   getNumPendingPayments,
   getNumConfirmPayments,
   getNumReceipts,
   getNumProducts,
-} = require("./controllers/statisticsController");
+} from "./controllers/statisticsController";
 
-const {
+import {
   getPaiments,
   createPaiment,
   editPaiment,
@@ -36,9 +36,9 @@ const {
   searchPaiments,
   getConfirmedPaimentsCount,
   getWaitedPaimentsCount
-} = require("./controllers/paimentsController");
+} from "./controllers/paimentsController";
 
-const {
+import {
   getProducts,
   createProduct,
   editProduct,
@@ -48,22 +48,27 @@ const {
   getPaidProductsCount,
   getNotPaidProductsCount,
   getTotalAmount
-} = require("./controllers/productsController");
+} from "./controllers/productsController";
 
-const {
+import {
   getReceipts,
   deleteReceipt,
   deleteAllReceipts,
   createReceipt,
   searchReceipts
-} = require("./controllers/receiptsController");
+} from "./controllers/receiptsController";
+
+contextBridge.exposeInMainWorld("electron", {
+  send: (channel: string, data: any) => ipcRenderer.send(channel, data),
+  receive: (channel: string, callback: (arg0: any) => void) => ipcRenderer.on(channel, (event, ...args) => callback(...args)),
+});
 
 contextBridge.exposeInMainWorld("sqliteClients", {
   getClients: (page: number) => getClients(page),
-  createClient: (name: string, email: string, phone: string, address: string) =>
-    createClient(name, email, phone, address),
-  editClient: (id: number, name: string, email: string, phone: string, address: string) =>
-    editClient(id, name, email, phone, address),
+  createClient: (name: string, surname: string, phone: string, address: string) =>
+    createClient(name, surname, phone, address),
+  editClient: (id: number, name: string, surname: string, phone: string, address: string) =>
+    editClient(id, name, surname, phone, address),
   deleteClient: (id: number) => deleteClient(id),
   deleteAllClients: () => deleteAllClients(),
   searchClients: (searchItem: string,page:number) => searchClients(searchItem, page)
@@ -81,7 +86,7 @@ contextBridge.exposeInMainWorld("sqliteStatistics", {
 contextBridge.exposeInMainWorld("sqliteReservation", {
   getReservations: (page: number) => getReservations(page),
   createReservation: (
-    client_id: Number,
+    client_id: number,
     start_date: string,
     period: "morning" | "evening",
     start_hour: string,
@@ -100,7 +105,7 @@ contextBridge.exposeInMainWorld("sqliteReservation", {
     ),
   editReservation: (
     id: number,
-    client_id: Number,
+    client_id: number,
     start_date: string,
     period: "morning" | "evening",
     start_hour: string,
@@ -147,7 +152,7 @@ contextBridge.exposeInMainWorld("sqlitePaiment", {
     ),
   editPaiment: (
     id: number,
-    client_id: Number,
+    client_id: number,
     reservation_id: number,
     total_amount: number,
     amount_paid: number,
@@ -221,5 +226,9 @@ contextBridge.exposeInMainWorld("sqliteReceipt", {
   //   ),
   deleteReceipt: (id: number) => deleteReceipt(id),
   deleteAllReceipts: () => deleteAllReceipts(),
-  searchReceipts: (searchItem: string,page:number) => searchReceipts(searchItem, page)
+  searchReceipts: (searchItem: string,page:number) => searchReceipts(searchItem, page),   
+  uploadPDF: (pdfData: File, client_id: number,
+    reservation_id: number,
+    paiment_id: number,) =>
+    ipcRenderer.invoke("uploadPDF", pdfData, client_id, reservation_id, paiment_id),
 });

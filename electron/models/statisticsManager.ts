@@ -1,7 +1,6 @@
-const dbmgr = require("./dbManager");
-const database = dbmgr.db;
+import {db as database} from "./dbManager";
 
-exports.getNumClients = () => {
+export const getNumClients = () => {
   try {
     const qry = "SELECT COUNT(*) AS count FROM clients;";
     const result = database.prepare(qry).get();
@@ -12,7 +11,7 @@ exports.getNumClients = () => {
   }
 };
 
-exports.getNumReservation = () => {
+export const getNumReservation = () => {
   try {
     const qry = "SELECT COUNT(*) AS count FROM reservation;";
     const result = database.prepare(qry).get();
@@ -23,7 +22,7 @@ exports.getNumReservation = () => {
   }
 };
 
-exports.getNumPendingPayments = () => {
+export const getNumPendingPayments = () => {
   try {
     const qry =
       "SELECT COUNT(*) AS count FROM payments WHERE status = 'pending';";
@@ -35,7 +34,7 @@ exports.getNumPendingPayments = () => {
   }
 };
 
-exports.getNumConfirmPayments = () => {
+export const getNumConfirmPayments = () => {
   try {
     const qry =
       "SELECT COUNT(*) AS count FROM payments WHERE status = 'confirmed';";
@@ -47,7 +46,7 @@ exports.getNumConfirmPayments = () => {
   }
 };
 
-exports.getNumReceipts = () => {
+export const getNumReceipts = () => {
   try {
     const qry = "SELECT COUNT(*) AS count FROM receipts;";
     const result = database.prepare(qry).get();
@@ -58,7 +57,7 @@ exports.getNumReceipts = () => {
   }
 };
 
-exports.getNumProducts = () => {
+export const getNumProducts = () => {
   try {
     const qry = "SELECT COUNT(*) AS count FROM products;";
     const result = database.prepare(qry).get();
@@ -67,4 +66,144 @@ exports.getNumProducts = () => {
     console.error("Error fetching receipts count:", error);
     return 0;
   }
+};
+
+export const globalSearch = (searchTerm: string, page = 1) => {
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  
+  const qry = `
+    SELECT 'clients' as table_name, id, name, surname, phone, address, NULL as extra 
+    FROM clients 
+    WHERE 
+      name LIKE ? OR 
+      surname LIKE ? OR 
+      phone LIKE ? OR 
+      address LIKE ? OR 
+      id = CAST(? AS INTEGER)
+    
+    UNION ALL
+    
+    SELECT 'reservations' as table_name, id, 
+      CAST(client_id AS TEXT) as client_id, 
+      start_date, 
+      period, 
+      start_hour, 
+      end_hour, 
+      CAST(nbr_invites AS TEXT) as nbr_invites
+    FROM reservations 
+    WHERE 
+      id = CAST(? AS INTEGER) OR
+      client_id = CAST(? AS INTEGER) OR
+      start_date LIKE ? OR
+      period LIKE ? OR 
+      start_hour LIKE ? OR 
+      end_hour LIKE ? OR
+      nbr_invites = CAST(? AS INTEGER)
+    
+    UNION ALL
+    
+    SELECT 'payments' as table_name, id, 
+      CAST(client_id AS TEXT) as client_id, 
+      CAST(reservation_id AS TEXT) as reservation_id, 
+      CAST(total_amount AS TEXT) as total_amount, 
+      CAST(amount_paid AS TEXT) as amount_paid, 
+      CAST(remaining_balance AS TEXT) as remaining_balance, 
+      payment_date, 
+      status
+    FROM payments 
+    WHERE 
+      id = CAST(? AS INTEGER) OR
+      client_id = CAST(? AS INTEGER) OR
+      reservation_id = CAST(? AS INTEGER) OR
+      total_amount = CAST(? AS INTEGER) OR 
+      amount_paid = CAST(? AS INTEGER) OR 
+      remaining_balance = CAST(? AS INTEGER) OR 
+      payment_date LIKE ? OR
+      status LIKE ?
+    
+    UNION ALL
+    
+    SELECT 'products' as table_name, id, 
+      name, 
+      CAST(prix AS TEXT) as prix, 
+      CAST(quantity AS TEXT) as quantity, 
+      CAST(total_amount AS TEXT) as total_amount, 
+      status
+    FROM products 
+    WHERE 
+      id = CAST(? AS INTEGER) OR
+      name LIKE ? OR
+      prix = CAST(? AS INTEGER) OR
+      quantity = CAST(? AS INTEGER) OR
+      total_amount = CAST(? AS INTEGER) OR
+      status LIKE ?
+    
+    UNION ALL
+    
+    SELECT 'receipts' as table_name, id, 
+      CAST(client_id AS TEXT) as client_id, 
+      CAST(reservation_id AS TEXT) as reservation_id, 
+      CAST(payment_id AS TEXT) as payment_id, 
+      pdf_path, 
+      NULL as extra
+    FROM receipts 
+    WHERE 
+      id = CAST(? AS INTEGER) OR
+      client_id = CAST(? AS INTEGER) OR
+      reservation_id = CAST(? AS INTEGER) OR
+      payment_id = CAST(? AS INTEGER) OR
+      pdf_path LIKE ?
+    
+    LIMIT ? OFFSET ?
+  `;
+  
+  const stmt = database.prepare(qry);
+  const res = stmt.all(
+    // Clients
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    searchTerm,
+    
+    // Reservations
+    searchTerm, 
+    searchTerm, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`,
+    searchTerm,
+    
+    // Payments
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    `%${searchTerm}%`, 
+    `%${searchTerm}%`,
+    
+    // Products
+    searchTerm, 
+    `%${searchTerm}%`, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    `%${searchTerm}%`,
+    
+    // Receipts
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    searchTerm, 
+    `%${searchTerm}%`,
+    
+    limit, 
+    offset
+  );
+  
+  return res;
 };

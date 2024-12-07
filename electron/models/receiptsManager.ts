@@ -1,9 +1,8 @@
 import { Receipt, ReceiptResponse } from "../types";
 
-const dbmgr = require("./dbManager");
-const database = dbmgr.db;
+import {db as database} from "./dbManager";
 
-exports.getReceipts = (page = 1): Receipt => {
+export const getReceipts = (page = 1): Receipt[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `
@@ -25,11 +24,11 @@ exports.getReceipts = (page = 1): Receipt => {
     LIMIT ? OFFSET ?;
   `;
   let stmt = database.prepare(qry);
-  let res = stmt.all(limit, offset);
+  let res = stmt.all(limit, offset) as Receipt[];
   return res;
 };
 
-exports.createReceipt = (
+export const createReceipt = (
   client_id: number,
   reservation_id: number,
   paiment_id: number,
@@ -45,7 +44,7 @@ exports.createReceipt = (
   return { success: true, receiptId: receiptStmt.lastInsertRowid };
 };
 
-// exports.editProduct = (
+// export const editProduct = (
 //   id: number,
 //   name: string,
 //   unique_price: number,
@@ -88,7 +87,7 @@ exports.createReceipt = (
 //   return { success: true, message: "Product updated successfully" };
 // };
 
-exports.deleteReceipt = (id: number): ReceiptResponse => {
+export const deleteReceipt = (id: number): ReceiptResponse => {
   const qry = `DELETE FROM receipts WHERE id = ?`;
   let stmt = database.prepare(qry);
   let info = stmt.run(id);
@@ -98,7 +97,7 @@ exports.deleteReceipt = (id: number): ReceiptResponse => {
   return { success: true, message: "Receipt deleted successfully" };
 };
 
-exports.deleteAllReceipts = (): ReceiptResponse => {
+export const deleteAllReceipts = (): ReceiptResponse => {
   const qry = `DELETE FROM receipts`;
   let stmt = database.prepare(qry);
   let info = stmt.run();
@@ -108,7 +107,7 @@ exports.deleteAllReceipts = (): ReceiptResponse => {
   };
 };
 
-exports.searchReceipts = (searchTerm: string, page = 1) => {
+export const searchReceipts = (searchTerm: string, page = 1) => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `

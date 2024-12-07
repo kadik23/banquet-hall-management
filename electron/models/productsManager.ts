@@ -1,18 +1,17 @@
 import { Product, ProductResponse } from "../types";
 
-const dbmgr = require("./dbManager");
-const database = dbmgr.db;
+import {db as database} from "./dbManager";
 
-exports.getProducts = (page = 1): Product[] => {
+export const getProducts = (page = 1): Product[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `SELECT * FROM products LIMIT ? OFFSET ?`;
   const stmt = database.prepare(qry);
-  const res = stmt.all(limit, offset);
+  const res = stmt.all(limit, offset) as Product[];
   return res;
 };
 
-exports.getPaidProductsCount = () => {
+export const getPaidProductsCount = () => {
   const qry = `
    SELECT COUNT(*) as count 
    FROM products 
@@ -24,7 +23,7 @@ exports.getPaidProductsCount = () => {
   return countResult.count;
 };
 
-exports.getNotPaidProductsCount = () => {
+export const getNotPaidProductsCount = () => {
   const qry = `
   SELECT COUNT(*) as count 
   FROM products 
@@ -36,7 +35,7 @@ exports.getNotPaidProductsCount = () => {
   return countResult.count;
 };
 
-exports.getTotalAmount = () => {
+export const getTotalAmount = () => {
   const qry = `
     SELECT SUM(total_amount) as total 
     FROM products 
@@ -46,7 +45,7 @@ exports.getTotalAmount = () => {
   return result.total || 0;
 };
 
-exports.createProduct = (
+export const createProduct = (
   name: string,
   unique_price: number,
   quantity: number,
@@ -63,7 +62,7 @@ exports.createProduct = (
   return { success: true, productId: info.lastInsertRowid };
 };
 
-exports.editProduct = (
+export const editProduct = (
   id: number,
   name: string,
   unique_price: number,
@@ -106,7 +105,7 @@ exports.editProduct = (
   return { success: true, message: "Product updated successfully" };
 };
 
-exports.deleteProduct = (id: number): ProductResponse => {
+export const deleteProduct = (id: number): ProductResponse => {
   const qry = `DELETE FROM products WHERE id = ?`;
   const stmt = database.prepare(qry);
   const info = stmt.run(id);
@@ -116,7 +115,7 @@ exports.deleteProduct = (id: number): ProductResponse => {
   return { success: true, message: "Product deleted successfully" };
 };
 
-exports.deleteAllProducts = (): ProductResponse => {
+export const deleteAllProducts = (): ProductResponse => {
   const qry = `DELETE FROM products`;
   const stmt = database.prepare(qry);
   const info = stmt.run();
@@ -126,7 +125,7 @@ exports.deleteAllProducts = (): ProductResponse => {
   };
 };
 
-exports.searchProducts = (searchTerm: string, page = 1) => {
+export const searchProducts = (searchTerm: string, page = 1) => {
   const limit = 10;
   const offset = (page - 1) * limit;
 

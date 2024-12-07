@@ -1,9 +1,8 @@
 import { Reservation, ReservationResponse } from "../types";
 
-const dbmgr = require("./dbManager");
-const database = dbmgr.db;
+import { db as database } from "./dbManager";
 
-exports.getReservations = (page = 1): Reservation[] => {
+export const getReservations = (page = 1): Reservation[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `
@@ -13,41 +12,41 @@ exports.getReservations = (page = 1): Reservation[] => {
     LIMIT ? OFFSET ?
   `;
   const stmt = database.prepare(qry);
-  const res = stmt.all(limit, offset);
+  const res = stmt.all(limit, offset) as Reservation[];
   return res;
 };
 
-exports.createReservation = (
+export const createReservation = (
   client_id: number,
   start_date: string,
   period: "morning" | "evening",
   start_hour: string,
   end_hour: string,
   nbr_invites: number,
-  date_reservation: string,
+  date_reservation: string
 ): { success: boolean; reservationId?: number; message?: string } => {
   try {
     let reservationId: number | undefined;
 
-      const reservationQuery = `
+    const reservationQuery = `
         INSERT INTO reservations 
         (client_id, start_date, period, start_hour, end_hour, nbr_invites, date_reservation) 
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
-      const reservationStmt = database.prepare(reservationQuery);
-      const reservationInfo = reservationStmt.run(
-        client_id,
-        start_date,
-        period,
-        start_hour,
-        end_hour,
-        nbr_invites,
-        date_reservation
-      );
+    const reservationStmt = database.prepare(reservationQuery);
+    const reservationInfo = reservationStmt.run(
+      client_id,
+      start_date,
+      period,
+      start_hour,
+      end_hour,
+      nbr_invites,
+      date_reservation
+    );
 
-      // eslint-disable-next-line prefer-const
-      reservationId = reservationInfo.lastInsertRowid;
-      
+    // eslint-disable-next-line prefer-const
+    reservationId = reservationInfo.lastInsertRowid;
+
     return {
       success: true,
       reservationId,
@@ -61,7 +60,7 @@ exports.createReservation = (
   }
 };
 
-exports.editReservation = (
+export const editReservation = (
   id: number,
   client_id: number | null,
   start_date: string | null,
@@ -108,7 +107,7 @@ exports.editReservation = (
   return { success: true, message: "Reservation updated successfully" };
 };
 
-exports.deleteReservation = (id: number): ReservationResponse => {
+export const deleteReservation = (id: number): ReservationResponse => {
   const qry = `DELETE FROM reservations WHERE id = ?`;
   const stmt = database.prepare(qry);
   const info = stmt.run(id);
@@ -118,7 +117,7 @@ exports.deleteReservation = (id: number): ReservationResponse => {
   return { success: true, message: "Reservation deleted successfully" };
 };
 
-exports.deleteAllReservations = (): ReservationResponse => {
+export const deleteAllReservations = (): ReservationResponse => {
   const qry = `DELETE FROM reservations`;
   const stmt = database.prepare(qry);
   const info = stmt.run();
@@ -128,10 +127,10 @@ exports.deleteAllReservations = (): ReservationResponse => {
   };
 };
 
-exports.searchReservations = (searchTerm: string, page = 1) => {
+export const searchReservations = (searchTerm: string, page = 1) => {
   const limit = 10;
   const offset = (page - 1) * limit;
-  
+
   const qry = `
     SELECT * FROM reservations 
     WHERE 
@@ -145,20 +144,20 @@ exports.searchReservations = (searchTerm: string, page = 1) => {
       date_reservation LIKE ?
     LIMIT ? OFFSET ?
   `;
-  
+
   const stmt = database.prepare(qry);
   const res = stmt.all(
-    searchTerm, 
-    searchTerm, 
-    `%${searchTerm}%`, 
-    `%${searchTerm}%`, 
-    `%${searchTerm}%`, 
+    searchTerm,
+    searchTerm,
+    `%${searchTerm}%`,
+    `%${searchTerm}%`,
+    `%${searchTerm}%`,
     `%${searchTerm}%`,
     searchTerm,
     `%${searchTerm}%`,
-    limit, 
+    limit,
     offset
   );
-  
+
   return res;
 };

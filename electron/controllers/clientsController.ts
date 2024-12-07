@@ -1,9 +1,9 @@
-const clientMgr = require("../models/clientsManager");
+import * as clientMgr from "../models/clientsManager";
 
 type Client = {
   id?: number;
   name: string;
-  email: string;
+  surname: string;
   phone: string;
   address :string
 };
@@ -17,32 +17,31 @@ export const getClients = (page: number = 1): Client[] => {
 
 export const createClient = (
   name: string,
-  email: string,
+  surname: string,
   phone: string,
   address :string
 ): { success: boolean; clientId: number } => {
   if (typeof name !== "string" || name.trim() === "") {
     throw new Error("Invalid name. It must be a non-empty string.");
   }
-  if (typeof email !== "string" || !email.includes("@")) {
-    throw new Error("Invalid email. It must be a valid email address.");
+  if (typeof surname !== "string" || surname.trim() === "") {
+    throw new Error("Invalid surname. It must be a non-empty string.");
   }
-  if (typeof address !== "string" || name.trim() === "") {
-    throw new Error("Invalid email. It must be a valid email address.");
+  if (typeof address !== "string" || address.trim() === "") {
+    throw new Error("Invalid address. It must be a non-empty string.");
   }
-  if (typeof phone !== "string" || phone.trim().length < 8) {
+  if (typeof phone !== "string" || phone.trim() === "") {
     throw new Error(
-      "Invalid phone number. It must be at least 8 characters long."
+      "Invalid phone number."
     );
   }
-
-  return clientMgr.createClient(name, email, phone, address);
+  return clientMgr.createClient(name, surname, phone, address);
 };
 
 export const editClient = (
   id: number,
   name: string,
-  email: string,
+  surname: string,
   phone: string,
   address: string
 ): { success: boolean; message: string } => {
@@ -52,19 +51,19 @@ export const editClient = (
   if (typeof name !== "string" || name.trim() === "") {
     throw new Error("Invalid name. It must be a non-empty string.");
   }
-  if (typeof address !== "string" || name.trim() === "") {
-    throw new Error("Invalid name. It must be a non-empty string.");
+  if (typeof address !== "string" || address.trim() === "") {
+    throw new Error("Invalid address. It must be a non-empty string.");
   }
-  if (typeof email !== "string" || !email.includes("@")) {
-    throw new Error("Invalid email. It must be a valid email address.");
+  if (typeof surname !== "string" || surname.trim() === "") {
+    throw new Error("Invalid surname. It must be a non-empty string.");
   }
-  if (typeof phone !== "string" || phone.trim().length < 8) {
+  if (typeof phone !== "string") {
     throw new Error(
-      "Invalid phone number. It must be at least 8 characters long."
+      "Invalid phone number"
     );
   }
 
-  return clientMgr.editClient(id, name, email, phone,address);
+  return clientMgr.editClient(id, name, surname, phone,address);
 };
 
 export const deleteClient = (

@@ -1,4 +1,4 @@
-const paimentMgr = require("../models/paimentManager");
+import * as paimentMgr from "../models/paimentManager";
 
 export const getPaiments = (page = 1) => {
   return paimentMgr.getPaiments(page);
@@ -45,7 +45,7 @@ export const createPaiment = (
 
 export const editPaiment = (
   id: number,
-  client_id: Number | null,
+  client_id: number | null,
   reservation_id: number | null,
   total_amount: number | null,
   amount_paid: number | null,
@@ -65,7 +65,7 @@ export const editPaiment = (
   );
 };
 
-export const deletePaiment = (id: string) => {
+export const deletePaiment = (id: number) => {
   return paimentMgr.deletePaiment(id);
 };
 

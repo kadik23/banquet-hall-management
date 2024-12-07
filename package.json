@@ -1,7 +1,7 @@
 {
   "name": "banquet_hall_management",
   "version": "1.0.0",
-  "description": "",
+  "description": "A minimal Electron application",
   "main": "dist/main.js",
   "scripts": {
     "start": "webpack serve --config webpack.electron.config.js",
@@ -11,18 +11,36 @@
     "dev:react": "cross-env NODE_ENV=development webpack-dev-server --config webpack.react.config.js --mode development",
     "watch": "cross-env NODE_ENV=development webpack --config webpack.electron.config.js --mode development && nodemon --exec electron .",
     "postinstall": "electron-rebuild -f -w better-sqlite3",
-    "package": "electron-builder"
+    "package": "electron-builder --publish=always"
   },
   "build": {
+    "extends": null,
     "files": [
       "dist/**/*",
       "node_modules/**/*",
-      "electron/db/**"
+      "electron/models/**",
+      "!node_modules/*/{test,__mocks__}/**/*",
+      "!**/*.md"
     ],
     "directories": {
       "output": "build"
     },
-    "asar": false
+    "asar": false,
+    "extraResources": [
+      {
+        "from": "dist/main.js",
+        "to": "main.js"
+      }
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   },
   "eslintConfig": {
     "extends": [

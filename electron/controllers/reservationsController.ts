@@ -1,4 +1,4 @@
-const reservationMgr = require("../models/reservationManager");
+import * as reservationMgr from "../models/reservationManager";
 
 export const getReservations = (page = 1) => {
   return reservationMgr.getReservations(page);
@@ -57,7 +57,7 @@ export const editReservation = (
   );
 };
 
-export const deleteReservation = (id: string) => {
+export const deleteReservation = (id: number) => {
   return reservationMgr.deleteReservation(id);
 };
 

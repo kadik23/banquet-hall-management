@@ -1,9 +1,8 @@
 import { Paiment, PaimentResponse } from "../types";
 
-const dbmgr = require("./dbManager");
-const database = dbmgr.db;
+import {db as database} from "./dbManager";
 
-exports.getPaiments = (page = 1): Paiment[] => {
+export const getPaiments = (page = 1): Paiment[] => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `
@@ -13,11 +12,11 @@ exports.getPaiments = (page = 1): Paiment[] => {
     LIMIT ? OFFSET ?
   `; 
   const stmt = database.prepare(qry);
-  const res = stmt.all(limit, offset);
+  const res = stmt.all(limit, offset) ;
   return res;
 };
 
-exports.getConfirmedPaimentsCount = () => {
+export const getConfirmedPaimentsCount = () => {
   const qry = `
    SELECT COUNT(*) as count 
    FROM payments
@@ -29,7 +28,7 @@ exports.getConfirmedPaimentsCount = () => {
   return countResult.count;
 };
 
-exports.getWaitedPaimentsCount = () => {
+export const getWaitedPaimentsCount = () => {
   const qry = `
     SELECT COUNT(*) as count 
     FROM payments 
@@ -41,7 +40,7 @@ exports.getWaitedPaimentsCount = () => {
   return countResult.count;
 };
 
-exports.createPaiment = (
+export const createPaiment = (
   client_id: number,
   reservation_id: number,
   total_amount: number,
@@ -68,7 +67,7 @@ exports.createPaiment = (
   return { success: true, paimentId: info.lastInsertRowid };
 };
 
-exports.editPaiment = (
+export const editPaiment = (
   id: number,
   client_id: number | null,
   reservation_id: number| null,
@@ -115,7 +114,7 @@ exports.editPaiment = (
   return { success: true, message: "Paiment updated successfully" };
 };
 
-exports.deletePaiment = (id: number): PaimentResponse => {
+export const deletePaiment = (id: number): PaimentResponse => {
   const qry = `DELETE FROM payments WHERE id = ?`;
   const stmt = database.prepare(qry);
   const info = stmt.run(id);
@@ -125,7 +124,7 @@ exports.deletePaiment = (id: number): PaimentResponse => {
   return { success: true, message: "Payments deleted successfully" };
 };
 
-exports.deleteAllPaiments = (): PaimentResponse => {
+export const deleteAllPaiments = (): PaimentResponse => {
   const qry = `DELETE FROM payments`;
   const stmt = database.prepare(qry);
   const info = stmt.run();
@@ -135,7 +134,7 @@ exports.deleteAllPaiments = (): PaimentResponse => {
   };
 };
 
-exports.searchPayments = (searchTerm: string, page = 1) => {
+export const searchPayments = (searchTerm: string, page = 1) => {
   const limit = 10;
   const offset = (page - 1) * limit;
   

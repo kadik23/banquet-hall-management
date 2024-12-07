@@ -10,10 +10,6 @@ import Paiement from "./components/Paiement";
 import Recu from "./components/Recu";
 import Produit from "./components/Produit";
 
-// Créer un élément div pour le rendu
-const mainElement = document.createElement("div");
-document.body.appendChild(mainElement);
-
 const App = () => {
   return (
     <Router> {/* Envelopper l'application dans Router pour activer la navigation */}
@@ -31,6 +27,5 @@ const App = () => {
   );
 };
 
-// Initialiser le root et rendre l'application
-const root = ReactDOM.createRoot(mainElement);
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);

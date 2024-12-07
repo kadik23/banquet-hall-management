@@ -1,4 +1,4 @@
-const receiptMgr = require("../models/receiptsManager");
+import * as receiptMgr from "../models/receiptsManager";
 
 export const getReceipts = (page = 1) => {
   return receiptMgr.getReceipts(page);
@@ -23,7 +23,7 @@ export const createReceipt = (
 
 // export const editPaiment = (
 //   id: number,
-//   client_id: Number | null,
+//   client_id: number | null,
 //   reservation_id: number| null,
 //   total_amount: number| null,
 //   amount_paid: number| null,
@@ -43,7 +43,7 @@ export const createReceipt = (
 //   );
 // };
 
-export const deleteReceipt = (id: string) => {
+export const deleteReceipt = (id: number) => {
   return receiptMgr.deleteReceipt(id);
 };
 

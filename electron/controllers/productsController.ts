@@ -1,4 +1,4 @@
-const productMgr = require("../models/productsManager");
+import * as productMgr from "../models/productsManager";
 
 export const getProducts = (page = 1) => {
   return productMgr.getProducts(page);
@@ -53,7 +53,7 @@ export const editProduct = (
   );
 };
 
-export const deleteProduct = (id: string) => {
+export const deleteProduct = (id: number) => {
   return productMgr.deleteProduct(id);
 };
 

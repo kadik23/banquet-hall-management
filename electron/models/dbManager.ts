@@ -1,6 +1,6 @@
-const Database = require("better-sqlite3");
+import Database from "better-sqlite3";
 
-const db = new Database("myDb.db", { verbose: console.log });
+export const db = new Database("myDb.db", { verbose: console.log });
 
 db.pragma("foreign_keys = ON");
 
@@ -21,12 +21,12 @@ const createTables = () => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_id INTEGER NOT NULL,
         start_date TEXT NOT NULL,
-        period TEXT NOT NULL CHECK (period IN ('morning', 'evening')),
+        period TEXT NOT NULL,
         start_hour TEXT NOT NULL,
         end_hour TEXT NOT NULL,
         nbr_invites INTEGER NOT NULL,
         date_reservation TEXT NOT NULL,
-        FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (client_id) REFERENCES clients (id)
       );
     `;
 
@@ -39,9 +39,9 @@ const createTables = () => {
         amount_paid INTEGER NOT NULL,
         remaining_balance INTEGER NOT NULL,
         payment_date TEXT NOT NULL,
-        status TEXT NOT NULL CHECK (status IN ('waiting', 'confirmed'))
-        FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (reservation_id) REFERENCES reservations (id) ON DELETE CASCADE ON UPDATE CASCADE
+        status TEXT NOT NULL CHECK (status IN ('waiting', 'confirmed')),
+        FOREIGN KEY (client_id) REFERENCES clients (id),
+        FOREIGN KEY (reservation_id) REFERENCES reservations (id)
       );
     `;
 
@@ -52,9 +52,9 @@ const createTables = () => {
         reservation_id INTEGER NOT NULL,
         payment_id INTEGER,
         pdf_path TEXT NOT NULL,
-        FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (reservation_id) REFERENCES reservations (id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (payment_id) REFERENCES payments (id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (client_id) REFERENCES clients (id),
+        FOREIGN KEY (reservation_id) REFERENCES reservations (id),
+        FOREIGN KEY (payment_id) REFERENCES payments (id)
       );
     `;
 
@@ -74,11 +74,11 @@ const createTables = () => {
     db.prepare(createPaymentTableQuery).run();
     db.prepare(createReceiptTableQuery).run();
     db.prepare(createProductTableQuery).run();
-    const insertSampleClient = db.prepare(`
-      INSERT INTO clients (name, surname, phone, address) 
-      VALUES ('John', 'Doe', 123456789, 'medea 26')
-  `);
-    insertSampleClient.run();
+  //   const insertSampleClient = db.prepare(`
+  //     INSERT INTO clients (name, surname, phone, address) 
+  //     VALUES ('John', 'Doe', 123456789, 'medea 26')
+  // `);
+  //   insertSampleClient.run();
     console.log("Tables created successfully.");
   } catch (error) {
     console.error("Error creating tables:", error);
@@ -86,5 +86,3 @@ const createTables = () => {
 };
 
 createTables();
-
-exports.db = db;

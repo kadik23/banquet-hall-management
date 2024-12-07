@@ -1,7 +1,7 @@
-const dbmgr = require("./dbManager");
-const database = dbmgr.db;
+import {db} from "./dbManager";
+const database = db;
 
-exports.getClients = (page = 1) => {
+export const getClients = (page = 1) => {
   const limit = 10;
   const offset = (page - 1) * limit;
   const qry = `SELECT * FROM clients LIMIT ? OFFSET ?`;
@@ -10,40 +10,41 @@ exports.getClients = (page = 1) => {
   return res;
 };
 
-exports.createClient = (name: string, email: string, phone: string, address: string) => {
-  const qry = `INSERT INTO clients (name, email, phone, address) VALUES (?, ?, ?)`;
+export const createClient = (name: string, surname: string, phone: string, address: string) => {
+  const qry = `INSERT INTO clients (name, surname, phone, address) VALUES (?, ?, ?, ?)`;
   const stmt = database.prepare(qry);
-  const info = stmt.run(name, email, phone, address);
+  const info = stmt.run(name, surname, phone, address);
+  console.log(info)
   return { success: true, clientId: info.lastInsertRowid };
 };
 
-exports.editClient = (
+export const editClient = (
   id: number,
   name: string,
-  email: string,
+  surname: string,
   phone: string,
   address: string
 ) => {
-  const qry = `UPDATE clients SET name = ?, email = ?, phone = ?, address = ?, WHERE id = ?`;
+  const qry = `UPDATE clients SET name = ?, surname = ?, phone = ?, address = ? WHERE id = ?`;
   const stmt = database.prepare(qry);
-  const info = stmt.run(name, email, phone, address, id);
+  const info = stmt.run(name, surname, phone, address, id);
   if (info.changes === 0) {
     return { success: false, message: "Client not found or no changes made" };
   }
   return { success: true, message: "Client updated successfully" };
 };
 
-exports.deleteClient = (id: number) => {
+export const deleteClient = (id: number) => {
   const qry = `DELETE FROM clients WHERE id = ?`;
   const stmt = database.prepare(qry);
   const info = stmt.run(id);
   if (info.changes === 0) {
-    return { success: false, message: "Client not found" };
+    return { success: false, message: "Client not found", clientId:id };
   }
-  return { success: true, message: "Client deleted successfully" };
+  return { success: true, message: `Client ${id} deleted successfully` };
 };
 
-exports.deleteAllClients = () => {
+export const deleteAllClients = () => {
   const qry = `DELETE FROM clients`;
   const stmt = database.prepare(qry);
   const info = stmt.run();
@@ -53,7 +54,7 @@ exports.deleteAllClients = () => {
   };
 };
 
-exports.searchClients = (searchTerm:string, page = 1) => {
+export const searchClients = (searchTerm:string, page = 1) => {
   const limit = 10;
   const offset = (page - 1) * limit;
   
