@@ -520,12 +520,13 @@ form label {
   margin-top: 10px;
 }
 
-form input {
+form input, form select, .react-datepicker-wrapper {
   margin-bottom: 10px;
   padding: 8px;
   font-size: 14px;
   border: 1px solid #ddd;
   border-radius: 5px;
+  width: 100%; /* Tous les champs auront la même largeur */
 }
 
 form button {
@@ -542,6 +543,126 @@ form button {
 form button[type="button"] {
   background-color: #f44336; /* Rouge pour le bouton Annuler */
 }
+
+/* Style pour la select (menu déroulant) */
+form select {
+  background-color: #f9f9f9;
+  font-size: 14px;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Style pour le DatePicker */
+.react-datepicker-wrapper {
+  width: 100%; /* Assure que le DatePicker prend toute la largeur disponible */
+}
+
+.react-datepicker__input-container input {
+  width: 100%; /* Même largeur que les autres champs */
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.react-datepicker__triangle {
+  display: none; /* Masquer le triangle de la date picker */
+}
+
+.react-datepicker__header {
+  background-color: #622D77; /* Vous pouvez personnaliser cette couleur */
+  color: white;
+}
+
+.react-datepicker__day {
+  font-size: 14px;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f1f1f1;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-top: 10px;
+}
+
+form input, form select, .react-datepicker-wrapper {
+  margin-bottom: 10px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 95%; /* Uniformité de la largeur des champs */
+}
+
+form button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #622D77;
+  color: white;
+  margin-top: 10px;
+}
+
+form button[type="button"] {
+  background-color: #f44336; /* Rouge pour le bouton Annuler */
+}
+
+/* Style pour la select (menu déroulant) */
+form select {
+  background-color: #f9f9f9;
+  font-size: 14px;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Style pour le DatePicker */
+.react-datepicker-wrapper {
+  width: 95%; /* Assure que le DatePicker prend toute la largeur disponible */
+}
+
+.react-datepicker__input-container input {
+  width: 95%; /* Même largeur que les autres champs */
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.react-datepicker__triangle {
+  display: none; /* Masquer le triangle de la date picker */
+}
+
+.react-datepicker__header {
+  background-color: #622D77; /* Vous pouvez personnaliser cette couleur */
+  color: white;
+}
+
+.react-datepicker__day {
+  font-size: 14px;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f1f1f1;
+}
+
 
 /* Styles pour la pagination */
 .pagination {
@@ -616,7 +737,7 @@ form button[type="button"] {
 }
 
 .login-form input {
-  width: 100%;
+  width: 95%;
   padding: 8px;
   border-radius: 5px;
   box-sizing: border-box;
@@ -753,4 +874,102 @@ form button[type="button"] {
 
 .balance-item strong {
   /* margin-right: 10px; */
+}
+
+
+
+/* Style pour la zone dropdown */
+.dropdown-wrapper {
+  position: relative;
+}
+
+input[name="clientAssocie"] {
+  cursor: pointer;
+}
+
+.input-container input {
+  cursor: pointer;
+}
+
+
+.dropdown-list {
+  position: absolute; 
+  top: 0; /* Positionner la liste sur l'input */
+  left: 0;
+  width: 100%; /* Prendre la même largeur que l'input */
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-top: 4px; /* Pour espacer légèrement la liste de l'input */
+}
+
+
+.dropdown-list li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdown-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.client-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd; /* Pour ajouter une séparation entre les lignes */
+}
+
+.client-item span {
+  margin-right: 10px; /* Espacement entre chaque élément (id, nom, prénom) */
+}
+
+
+.dropdown-wrapper {
+  position: relative;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+input {
+  width: 100%;
+  padding-right: 30px; /* Ajoutez un peu d'espace à droite pour l'icône */
+}
+
+.dropdown-icon {
+  position: absolute;
+  right: 10px; /* Positionne l'icône à droite de l'input */
+  cursor: pointer;
+  font-size: 1.2em; /* Ajustez la taille de l'icône */
+}
+
+ul.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li.client-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+li.client-item:hover {
+  background-color: #f0f0f0;
 }

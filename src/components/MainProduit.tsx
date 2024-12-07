@@ -9,6 +9,8 @@ function MainProduit() {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [nextId, setNextId] = useState(1); // Compteur pour l'ID
+  const [deletedIds, setDeletedIds] = useState([]); // Suivi des IDs supprimés
   const [newProduct, setNewProduct] = useState({
     id: null,
     nom: '',
@@ -26,84 +28,40 @@ function MainProduit() {
     setCurrentDate(today);
     setSelectedDate(today);
 
-    // Charger les produits depuis le stockage local avec des dates exemples
     const storedProducts = JSON.parse(localStorage.getItem('productsByDate')) || {};
     setProductsByDate(storedProducts);
+
+    const storedNextId = localStorage.getItem('nextId');
+    if (storedNextId) {
+      setNextId(parseInt(storedNextId, 10));
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem('productsByDate', JSON.stringify(productsByDate));
   }, [productsByDate]);
 
-  // Ajout des produits d'exemple pour des dates passées
-  const addExampleProducts = () => {
-    const exampleProducts = {
-      [currentDate]: [],
-      ['2024-11-25']: [
-        {
-          id: 1,
-          nom: 'Produit Exemple 1',
-          prixUnitaire: '100',
-          quantite: '5',
-          montantTotal: '500',
-          statut: 'Payé',
-          date: '2024-11-25'
-        },
-        {
-          id: 2,
-          nom: 'Produit Exemple 2',
-          prixUnitaire: '200',
-          quantite: '3',
-          montantTotal: '600',
-          statut: 'Non payé',
-          date: '2024-11-25'
-        }
-      ],
-      ['2024-11-20']: [
-        {
-          id: 3,
-          nom: 'Produit Exemple 3',
-          prixUnitaire: '150',
-          quantite: '10',
-          montantTotal: '1500',
-          statut: 'Payé',
-          date: '2024-11-20'
-        }
-      ],
-      ['2024-11-29']: [
-        {
-          id: 4,
-          nom: 'Produit Exemple 3',
-          prixUnitaire: '150',
-          quantite: '10',
-          montantTotal: '1500',
-          statut: 'Payé',
-          date: '2024-11-29'
-        }
-      ]
-    };
-
-    // Fusionner les produits d'exemple avec les produits stockés
-    const mergedProducts = { ...exampleProducts, ...productsByDate };
-    setProductsByDate(mergedProducts);
-  };
-
   useEffect(() => {
-    addExampleProducts();
-  }, []);
+    localStorage.setItem('nextId', nextId); // Sauvegarder le compteur d'ID
+  }, [nextId]);
 
-  // Fonction pour formater la date en format européen
-  const formatDate = (date:Date) => {
+  const formatDate = (date) => {
     const dateObj = new Date(date);
-    return dateObj.toLocaleDateString('fr-FR'); // Format jour/mois/année
+    return dateObj.toLocaleDateString('fr-FR');
   };
 
-  const handleFilterDateChange = (e:any) => {
-    setSelectedDate(e.target.value);
-    setCurrentPage(1);
+  const handleFilterDateChange = (e) => {
+    const selected = e.target.value;
+    if (selected <= currentDate) {
+      setSelectedDate(selected);
+      setCurrentPage(1);  // Réinitialiser la page quand une nouvelle date est sélectionnée
+    } else {
+      alert("Vous ne pouvez pas sélectionner une date future !");
+    }
   };
+  
 
-  const handleStatusChange = (e:any) => {
+  const handleStatusChange = (e) => {
     setSelectedStatus(e.target.value);
     setCurrentPage(1);
   };
@@ -116,13 +74,13 @@ function MainProduit() {
       prixUnitaire: '',
       quantite: '',
       montantTotal: '',
-      statut: '',
+      statut: 'Payé',
       date: currentDate
     });
     setIsModalOpen(true);
   };
 
-  const handleEditProductClick = (product:any) => {
+  const handleEditProductClick = (product) => {
     setIsEditMode(true);
     setNewProduct(product);
     setIsModalOpen(true);
@@ -132,7 +90,7 @@ function MainProduit() {
     setIsModalOpen(false);
   };
 
-  const handleInputChange = (e:any) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewProduct({
       ...newProduct,
@@ -140,22 +98,52 @@ function MainProduit() {
     });
   };
 
-  const handleSubmit = (e:any) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const newProductWithId = { ...newProduct, id: Date.now() };
-    const updatedProducts = {
-      ...productsByDate,
-      [currentDate]: [...(productsByDate[currentDate] || []), newProductWithId]
-    };
-    setProductsByDate(updatedProducts);
+    const updatedProductsByDate = { ...productsByDate };
+
+    let newProductWithId;
+    if (isEditMode) {
+      // Modifier un produit existant
+      const updatedProducts = productsByDate[selectedDate].map((product) =>
+        product.id === newProduct.id ? newProduct : product
+      );
+      updatedProductsByDate[selectedDate] = updatedProducts;
+    } else {
+      // Ajouter un nouveau produit
+      const currentProducts = productsByDate[selectedDate] || [];
+      
+      let newId;
+      if (deletedIds.length > 0) {
+        // Réutiliser un ID supprimé s'il y en a
+        newId = deletedIds[0];  // Utilise le premier ID supprimé disponible
+        setDeletedIds(deletedIds.slice(1)); // Retirer l'ID utilisé de la liste
+      } else {
+        // Si aucun ID supprimé n'est disponible, utilise nextId
+        newId = nextId;
+        setNextId(nextId + 1); // Incrémenter nextId
+      }
+      
+      newProductWithId = { ...newProduct, id: newId };
+      updatedProductsByDate[currentDate] = [
+        ...(productsByDate[currentDate] || []),
+        newProductWithId
+      ];
+    }
+
+    setProductsByDate(updatedProductsByDate);
     setIsModalOpen(false);
   };
 
-  const handleDeleteProduct = (id:any) => {
+  const handleDeleteProduct = (id) => {
     const updatedProducts = {
       ...productsByDate,
-      [selectedDate]: productsByDate[selectedDate].filter(product => product.id !== id)
+      [selectedDate]: productsByDate[selectedDate].filter((product) => product.id !== id)
     };
+
+    // Ajouter l'ID supprimé dans deletedIds
+    setDeletedIds([...deletedIds, id]);
+
     setProductsByDate(updatedProducts);
   };
 
@@ -165,10 +153,12 @@ function MainProduit() {
       [selectedDate]: []
     };
     setProductsByDate(updatedProducts);
+    setNextId(1);  // Réinitialiser le compteur d'ID à 1
+    setDeletedIds([]); // Réinitialiser la liste des IDs supprimés
   };
 
   const currentProducts = productsByDate[selectedDate] || [];
-  const filteredProducts = currentProducts.filter((product:any) => {
+  const filteredProducts = currentProducts.filter((product) => {
     if (selectedStatus && product.statut !== selectedStatus) {
       return false;
     }
@@ -178,26 +168,35 @@ function MainProduit() {
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const displayedProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-  
 
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(filteredProducts.length / productsPerPage); i++) {
     pageNumbers.push(i);
   }
 
-  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Calcul des soldes
-  const totalPaid = filteredProducts.filter((product:any) => product.statut === 'Payé')
-    .reduce((sum:any, product:any) => sum + parseFloat(product.montantTotal), 0);
-  const totalRemaining = filteredProducts.filter((product:any) => product.statut === 'Non payé')
-    .reduce((sum:any, product:any) => sum + parseFloat(product.montantTotal), 0);
+  const totalPaid = filteredProducts.filter((product) => product.statut === 'Payé')
+    .reduce((sum, product) => sum + parseFloat(product.montantTotal), 0);
+  const totalRemaining = filteredProducts.filter((product) => product.statut === 'Non payé')
+    .reduce((sum, product) => sum + parseFloat(product.montantTotal), 0);
   const total = totalPaid + totalRemaining;
+
+  useEffect(() => {
+    // Si le prix unitaire et la quantité sont renseignés, calculer le montant total
+    if (newProduct.prixUnitaire && newProduct.quantite) {
+      const total = parseFloat(newProduct.prixUnitaire) * parseFloat(newProduct.quantite);
+      setNewProduct(prevState => ({
+        ...prevState,
+        montantTotal: total.toFixed(2) // Format du montant total avec 2 décimales
+      }));
+    }
+  }, [newProduct.prixUnitaire, newProduct.quantite]); // Ce useEffect s'exécute lorsque le prixUnitaire ou la quantité changent
 
   return (
     <div className="main-container2">
       <div className="header-cl">
-        <h3>GESTION DES PRODUITS POUR LE :&nbsp;&nbsp; {formatDate(selectedDate)}</h3>
+        <h3>GESTION DES PRODUITS POUR LE : {formatDate(selectedDate)}</h3>
         <span className="product-count">
           {filteredProducts.length === 0
             ? 'Aucun produit ajouté aujourd\'hui'
@@ -205,8 +204,7 @@ function MainProduit() {
         </span>
       </div>
 
-
-	 <div className="footer-buttons">
+      <div className="footer-buttons">
         <div className="left-buttons">
           <button className="add-product-btn" onClick={handleAddProductClick}>
             Ajouter un produit
@@ -225,17 +223,19 @@ function MainProduit() {
         <div className="right-buttons">
           <div className="filter-date">
             <label htmlFor="filter-date" className="filt">Filtrer par date :</label>
-            <input 
-              type="date" 
-              id="filter-date" 
-              value={selectedDate} 
-              onChange={handleFilterDateChange} 
+            <input
+              type="date"
+              id="filter-date"
+              value={selectedDate}
+              onChange={handleFilterDateChange}
+              max={currentDate}  // Empêcher la sélection d'une date future
             />
           </div>
-          <button className="delete-all-btn" onClick={handleDeleteAll}>
+          <button onClick={handleDeleteAll} className="delete-all-btn">
             Supprimer tout
           </button>
         </div>
+
       </div>
 
       {isModalOpen && (
@@ -250,40 +250,69 @@ function MainProduit() {
                 name="nom"
                 value={newProduct.nom}
                 onChange={handleInputChange}
+                placeholder='Veuillez entrer le nom du produit'
                 required
               />
-              <label>Prix unitaire:</label>
-              <input
-                type="number"
-                name="prixUnitaire"
-                value={newProduct.prixUnitaire}
-                onChange={handleInputChange}
-                required
-              />
+             <label>Prix unitaire:</label>
+             <div className="input-container">
+                <input
+                  type="text" // Utilisation de "text" pour afficher "DA" à l'intérieur de l'input
+                  name="prixUnitaire"
+                  placeholder="Veuillez entrer le prix du produit"
+                  value={newProduct.prixUnitaire} // Affiche le prix sans "DA" pendant la saisie
+                  onChange={handleInputChange} // Gère la modification du prix
+                  onBlur={(e) => { // Quand l'utilisateur sort de l'input
+                    const value = e.target.value;
+                    // Si la valeur n'est pas vide, ajoute " DA" à la fin
+                    const valueWithDA = value && !value.includes("DA") ? `${value} DA` : value;
+                    setNewProduct({
+                      ...newProduct,
+                      prixUnitaire: valueWithDA
+                    });
+                  }}
+                  onFocus={(e) => { // Lorsque l'utilisateur clique dans l'input, retirer "DA"
+                    if (e.target.value.includes(" DA")) {
+                      setNewProduct({
+                        ...newProduct,
+                        prixUnitaire: e.target.value.replace(" DA", "")
+                      });
+                    }
+                  }}
+                  required
+                />
+              </div>
+
               <label>Quantité:</label>
               <input
                 type="number"
                 name="quantite"
+                placeholder='Veuillez entrer le nom du produit'
                 value={newProduct.quantite}
                 onChange={handleInputChange}
                 required
               />
               <label>Montant total:</label>
               <input
-                type="number"
+                type="text" // Change to "text" pour pouvoir afficher " DA"
                 name="montantTotal"
-                value={newProduct.montantTotal}
-                onChange={handleInputChange}
+                value={`${newProduct.montantTotal} DA`} // Ajoute " DA" à la valeur affichée
+                onChange={handleInputChange} // Gère les autres champs normalement
+                disabled // Désactive la modification manuelle
                 required
               />
+
+
               <label>Statut de paiement:</label>
-              <input
-                type="text"
+              <select
                 name="statut"
-                value={newProduct.statut}
+                value={newProduct.statut || 'Payé'} 
                 onChange={handleInputChange}
                 required
-              />
+              >
+                {/* <option value="choisir l'etat"></option> */}
+                <option value="Payé">Payé</option>
+                <option value="Non payé">Non payé</option>
+              </select>
               <div className="modal-buttons">
                 <button type="submit">{isEditMode ? 'Modifier' : 'Ajouter'}</button>
                 <button type="button" onClick={handleCloseModal}>Annuler</button>
@@ -293,8 +322,7 @@ function MainProduit() {
         </div>
       )}
 
-       {/* Ligne de solde */}
-       <div className="balance-line">
+      <div className="balance-line">
         <div className="balance-item">
           <strong>Solde payé :</strong> {totalPaid} DA
         </div>
@@ -302,73 +330,73 @@ function MainProduit() {
           <strong>Solde restant :</strong> {totalRemaining} DA
         </div>
         <div className="balance-item">
-          <strong>Total :</strong> {total} DA
+          <strong>Solde total :</strong> {total} DA
         </div>
       </div>
 
       <table className="products-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nom du produit</th>
-            <th>Prix unitaire</th>
-            <th>Quantité</th>
-            <th>Montant total</th>
-            <th>Statut de paiement</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {displayedProducts.length === 0 ? (
+          <thead>
             <tr>
-              <td colSpan={7} style={{ textAlign: 'center' }}>Aucun produit trouvé</td>
+              <th>ID</th>
+              <th>Nom du produit</th>
+              <th>Prix unitaire</th>
+              <th>Quantité</th>
+              <th>Montant total</th>
+              <th>Statut de paiement</th>
+              <th>Actions</th>
             </tr>
-          ) : (
-            displayedProducts.map((product:any) => (
-              <tr key={product.id}>
-                <td>{product.id}</td>
-                <td>{product.nom}</td>
-                <td>{product.prixUnitaire}</td>
-                <td>{product.quantite}</td>
-                <td>{product.montantTotal}</td>
-                <td>{product.statut}</td>
-                <td>
-                  <FaEdit
-                    className="action-icon edit-icon"
-                    title="Éditer"
-                    onClick={() => handleEditProductClick(product)}
-                  />
-                  <FaTrash
-                    className="action-icon delete-icon"
-                    title="Supprimer"
-                    onClick={() => handleDeleteProduct(product.id)}
-                  />
-                </td>
+          </thead>
+          <tbody>
+            {displayedProducts.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center' }}>Aucun produit trouvé</td>
               </tr>
-            ))
-          )}
-        </tbody>
+            ) : (
+              displayedProducts.map((product:any) => (
+                <tr key={product.id}>
+                  <td>{product.id}</td>
+                  <td>{product.nom}</td>
+                  <td>{product.prixUnitaire} </td>
+                  <td>{product.quantite}</td>
+                  <td>{product.montantTotal} DA</td>
+                  <td>{product.statut}</td>
+                  <td>
+                    <FaEdit
+                      className="action-icon edit-icon"
+                      title="Éditer"
+                      onClick={() => handleEditProductClick(product)}
+                    />
+                    <FaTrash
+                      className="action-icon delete-icon"
+                      title="Supprimer"
+                      onClick={() => handleDeleteProduct(product.id)}
+                    />
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
       </table>
 
-     
       <div className="pagination">
-  <span className="page-info">
-     {Math.min(indexOfLastProduct, filteredProducts.length)} sur {filteredProducts.length} produits
-  </span>
-  <button 
-    onClick={() => paginate(currentPage - 1)} 
-    disabled={currentPage === 1}
-  >
-    &lt;
-  </button>
-  <button 
-    onClick={() => paginate(currentPage + 1)} 
-    disabled={currentPage === pageNumbers.length}
-  >
-    &gt;
-  </button>
-</div>
+        <span className="page-info">
+        {Math.min(indexOfLastProduct, filteredProducts.length)} sur {filteredProducts.length} produits
+        </span>
+        <button 
+          onClick={() => paginate(currentPage - 1)} 
+          disabled={currentPage === 1}
+        >
+          &lt;
+        </button>
+        <button 
+          onClick={() => paginate(currentPage + 1)} 
+          disabled={currentPage === pageNumbers.length}
+        >
+          &gt;
+        </button>
+      </div>
 
+     
     </div>
   );
 }
