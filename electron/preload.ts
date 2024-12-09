@@ -64,14 +64,14 @@ contextBridge.exposeInMainWorld("electron", {
 });
 
 contextBridge.exposeInMainWorld("sqliteClients", {
-  getClients: (page: number) => getClients(page),
+  getClients: () => getClients(),
   createClient: (name: string, surname: string, phone: string, address: string) =>
     createClient(name, surname, phone, address),
   editClient: (id: number, name: string, surname: string, phone: string, address: string) =>
     editClient(id, name, surname, phone, address),
   deleteClient: (id: number) => deleteClient(id),
   deleteAllClients: () => deleteAllClients(),
-  searchClients: (searchItem: string,page:number) => searchClients(searchItem, page)
+  searchClients: (searchItem: string) => searchClients(searchItem)
 });
 
 contextBridge.exposeInMainWorld("sqliteStatistics", {
@@ -139,7 +139,8 @@ contextBridge.exposeInMainWorld("sqlitePaiment", {
     amount_paid: number,
     remaining_balance: number,
     payment_date: string,
-    status: "waiting" | "confirmed"
+    status: "waiting" | "confirmed",
+    date: string
   ) =>
     createPaiment(
       client_id,
@@ -148,7 +149,8 @@ contextBridge.exposeInMainWorld("sqlitePaiment", {
       amount_paid,
       remaining_balance,
       payment_date,
-      status
+      status,
+      date
     ),
   editPaiment: (
     id: number,
@@ -185,8 +187,9 @@ contextBridge.exposeInMainWorld("sqliteProduct", {
     unique_price: number,
     quantity: number,
     total_amount: number,
-    status: 'paid' | 'not-paid'
-  ) => createProduct(name, unique_price, quantity, total_amount, status),
+    status: 'paid' | 'not-paid',
+    date: string
+  ) => createProduct(name, unique_price, quantity, total_amount, status, date),
   editProduct: (
     id: number,
     name: string,

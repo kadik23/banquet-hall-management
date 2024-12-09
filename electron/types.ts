@@ -40,14 +40,15 @@ export interface ProductResponse {
   productId?: number;
 }
 
-export interface Product{
-  id:number;
+type Product = {
+  id?: number;
   name: string;
-  unique_price: number;
-  quantity: number;
-  total_amount: number;
-  status: 'waiting' | 'confirmed';
-}
+  unique_price: number,
+  quantity: number,
+  total_amount: number,
+  status: 'paid' | 'not-paid',
+  date: string
+};
 
 export interface Receipt{
   id:number;

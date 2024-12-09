@@ -1,13 +1,8 @@
 import {db} from "./dbManager";
 const database = db;
 
-export const getClients = (page = 1) => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
-  const qry = `SELECT * FROM clients LIMIT ? OFFSET ?`;
-  const stmt = database.prepare(qry);
-  const res = stmt.all(limit, offset);
-  return res;
+export const getClients = () => {
+  return database.prepare("SELECT * FROM clients").all();
 };
 
 export const createClient = (name: string, surname: string, phone: string, address: string) => {
@@ -45,19 +40,34 @@ export const deleteClient = (id: number) => {
 };
 
 export const deleteAllClients = () => {
-  const qry = `DELETE FROM clients`;
-  const stmt = database.prepare(qry);
-  const info = stmt.run();
-  return {
-    success: true,
-    message: `${info.changes} clients deleted successfully`,
-  };
+  database.prepare('BEGIN TRANSACTION').run();
+
+  try {
+    const deleteQry = `DELETE FROM clients`;
+    const deleteStmt = database.prepare(deleteQry);
+    const deleteInfo = deleteStmt.run();
+
+    const resetQry = `DELETE FROM sqlite_sequence WHERE name = 'clients'`;
+    database.prepare(resetQry).run();
+
+    database.prepare('COMMIT').run();
+
+    return {
+      success: true,
+      message: `${deleteInfo.changes} clients deleted successfully, and ID reset.`,
+    };
+  } catch (error:any) {
+    database.prepare('ROLLBACK').run();
+
+    return {
+      success: false,
+      message: `Error deleting clients: ${error.message}`,
+    };
+  }
 };
 
-export const searchClients = (searchTerm:string, page = 1) => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
-  
+
+export const searchClients = (searchTerm: string): Client[] => {
   const qry = `
     SELECT * FROM clients 
     WHERE 
@@ -66,7 +76,6 @@ export const searchClients = (searchTerm:string, page = 1) => {
       surname LIKE ? OR 
       phone LIKE ? OR 
       address LIKE ?
-    LIMIT ? OFFSET ?
   `;
   
   const stmt = database.prepare(qry);
@@ -75,9 +84,7 @@ export const searchClients = (searchTerm:string, page = 1) => {
     `%${searchTerm}%`, 
     `%${searchTerm}%`, 
     `%${searchTerm}%`, 
-    `%${searchTerm}%`, 
-    limit, 
-    offset
+    `%${searchTerm}%`
   );
   
   return res;

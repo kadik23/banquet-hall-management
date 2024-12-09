@@ -6,7 +6,8 @@ db.pragma("foreign_keys = ON");
 
 const createTables = () => {
   try {
-    const createClientTableQuery = `
+    db.prepare(`DROP TABLE IF EXISTS clients;`).run();
+    db.prepare(`
       CREATE TABLE IF NOT EXISTS clients (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -14,9 +15,10 @@ const createTables = () => {
         phone TEXT NOT NULL,
         address TEXT NOT NULL
       );
-    `;
+    `).run();
 
-    const createReservationTableQuery = `
+    db.prepare(`DROP TABLE IF EXISTS reservations;`).run();
+    db.prepare(`
       CREATE TABLE IF NOT EXISTS reservations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_id INTEGER NOT NULL,
@@ -28,9 +30,10 @@ const createTables = () => {
         date_reservation TEXT NOT NULL,
         FOREIGN KEY (client_id) REFERENCES clients (id)
       );
-    `;
+    `).run();
 
-    const createPaymentTableQuery = `
+    db.prepare(`DROP TABLE IF EXISTS payments;`).run();
+    db.prepare(`
       CREATE TABLE IF NOT EXISTS payments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_id INTEGER NOT NULL,
@@ -43,9 +46,10 @@ const createTables = () => {
         FOREIGN KEY (client_id) REFERENCES clients (id),
         FOREIGN KEY (reservation_id) REFERENCES reservations (id)
       );
-    `;
+    `).run();
 
-    const createReceiptTableQuery = `
+    db.prepare(`DROP TABLE IF EXISTS receipts;`).run();
+    db.prepare(`
       CREATE TABLE IF NOT EXISTS receipts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_id INTEGER NOT NULL,
@@ -56,32 +60,30 @@ const createTables = () => {
         FOREIGN KEY (reservation_id) REFERENCES reservations (id),
         FOREIGN KEY (payment_id) REFERENCES payments (id)
       );
-    `;
+    `).run();
 
-    const createProductTableQuery = `
+    db.prepare(`DROP TABLE IF EXISTS products;`).run();
+    db.prepare(`
       CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        prix INTEGER NOT NULL,
+        unique_price INTEGER NOT NULL,
         quantity INTEGER NOT NULL,
         total_amount INTEGER NOT NULL,
-        status TEXT NOT NULL CHECK (status IN ('paid', 'not-paid'))
+        status TEXT NOT NULL CHECK (status IN ('paid', 'not-paid')),
+        date TEXT NOT NULL
       );
-    `;
+    `).run();
 
-    db.prepare(createClientTableQuery).run();
-    db.prepare(createReservationTableQuery).run();
-    db.prepare(createPaymentTableQuery).run();
-    db.prepare(createReceiptTableQuery).run();
-    db.prepare(createProductTableQuery).run();
-  //   const insertSampleClient = db.prepare(`
-  //     INSERT INTO clients (name, surname, phone, address) 
-  //     VALUES ('John', 'Doe', 123456789, 'medea 26')
-  // `);
-  //   insertSampleClient.run();
-    console.log("Tables created successfully.");
+    const insertSampleProduct = db.prepare(`
+      INSERT INTO products (name, unique_price, quantity, total_amount, status, date) 
+      VALUES ('product', 2000, 2, 4000, 'not-paid', '2024-09-12')
+    `);
+    insertSampleProduct.run();
+
+    console.log("Tables created and sample data inserted successfully.");
   } catch (error) {
-    console.error("Error creating tables:", error);
+    console.error("Error creating tables or inserting sample data:", error);
   }
 };
 

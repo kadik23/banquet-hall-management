@@ -8,11 +8,8 @@ type Client = {
   address :string
 };
 
-export const getClients = (page: number = 1): Client[] => {
-  if (typeof page !== "number" || page < 1) {
-    throw new Error("Invalid page number. It must be a positive number.");
-  }
-  return clientMgr.getClients(page);
+export const getClients = (): Client[] => {
+  return clientMgr.getClients();
 };
 
 export const createClient = (
@@ -79,6 +76,6 @@ export const deleteAllClients = (): { success: boolean; message: string } => {
   return clientMgr.deleteAllClients();
 };
 
-export const searchClients = (searchItem: string, page = 1) => {
-  return clientMgr.searchClients(searchItem, page);
+export const searchClients = (searchItem: string) => {
+  return clientMgr.searchClients(searchItem);
 };

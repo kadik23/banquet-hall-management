@@ -126,7 +126,7 @@ export const globalSearch = (searchTerm: string, page = 1) => {
     
     SELECT 'products' as table_name, id, 
       name, 
-      CAST(prix AS TEXT) as prix, 
+      CAST(unique_price AS TEXT) as unique_price, 
       CAST(quantity AS TEXT) as quantity, 
       CAST(total_amount AS TEXT) as total_amount, 
       status
@@ -134,7 +134,7 @@ export const globalSearch = (searchTerm: string, page = 1) => {
     WHERE 
       id = CAST(? AS INTEGER) OR
       name LIKE ? OR
-      prix = CAST(? AS INTEGER) OR
+      unique_price = CAST(? AS INTEGER) OR
       quantity = CAST(? AS INTEGER) OR
       total_amount = CAST(? AS INTEGER) OR
       status LIKE ?
