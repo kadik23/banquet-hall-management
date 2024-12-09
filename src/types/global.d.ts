@@ -23,7 +23,7 @@ declare global {
       getNumProducts: () => Promise<number>;
     };
     sqliteReservation: {
-      getReservations: (page: number) => Promise<any>;
+      getReservations: () => Promise<any>;
       createReservation: (
         client_id: number,
         start_date: string,
@@ -45,7 +45,7 @@ declare global {
       ) => Promise<any>;
       deleteReservation: (id: number) => Promise<any>;
       deleteAllReservations: () => Promise<any>;
-      searchReservations: (searchItem: string, page: number) => Promise<any>;
+      searchReservations: (searchItem: string) => Promise<any>;
     };
     sqlitePaiment: {
       getPaiments: (page: number) => Promise<any>;

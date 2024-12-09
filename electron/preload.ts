@@ -84,7 +84,7 @@ contextBridge.exposeInMainWorld("sqliteStatistics", {
 });
 
 contextBridge.exposeInMainWorld("sqliteReservation", {
-  getReservations: (page: number) => getReservations(page),
+  getReservations: () => getReservations(),
   createReservation: (
     client_id: number,
     start_date: string,
@@ -125,7 +125,7 @@ contextBridge.exposeInMainWorld("sqliteReservation", {
     ),
   deleteReservation: (id: number) => deleteReservation(id),
   deleteAllReservations: () => deleteAllReservations(),
-  searchReservations: (searchItem: string,page:number) => searchReservations(searchItem, page)
+  searchReservations: (searchItem: string) => searchReservations(searchItem)
 });
 
 contextBridge.exposeInMainWorld("sqlitePaiment", {

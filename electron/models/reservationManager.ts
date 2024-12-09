@@ -2,9 +2,7 @@ import { Reservation, ReservationResponse } from "../types";
 
 import { db as database } from "./dbManager";
 
-export const getReservations = (page = 1): Reservation[] => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
+export const getReservations = (): Reservation[] => {
   const qry = `
     SELECT r.*, c.name, c.surname 
     FROM reservations r
@@ -12,7 +10,7 @@ export const getReservations = (page = 1): Reservation[] => {
     LIMIT ? OFFSET ?
   `;
   const stmt = database.prepare(qry);
-  const res = stmt.all(limit, offset) as Reservation[];
+  const res = stmt.all() as Reservation[];
   return res;
 };
 
@@ -52,7 +50,7 @@ export const createReservation = (
       reservationId,
       message: "Reservation created successfully.",
     };
-  } catch (error: unknown) {
+  } catch (error: any) {
     return {
       success: false,
       message: `Error creating reservation and receipt: ${error.message}`,
@@ -118,19 +116,33 @@ export const deleteReservation = (id: number): ReservationResponse => {
 };
 
 export const deleteAllReservations = (): ReservationResponse => {
-  const qry = `DELETE FROM reservations`;
-  const stmt = database.prepare(qry);
-  const info = stmt.run();
-  return {
-    success: true,
-    message: `${info.changes} reservations deleted successfully`,
-  };
+  database.prepare('BEGIN TRANSACTION').run();
+
+  try {
+    const deleteQry = `DELETE FROM reservations`;
+    const deleteStmt = database.prepare(deleteQry);
+    const deleteInfo = deleteStmt.run();
+
+    const resetQry = `DELETE FROM sqlite_sequence WHERE name = 'reservations'`;
+    database.prepare(resetQry).run();
+
+    database.prepare('COMMIT').run();
+
+    return {
+      success: true,
+      message: `${deleteInfo.changes} reservations deleted successfully, and ID reset.`,
+    };
+  } catch (error:any) {
+    database.prepare('ROLLBACK').run();
+
+    return {
+      success: false,
+      message: `Error deleting reservations: ${error.message}`,
+    };
+  }
 };
 
-export const searchReservations = (searchTerm: string, page = 1) => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
-
+export const searchReservations = (searchTerm: string) => {
   const qry = `
     SELECT * FROM reservations 
     WHERE 
@@ -154,9 +166,7 @@ export const searchReservations = (searchTerm: string, page = 1) => {
     `%${searchTerm}%`,
     `%${searchTerm}%`,
     searchTerm,
-    `%${searchTerm}%`,
-    limit,
-    offset
+    `%${searchTerm}%`
   );
 
   return res;

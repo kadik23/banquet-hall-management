@@ -1,7 +1,7 @@
 import * as reservationMgr from "../models/reservationManager";
 
-export const getReservations = (page = 1) => {
-  return reservationMgr.getReservations(page);
+export const getReservations = () => {
+  return reservationMgr.getReservations();
 };
 
 export const createReservation = (
@@ -65,6 +65,6 @@ export const deleteAllReservations = () => {
   return reservationMgr.deleteAllReservations();
 };
 
-export const searchReservations = (searchItem: string,page = 1) => {
-  return reservationMgr.searchReservations(searchItem, page);
+export const searchReservations = (searchItem: string) => {
+  return reservationMgr.searchReservations(searchItem);
 };
