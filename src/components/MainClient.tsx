@@ -31,8 +31,8 @@ function MainClient() {
   useEffect(()=>{
     const fetchClients = async () => {
       try {
-        const data: Client[] = await window.sqliteClients.getClients(14);
-        const ClientsNumber= await window.sqliteStatistics.getNumClients(14);
+        const data: Client[] = await window.sqliteClients.getClients();
+        const ClientsNumber= await window.sqliteStatistics.getNumClients();
         setNbrClients(ClientsNumber)
         setClients(data);
       } catch (err) {
@@ -41,7 +41,7 @@ function MainClient() {
     };
 
     fetchClients();
-  },[currentPage])
+  },[])
 
   // Page numbers pour la pagination
   const pageNumbers = [];

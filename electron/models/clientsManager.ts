@@ -2,7 +2,10 @@ import {db} from "./dbManager";
 const database = db;
 
 export const getClients = () => {
-  return database.prepare("SELECT * FROM clients").all();
+  const data = database.prepare("SELECT * FROM clients").all();
+  console.log('data:')
+  console.log(data)
+  return data
 };
 
 export const createClient = (name: string, surname: string, phone: string, address: string) => {

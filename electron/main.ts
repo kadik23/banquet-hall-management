@@ -20,7 +20,7 @@ function createWindow() {
   if (process.env.NODE_ENV === "development") {
     mainWindow.loadURL("http://localhost:8080");
   } else {
-    mainWindow.loadURL(`file://${path.join(__dirname, "../dist/index.html")}`);
+    mainWindow.loadURL(`file://${path.join(__dirname, "../dist/renderer/index.html#/")}`);
   }
 
   mainWindow.on("closed", () => {

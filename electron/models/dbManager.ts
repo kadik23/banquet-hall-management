@@ -6,7 +6,7 @@ db.pragma("foreign_keys = ON");
 
 const createTables = () => {
   try {
-    db.prepare(`DROP TABLE IF EXISTS clients;`).run();
+    // db.prepare(`DROP TABLE IF EXISTS clients;`).run();
     db.prepare(`
       CREATE TABLE IF NOT EXISTS clients (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,7 +17,7 @@ const createTables = () => {
       );
     `).run();
 
-    db.prepare(`DROP TABLE IF EXISTS reservations;`).run();
+    // db.prepare(`DROP TABLE IF EXISTS reservations;`).run();
     db.prepare(`
       CREATE TABLE IF NOT EXISTS reservations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +32,7 @@ const createTables = () => {
       );
     `).run();
 
-    db.prepare(`DROP TABLE IF EXISTS payments;`).run();
+    // db.prepare(`DROP TABLE IF EXISTS payments;`).run();
     db.prepare(`
       CREATE TABLE IF NOT EXISTS payments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +48,7 @@ const createTables = () => {
       );
     `).run();
 
-    db.prepare(`DROP TABLE IF EXISTS receipts;`).run();
+    // db.prepare(`DROP TABLE IF EXISTS receipts;`).run();
     db.prepare(`
       CREATE TABLE IF NOT EXISTS receipts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +62,7 @@ const createTables = () => {
       );
     `).run();
 
-    db.prepare(`DROP TABLE IF EXISTS products;`).run();
+    // db.prepare(`DROP TABLE IF EXISTS products;`).run();
     db.prepare(`
       CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
