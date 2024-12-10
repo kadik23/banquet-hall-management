@@ -1,18 +1,16 @@
 import { Paiment, PaimentResponse } from "../types";
 
-import {db as database} from "./dbManager";
+import { db as database } from "./dbManager";
 
-export const getPaiments = (page = 1): Paiment[] => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
+export const getPaiments = (): Paiment[] => {
   const qry = `
     SELECT p.*, c.name, c.surname 
     FROM payments p
     JOIN clients c ON p.client_id = c.id
     LIMIT ? OFFSET ?
-  `; 
+  `;
   const stmt = database.prepare(qry);
-  const res = stmt.all(limit, offset) ;
+  const res = stmt.all();
   return res;
 };
 
@@ -70,12 +68,12 @@ export const createPaiment = (
 export const editPaiment = (
   id: number,
   client_id: number | null,
-  reservation_id: number| null,
-  total_amount: number| null,
-  amount_paid: number| null,
-  remaining_balance: number| null,
-  payment_date: string| null,
-  status: "waiting" | "confirmed"| null
+  reservation_id: number | null,
+  total_amount: number | null,
+  amount_paid: number | null,
+  remaining_balance: number | null,
+  payment_date: string | null,
+  status: "waiting" | "confirmed" | null
 ): PaimentResponse => {
   const updates = {
     client_id,
@@ -125,19 +123,32 @@ export const deletePaiment = (id: number): PaimentResponse => {
 };
 
 export const deleteAllPaiments = (): PaimentResponse => {
-  const qry = `DELETE FROM payments`;
-  const stmt = database.prepare(qry);
-  const info = stmt.run();
-  return {
-    success: true,
-    message: `${info.changes} payments deleted successfully`,
-  };
+  database.prepare("BEGIN TRANSACTION").run();
+  try {
+    const deleteQry = `DELETE FROM payments`;
+    const deleteStmt = database.prepare(deleteQry);
+    const deleteInfo = deleteStmt.run();
+
+    const resetQry = `DELETE FROM sqlite_sequence WHERE name = 'payments'`;
+    database.prepare(resetQry).run();
+
+    database.prepare("COMMIT").run();
+
+    return {
+      success: true,
+      message: `${deleteInfo.changes} clients deleted successfully, and ID reset.`,
+    };
+  } catch (error: any) {
+    database.prepare("ROLLBACK").run();
+
+    return {
+      success: false,
+      message: `Error deleting clients: ${error.message}`,
+    };
+  }
 };
 
-export const searchPayments = (searchTerm: string, page = 1) => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
-  
+export const searchPayments = (searchTerm: string) => {
   const qry = `
     SELECT * FROM payments 
     WHERE 
@@ -151,20 +162,18 @@ export const searchPayments = (searchTerm: string, page = 1) => {
       status LIKE ?
     LIMIT ? OFFSET ?
   `;
-  
+
   const stmt = database.prepare(qry);
   const res = stmt.all(
-    searchTerm, 
-    searchTerm, 
-    searchTerm, 
-    searchTerm, 
-    searchTerm, 
-    searchTerm, 
-    `%${searchTerm}%`, 
-    `%${searchTerm}%`, 
-    limit, 
-    offset
+    searchTerm,
+    searchTerm,
+    searchTerm,
+    searchTerm,
+    searchTerm,
+    searchTerm,
+    `%${searchTerm}%`,
+    `%${searchTerm}%`
   );
-  
+
   return res;
 };

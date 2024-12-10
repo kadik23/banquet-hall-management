@@ -1,7 +1,7 @@
 import * as paimentMgr from "../models/paimentManager";
 
-export const getPaiments = (page = 1) => {
-  return paimentMgr.getPaiments(page);
+export const getPaiments = () => {
+  return paimentMgr.getPaiments();
 };
 
 export const getWaitedPaimentsCount = () => {
@@ -73,6 +73,6 @@ export const deleteAllPaiments = () => {
   return paimentMgr.deleteAllPaiments();
 };
 
-export const searchPaiments = (searchItem: string, page = 1) => {
-  return paimentMgr.searchPayments(searchItem, page);
+export const searchPaiments = (searchItem: string) => {
+  return paimentMgr.searchPayments(searchItem);
 };

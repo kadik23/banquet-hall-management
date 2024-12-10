@@ -48,7 +48,7 @@ declare global {
       searchReservations: (searchItem: string) => Promise<any>;
     };
     sqlitePaiment: {
-      getPaiments: (page: number) => Promise<any>;
+      getPaiments: () => Promise<any>;
       getConfirmedPaimentsCount: () => Promise<number>;
       getWaitedPaimentsCount: () => Promise<number>;
       createPaiment: (
@@ -72,7 +72,7 @@ declare global {
       ) => Promise<any>;
       deletePaiment: (id: number) => Promise<any>;
       deleteAllPaiments: () => Promise<any>;
-      searchPaiments: (searchItem: string, page: number) => Promise<any>;
+      searchPaiments: (searchItem: string) => Promise<any>;
     };
     sqliteProduct: {
       getProducts: () => Promise<any>;

@@ -129,7 +129,7 @@ contextBridge.exposeInMainWorld("sqliteReservation", {
 });
 
 contextBridge.exposeInMainWorld("sqlitePaiment", {
-  getPaiments: (page: number) => getPaiments(page),
+  getPaiments: () => getPaiments(),
   getConfirmedPaimentsCount: () => getConfirmedPaimentsCount(),
   getWaitedPaimentsCount: () => getWaitedPaimentsCount(),
   createPaiment: (
@@ -172,7 +172,7 @@ contextBridge.exposeInMainWorld("sqlitePaiment", {
     ),
   deletePaiment: (id: number) => deletePaiment(id),
   deleteAllPaiments: () => deleteAllPaiments(),
-  searchPaiments: (searchItem: string,page:number) => searchPaiments(searchItem, page)
+  searchPaiments: (searchItem: string) => searchPaiments(searchItem)
 });
 
 contextBridge.exposeInMainWorld("sqliteProduct", {
