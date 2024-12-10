@@ -1,27 +1,26 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Importez useNavigate
-import Header from './Header'; 
-import Hcome from './MainClient'; 
+import { useNavigate } from 'react-router-dom';
+import Header from './Header';
+import Hcome from './MainClient';
 import Sidebar from './Sidebar';
-
-
+import { SearchProvider } from './SearchContext'; // Assurez-vous que le chemin est correct
 
 function Client() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    
     console.log('Déconnexion réussie');
-    
-    navigate('/'); 
+    navigate('/');
   };
 
   return (
-      <div className='grid-container'>
+    <SearchProvider>
+      <div className="grid-container">
         <Header /> 
-        <Hcome /> 
-        <Sidebar openSidebarToggle={true} openSidebar={() => {}} onLogout={handleLogout} /> {/* Passez handleLogout à Sidebar */}
+        <Hcome />
+        <Sidebar openSidebarToggle={true} openSidebar={() => {}} onLogout={handleLogout} />
       </div>
+    </SearchProvider>
   );
 }
 

@@ -1,176 +1,145 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import { SearchContext } from './SearchContext'; // Importez le contexte de recherche
 
 function MainClient() {
-  // Charger les clients depuis le localStorage
-  // const loadClientsFromLocalStorage = () => {
-  //   const savedClients = localStorage.getItem('clients');
-  //   return savedClients ? JSON.parse(savedClients) : [];
-  // };
+  const { searchTerm } = useContext(SearchContext); // Utilisez le contexte pour accéder au terme de recherche
 
-  // Charger les données du formulaire depuis le localStorage
-  const loadFormStateFromLocalStorage = () => {
-    const savedFormState = localStorage.getItem('newClient');
-    return savedFormState ? JSON.parse(savedFormState) : { id: '', name: '', surname: '', address: '', phone: '' };
-  };
-
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [newClient, setNewClient] = useState(loadFormStateFromLocalStorage());
+  const [newClient, setNewClient] = useState({ id: '', nom: '', prenom: '', adresse: '', telephone: '' });
 
-  // Gestion des pages
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const clientsPerPage = 8;
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
-  const currentClients =  (clients || []).slice(indexOfFirstClient, indexOfLastClient);
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const [nbrClients, setNbrClients] = useState(0)
-  useEffect(()=>{
-    const fetchClients = async () => {
-      try {
-        const data: Client[] = await window.sqliteClients.getClients();
-        const ClientsNumber= await window.sqliteStatistics.getNumClients();
-        setNbrClients(ClientsNumber)
-        setClients(data);
-      } catch (err) {
-        alert(`Error: ${err}`);
-      }
-    };
+  // Filtrage des clients en fonction du terme de recherche
+  const filteredClients = clients.filter((client) =>
+    [client.nom, client.prenom, client.telephone, client.adresse]
+      .join(' ')
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
 
-    fetchClients();
-  },[])
+  const currentClients = filteredClients.slice(indexOfFirstClient, indexOfLastClient);
 
-  // Page numbers pour la pagination
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  
   const pageNumbers = [];
-  const totalPages = clients ? Math.ceil(clients.length / clientsPerPage) : 0;
-  for (let i = 1; i <= totalPages; i++) {
+  for (let i = 1; i <= Math.ceil(filteredClients.length / clientsPerPage); i++) {
     pageNumbers.push(i);
   }
-  // Ouvrir la modale pour ajouter un client
+
+  const fetchClients = async (page = 1) => {
+    const response = await fetch(`/api/clients?page=${page}`);
+    const data = await response.json();
+    setClients(data);
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, []); // Charge les clients une seule fois lors du montage du composant
+
   const handleAddClientClick = () => {
     setIsEditMode(false);
-    setNewClient({ name: '', surname: '', address: '', phone: '' });
+    setNewClient({ id: '', nom: '', prenom: '', adresse: '', telephone: '' });
     setIsModalOpen(true);
   };
 
-  // Ouvrir la modale pour modifier un client
-  const handleEditClientClick = (client:any) => {
+  const handleEditClientClick = (client) => {
     setIsEditMode(true);
     setNewClient(client);
     setIsModalOpen(true);
   };
 
-  // Fermer la modale
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setNewClient({ name: '', surname: '', address: '', phone: '' });
-    localStorage.removeItem('newClient'); // Réinitialiser l'état du formulaire
+    setNewClient({ id: '', nom: '', prenom: '', adresse: '', telephone: '' });
   };
 
-  // Sauvegarder l'état du formulaire dans le localStorage
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === 'phone') {
-      let formattedValue = value.replace(/\D/g, ''); // Retirer tout sauf les chiffres
+    if (name === 'telephone') {
+      let formattedValue = value.replace(/\D/g, '');
       if (formattedValue.length > 10) {
-        formattedValue = formattedValue.slice(0, 10); // Limiter à 10 chiffres
+        formattedValue = formattedValue.slice(0, 10);
       }
-      formattedValue = formattedValue.replace(/(\d{2})(?=\d)/g, '$1 ').trim(); // Formater avec des espaces
+      formattedValue = formattedValue.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
       setNewClient({
         ...newClient,
         [name]: formattedValue
       });
-      localStorage.setItem('newClient', JSON.stringify({ ...newClient, [name]: formattedValue }));
     } else {
       setNewClient({
         ...newClient,
         [name]: value
       });
-      localStorage.setItem('newClient', JSON.stringify({ ...newClient, [name]: value }));
     }
   };
 
-  // Soumettre le formulaire (ajouter ou modifier un client)
-  const handleSubmit = async(e:any) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let updatedClients: Client[];
+    let response;
     if (isEditMode) {
-      try{
-        const data = await window.sqliteClients.editClient(newClient.id, newClient.name,newClient.surname,newClient.phone,newClient.address);
-        
-        alert(`Client ${data.clientId} was edited successfuly`)
-        updatedClients = clients.map((client:any) => client.id === newClient.id ? newClient : client);
-      }catch(e){
-        console.log(e)
-      }
+      // Mise à jour du client
+      response = await fetch(`/api/clients/${newClient.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newClient)
+      });
     } else {
-      try{
-        const data = await window.sqliteClients.createClient(newClient.name,newClient.surname,newClient.phone, newClient.address);
-        alert(`Client ${data.clientId} was created successfuly`)
-        newClient.id = data.clientId
-        updatedClients = [...clients, newClient];
-      }catch(e){
-        console.log(e)
-      }
+      // Ajout du client
+      response = await fetch(`/api/clients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newClient)
+      });
     }
-    setClients(updatedClients);
-    // localStorage.setItem('clients', JSON.stringify(updatedClients));
-    setNewClient({ name: '', surname: '', address: '', phone: '' });
-    localStorage.removeItem('newClient'); // Réinitialiser l'état du formulaire après soumission
+
+    if (response.ok) {
+      fetchClients(currentPage); // Rafraîchit la liste des clients
+    }
+
+    setNewClient({ id: '', nom: '', prenom: '', adresse: '', telephone: '' });
     setIsModalOpen(false);
   };
 
-  // Supprimer un client
-  const handleDeleteClient = async(id:number) => {
+  const handleDeleteClient = async (id) => {
     const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?");
     if (confirmDelete) {
-      try{
-        const data = await window.sqliteClients.deleteClient(id);
-        alert(data.message)
-        const updatedClients = clients.filter((client:any) => client.id !== id);
-        setClients(updatedClients);
-        // localStorage.setItem('clients', JSON.stringify(updatedClients));
-      }catch(e){
-        console.log(e)
+      const response = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        fetchClients(currentPage); // Rafraîchit la liste des clients
       }
     }
   };
 
-  // Supprimer tous les clients
-  const handleDeleteAll = async() => {
+  const handleDeleteAll = async () => {
     const confirmDeleteAll = window.confirm("Êtes-vous sûr de vouloir supprimer tous les clients ?");
     if (confirmDeleteAll) {
-      try{
-          const data = await window.sqliteClients.deleteAllClients();
-          setClients([]);
-          alert(data.message)
-          // localStorage.removeItem('clients');
-      }catch(e){
-        console.log(e)
+      const response = await fetch(`/api/clients`, { method: 'DELETE' });
+      if (response.ok) {
+        fetchClients(currentPage); // Rafraîchit la liste des clients
       }
     }
   };
-
-  // useEffect(() => {
-  //   // Lors du montage, on récupère les clients et l'état du formulaire
-  //   setNewClient(loadFormStateFromLocalStorage());
-  // }, []);
 
   return (
     <div className="main-container2">
       <div className="header-cl">
         <h3>GESTION DES CLIENTS</h3>
-        <span className="client-count">Tous les clients : {nbrClients && nbrClients}</span>
+        <span className="client-count">Tous les clients : {filteredClients.length}</span>
       </div>
       <div className="footer-buttons">
         <button className="add-client-btn" onClick={handleAddClientClick}>Ajouter un client</button>
         <button className="delete-all-btn" onClick={handleDeleteAll}>Supprimer tout</button>
       </div>
-
+  
       {isModalOpen && (
         <div className="modal">
           <div className="modal-content">
@@ -180,36 +149,30 @@ function MainClient() {
               {isEditMode && (
                 <div>
                   <label>ID:</label>
-                  <input
-                    type="number"
-                    name="id"
-                    value={newClient.id}
-                    onChange={handleInputChange}
-                    readOnly
-                  />
+                  <input type="number" name="id" value={newClient.id} readOnly />
                 </div>
               )}
               <label>Nom:</label>
               <input
                 type="text"
-                name="name"
-                value={newClient.name}
+                name="nom"
+                value={newClient.nom}
                 onChange={handleInputChange}
                 required
               />
               <label>Prénom:</label>
               <input
                 type="text"
-                name="surname"
-                value={newClient.surname}
+                name="prenom"
+                value={newClient.prenom}
                 onChange={handleInputChange}
                 required
               />
               <label>Numéro de téléphone:</label>
               <input
                 type="tel"
-                name="phone"
-                value={newClient.phone}
+                name="telephone"
+                value={newClient.telephone}
                 onChange={handleInputChange}
                 required
                 placeholder="Ex: 06 56 62 49 81"
@@ -217,8 +180,8 @@ function MainClient() {
               <label>Adresse:</label>
               <input
                 type="text"
-                name="address"
-                value={newClient.address}
+                name="adresse"
+                value={newClient.adresse}
                 onChange={handleInputChange}
                 required
               />
@@ -230,7 +193,7 @@ function MainClient() {
           </div>
         </div>
       )}
-
+  
       <table className="clients-table">
         <thead>
           <tr>
@@ -245,55 +208,36 @@ function MainClient() {
         <tbody>
           {currentClients.length === 0 ? (
             <tr>
-              <td colSpan={6} style={{ textAlign: 'center' }}>Aucun client ajouté</td>
+              <td colSpan="6" style={{ textAlign: 'center' }}>Aucun client trouvé</td>
             </tr>
           ) : (
-            currentClients.map((client:any) => (
-              <React.Fragment key={client.id}>
-                <tr>
-                  <td>{client.id}</td>
-                  <td>{client.name}</td>
-                  <td>{client.surname}</td>
-                  <td>{client.address}</td>
-                  <td>{client.phone}</td>
-                  <td>
-                    <FaEdit
-                      className="action-icon edit-icon"
-                      title="Modifier"
-                      onClick={() => handleEditClientClick(client)}
-                    />
-                    <FaTrash
-                      className="action-icon delete-icon"
-                      title="Supprimer"
-                      onClick={() => handleDeleteClient(client.id)}
-                    />
-                  </td>
-                </tr>
-              </React.Fragment>
+            currentClients.map((client) => (
+              <tr key={client.id}>
+                <td>{client.id}</td>
+                <td>{client.nom}</td>
+                <td>{client.prenom}</td>
+                <td>{client.adresse}</td>
+                <td>{client.telephone}</td>
+                <td>
+                  <FaEdit className="action-icon edit-icon" title="Modifier" onClick={() => handleEditClientClick(client)} />
+                  <FaTrash className="action-icon delete-icon" title="Supprimer" onClick={() => handleDeleteClient(client.id)} />
+                </td>
+              </tr>
             ))
           )}
         </tbody>
       </table>
-
+  
       <div className="pagination">
-        <span className="page-info">
-          {Math.min(indexOfLastClient, (clients || []).length)} sur {(clients || []).length} clients
+        <span className="page-number">
+          {pageNumbers.map(number => (
+            <button key={number} onClick={() => paginate(number)}>{number}</button>
+          ))}
         </span>
-        <button 
-          onClick={() => paginate(currentPage - 1)} 
-          disabled={currentPage === 1}
-        >
-          &lt;
-        </button>
-        <button 
-          onClick={() => paginate(currentPage + 1)} 
-          disabled={currentPage === pageNumbers.length}
-        >
-          &gt;
-        </button>
       </div>
     </div>
   );
+  
 }
 
 export default MainClient;
