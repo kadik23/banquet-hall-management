@@ -25,11 +25,11 @@
     "directories": {
       "output": "build"
     },
-    "asar": false,
+    "asar": true,
     "extraResources": [
       {
         "from": "dist/main.js",
-        "to": "main.js"
+        "to": "app/dist/main.js"
       }
     ],
     "win": {

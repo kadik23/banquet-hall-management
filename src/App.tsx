@@ -1,7 +1,7 @@
 import React from "react";
 
 import ReactDOM from "react-dom/client";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Importer les composants nécessaires pour la navigation
+import { BrowserRouter as Router, Routes, Route, HashRouter } from "react-router-dom"; // Importer les composants nécessaires pour la navigation
 import LoginForm from "./components/LoginForm";
 import Dashboard from "./components/Dashboard";
 import Client from "./components/Client";
@@ -12,7 +12,7 @@ import Produit from "./components/Produit";
 
 const App = () => {
   return (
-    <Router> {/* Envelopper l'application dans Router pour activer la navigation */}
+    <HashRouter> {/* Envelopper l'application dans Router pour activer la navigation */}
       <Routes>
       <Route path="/" element={<LoginForm />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -23,7 +23,7 @@ const App = () => {
           <Route path="/produit" element={<Produit />} />
 
       </Routes>
-    </Router>
+    </HashRouter>
   );
 };
 

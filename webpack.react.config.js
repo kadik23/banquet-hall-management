@@ -7,7 +7,7 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
     mainFields: ['main', 'module', 'browser'],
   },
-  entry: './src/app.tsx',
+  entry: './src/App.tsx',
   target: 'web',
   devtool: 'source-map',
   module: {
@@ -40,4 +40,8 @@ module.exports = {
       template: './src/index.html',
     }),
   ],
+  output: {
+    path: path.resolve(__dirname, "./dist/renderer"),
+    filename: "[name].js",
+  },
 } 
