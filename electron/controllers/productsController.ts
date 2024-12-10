@@ -1,7 +1,7 @@
 import * as productMgr from "../models/productsManager";
 
-export const getProducts = (page = 1) => {
-  return productMgr.getProducts(page);
+export const getProducts = () => {
+  return productMgr.getProducts();
 };
 
 export const getPaidProductsCount = () => {
@@ -21,9 +21,10 @@ export const createProduct = (
   unique_price: number,
   quantity: number,
   total_amount: number,
-  status: 'paid' | 'not-paid'
+  status: 'paid' | 'not-paid',
+  date: string
 ) => {
-  if (!name || !unique_price || !quantity || !total_amount || !status) {
+  if (!name || !unique_price || !quantity || !total_amount || !status || !date) {
     return { success: false, message: "missing required data" };
   }
   return productMgr.createProduct(
@@ -31,7 +32,8 @@ export const createProduct = (
     unique_price,
     quantity,
     total_amount,
-    status
+    status,
+    date
   );
 };
 
@@ -61,6 +63,6 @@ export const deleteAllProducts = () => {
   return productMgr.deleteAllProducts();
 };
 
-export const searchProducts = (searchItem: string, page = 1) => {
-  return productMgr.searchProducts(searchItem, page);
+export const searchProducts = (searchItem: string) => {
+  return productMgr.searchProducts(searchItem);
 };

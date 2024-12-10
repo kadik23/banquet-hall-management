@@ -2,12 +2,10 @@ import { Product, ProductResponse } from "../types";
 
 import {db as database} from "./dbManager";
 
-export const getProducts = (page = 1): Product[] => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
+export const getProducts = (): Product[] => {
   const qry = `SELECT * FROM products LIMIT ? OFFSET ?`;
   const stmt = database.prepare(qry);
-  const res = stmt.all(limit, offset) as Product[];
+  const res = stmt.all() as Product[];
   return res;
 };
 
@@ -50,15 +48,16 @@ export const createProduct = (
   unique_price: number,
   quantity: number,
   total_amount: number,
-  status: "paid" | "not-paid"
+  status: "paid" | "not-paid",
+  date:string,
 ): ProductResponse => {
   const qry = `
     INSERT INTO products 
-    (name, unique_price, quantity, total_amount, status) 
-    VALUES (?, ?, ?, ?, ?)
+    (name, unique_price, quantity, total_amount, status, date) 
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
   const stmt = database.prepare(qry);
-  const info = stmt.run(name, unique_price, quantity, total_amount, status);
+  const info = stmt.run(name, unique_price, quantity, total_amount, status, date);
   return { success: true, productId: info.lastInsertRowid };
 };
 
@@ -125,19 +124,17 @@ export const deleteAllProducts = (): ProductResponse => {
   };
 };
 
-export const searchProducts = (searchTerm: string, page = 1) => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
-
+export const searchProducts = (searchTerm: string) => {
   const qry = `
     SELECT * FROM products 
     WHERE 
       id = CAST(? AS INTEGER) OR
       name LIKE ? OR
-      prix = CAST(? AS INTEGER) OR
+      unique_price = CAST(? AS INTEGER) OR
       quantity = CAST(? AS INTEGER) OR
       total_amount = CAST(? AS INTEGER) OR
-      status LIKE ?
+      status LIKE ? OR
+      date LIKE ?
     LIMIT ? OFFSET ?
   `;
 
@@ -149,8 +146,7 @@ export const searchProducts = (searchTerm: string, page = 1) => {
     searchTerm,
     searchTerm,
     `%${searchTerm}%`,
-    limit,
-    offset
+    `%${searchTerm}%`
   );
 
   return res;

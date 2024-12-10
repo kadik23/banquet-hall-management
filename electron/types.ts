@@ -40,7 +40,7 @@ export interface ProductResponse {
   productId?: number;
 }
 
-type Product = {
+export type Product = {
   id?: number;
   name: string;
   unique_price: number,

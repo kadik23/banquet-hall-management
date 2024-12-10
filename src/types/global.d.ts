@@ -59,7 +59,6 @@ declare global {
         remaining_balance: number,
         payment_date: string,
         status: "waiting" | "confirmed",
-        date: string
       ) => Promise<any>;
       editPaiment: (
         id: number,
@@ -76,7 +75,7 @@ declare global {
       searchPaiments: (searchItem: string, page: number) => Promise<any>;
     };
     sqliteProduct: {
-      getProducts: (page: number) => Promise<any>;
+      getProducts: () => Promise<any>;
       getPaidProductsCount: () => Promise<number>;
       getNotPaidProductsCount: () => Promise<number>;
       getTotalAmount: () => Promise<number>;
@@ -98,7 +97,7 @@ declare global {
       ) => Promise<any>;
       deleteProduct: (id: number) => Promise<any>;
       deleteAllProducts: () => Promise<any>;
-      searchProducts: (searchItem: string, page: number) => Promise<any>;
+      searchProducts: (searchItem: string) => Promise<any>;
     };
     sqliteReceipt: {
       getReceipts: (page: number) => Promise<any>;
