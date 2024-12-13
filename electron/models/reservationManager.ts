@@ -106,19 +106,36 @@ export const editReservation = (
 };
 
 export const deleteReservation = (id: number): ReservationResponse => {
-  const qry = `DELETE FROM reservations WHERE id = ?`;
-  const stmt = database.prepare(qry);
-  const info = stmt.run(id);
-  if (info.changes === 0) {
-    return { success: false, message: "Reservation not found" };
+  database.prepare("BEGIN TRANSACTION").run();
+
+  try {
+    database.prepare(`DELETE FROM payments WHERE reservation_id = ?`).run(id);
+    database.prepare(`DELETE FROM receipts WHERE reservation_id = ?`).run(id);
+    const qry = `DELETE FROM reservations WHERE id = ?`;
+    const stmt = database.prepare(qry);
+    const info = stmt.run(id);
+    if (info.changes === 0) {
+      database.prepare("ROLLBACK").run();
+      return { success: false, message: "Reservation not found" };
+    }
+    database.prepare("COMMIT").run();
+
+    return { success: true, message: "Reservation deleted successfully" };
+  } catch (error: any) {
+    database.prepare("ROLLBACK").run();
+    return {
+      success: false,
+      message: `Error deleting client: ${error.message}`,
+    };
   }
-  return { success: true, message: "Reservation deleted successfully" };
 };
 
 export const deleteAllReservations = (): ReservationResponse => {
-  database.prepare('BEGIN TRANSACTION').run();
+  database.prepare("BEGIN TRANSACTION").run();
 
   try {
+    database.prepare(`DELETE FROM payments`).run();
+    database.prepare(`DELETE FROM receipts`).run();
     const deleteQry = `DELETE FROM reservations`;
     const deleteStmt = database.prepare(deleteQry);
     const deleteInfo = deleteStmt.run();
@@ -126,14 +143,14 @@ export const deleteAllReservations = (): ReservationResponse => {
     const resetQry = `DELETE FROM sqlite_sequence WHERE name = 'reservations'`;
     database.prepare(resetQry).run();
 
-    database.prepare('COMMIT').run();
+    database.prepare("COMMIT").run();
 
     return {
       success: true,
       message: `${deleteInfo.changes} reservations deleted successfully, and ID reset.`,
     };
-  } catch (error:any) {
-    database.prepare('ROLLBACK').run();
+  } catch (error: any) {
+    database.prepare("ROLLBACK").run();
 
     return {
       success: false,
