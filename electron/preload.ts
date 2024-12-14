@@ -61,6 +61,7 @@ import {
 contextBridge.exposeInMainWorld("electron", {
   send: (channel: string, data: any) => ipcRenderer.send(channel, data),
   receive: (channel: string, callback: (arg0: any) => void) => ipcRenderer.on(channel, (event, ...args) => callback(...args)),
+  fixFocus: () => ipcRenderer.send('focus-fix'),
 });
 
 contextBridge.exposeInMainWorld("sqliteClients", {

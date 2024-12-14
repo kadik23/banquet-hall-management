@@ -5,6 +5,7 @@ declare global {
     electron: {
       send: (channel: string, data: any) => void;
       receive: (channel: string, callback: (data: any) => void) => void;
+      fixFocus: () => void;
     };
     sqliteClients: {
       getClients: () => Promise<any>;

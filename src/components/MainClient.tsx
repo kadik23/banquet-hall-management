@@ -1,122 +1,157 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { BsSearch } from 'react-icons/bs';
-
-interface Client {
-  id: number;
-  nom: string;
-  prenom: string;
-  adresse: string;
-  telephone: string;
-}
 
 function MainClient() {
-  const loadClientsFromLocalStorage = () => {
-    const savedClients = localStorage.getItem('clients');
-    return savedClients ? JSON.parse(savedClients) : [];
+  const loadFormStateFromLocalStorage = () => {
+    const savedFormState = localStorage.getItem('newClient');
+    return savedFormState ? JSON.parse(savedFormState) : { name: '', surname: '', address: '', phone: '' };
   };
 
-  const [clients, setClients] = useState<Client[]>(loadClientsFromLocalStorage());
-  const [newClient, setNewClient] = useState<Client>({ id: 0, nom: '', prenom: '', adresse: '', telephone: '' });
+  const [clients, setClients] = useState<Client[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [newClient, setNewClient] = useState<Client>(loadFormStateFromLocalStorage());
+  const [nbrClients, setNbrClients] = useState(0)
+  // Gestion des pages
   const [currentPage, setCurrentPage] = useState(1);
-
-  const clientsPerPage = 8;
+  const clientsPerPage = 7;
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
-
-  const filteredClients = clients.filter((client) =>
-    [client.nom, client.prenom, client.telephone, client.adresse]
-      .join(' ')
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
-
-  const currentClients = filteredClients.slice(indexOfFirstClient, indexOfLastClient);
+  const currentClients =  (clients || []).slice(indexOfFirstClient, indexOfLastClient);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const data: Client[] = await window.sqliteClients.getClients(14);
+        const data: Client[] = await window.sqliteClients.getClients();
+        const ClientsNumber = await window.sqliteStatistics.getNumClients();
+        setNbrClients(ClientsNumber);
         setClients(data);
       } catch (err) {
-        alert(`Error: ${err}`);
+        window.alert(`Error: ${err}`);
       }
     };
+  
+    fetchClients();
+  }, []);
+  
 
-    // Charger depuis localStorage ou API si vide
-    if (!localStorage.getItem('clients')) {
-      fetchClients();
-    }
-  }, [currentPage]);
+  // Page numbers pour la pagination
+  const pageNumbers = [];
+  const totalPages = clients ? Math.ceil(clients.length / clientsPerPage) : 0;
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+  // Ouvrir la modale pour ajouter un client
+  const openAddForm = () => {
+    setIsEditMode(false);
+    setNewClient({ name: '', surname: '', address: '', phone: '' });
+    setIsModalOpen(true);
+  };
 
-  const handleAddClientClick = (clientToEdit: Client | null) => {
-    setIsEditMode(!!clientToEdit);
-    setNewClient(clientToEdit || { id: clients.length + 1, nom: '', prenom: '', adresse: '', telephone: '' });
+  const opendEditForm = (client:Client) => {
+    setIsEditMode(true);
+    setNewClient(client);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setNewClient({ id: 0, nom: '', prenom: '', adresse: '', telephone: '' });
+    setNewClient({ name: '', surname: '', address: '', phone: '' });
+    localStorage.removeItem('newClient');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    e.stopPropagation();  
     const { name, value } = e.target;
-    setNewClient({ ...newClient, [name]: value });
+  
+    setNewClient((prev) => {
+      let formattedValue = value;
+  
+      if (name === 'phone') {
+        // Format phone numbers (limit to 10 digits with spaces)
+        formattedValue = value.replace(/\D/g, '').slice(0, 10).replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+      }
+  
+      return { ...prev, [name]: formattedValue };
+    });
+  };  
+
+  // ajouter ou modifier un client
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    const { id, name, surname, phone, address } = newClient;
+    let updatedClients = [...clients];
+  
+    try {
+      if (isEditMode) {
+        const data = await window.sqliteClients.editClient(id as number, name, surname, phone, address);
+        updatedClients = clients.map(client => (client.id === id ? newClient : client));
+        window.alert(`Client ${data.clientId} was edited successfully`);
+      } else {
+        const data = await window.sqliteClients.createClient(name, surname, phone, address);
+        updatedClients = [...clients, { ...newClient, id: data.clientId }];
+        window.alert(`Client ${data.clientId} was created successfully`);
+      }
+      window.electron.fixFocus();
+      // Update client state and reset form
+      setClients(updatedClients);
+      resetFormState();
+    } catch (error) {
+      console.error("Error while submitting client:", error);
+      window.alert("An error occurred while processing the request.");
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    let updatedClients: Client[];
-    if (isEditMode) {
-      updatedClients = clients.map((client) => client.id === newClient.id ? newClient : client);
-    } else {
-      updatedClients = [...clients, newClient];
-    }
-
-    setClients(updatedClients);
-    localStorage.setItem('clients', JSON.stringify(updatedClients));
-
-    // On réinitialise le formulaire et on ferme le modal
-    setNewClient({ id: 0, nom: '', prenom: '', adresse: '', telephone: '' });
+  // Reset form state and close modal
+  const resetFormState = () => {
+    setNewClient({ id: 0, name: '', surname: '', address: '', phone: '' });
+    localStorage.removeItem('newClient');
     setIsModalOpen(false);
   };
 
+  // Supprimer un client
   const handleDeleteClient = async (id: number) => {
-    const updatedClients = clients.filter((client) => client.id !== id);
-    setClients(updatedClients);
-    localStorage.setItem('clients', JSON.stringify(updatedClients));
+    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?");
+    if (confirmDelete) {
+      try {
+        const data = await window.sqliteClients.deleteClient(id);
+        window.alert(data.message)
+        const updatedClients = clients.filter((client) => client.id !== id);
+        setClients(updatedClients);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    window.electron.fixFocus();
+  };  
+
+  // Supprimer tous les clients
+  const handleDeleteAll = async() => {
+    const confirmDeleteAll = window.confirm("Êtes-vous sûr de vouloir supprimer tous les clients ?");
+    if (confirmDeleteAll) {
+      try{
+          const data = await window.sqliteClients.deleteAllClients();
+          setClients([]);
+          window.alert(data.message)
+      }catch(e){
+        console.log(e)
+      }
+    }
+    window.electron.fixFocus();
   };
-
-  const handleDeleteAll = async () => {
-    setClients([]);
-    localStorage.removeItem('clients');
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Réinitialiser la pagination lors de la recherche
-  };
-
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(filteredClients.length / clientsPerPage); i++) {
-    pageNumbers.push(i);
-  }
-
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="main-container2">
       <div className="header-cl">
         <h3>GESTION DES CLIENTS</h3>
-        <span className="client-count">Tous les clients : {clients.length}</span>
+        <span className="client-count">Tous les clients : {nbrClients && nbrClients}</span>
       </div>
       <div className="footer-buttons">
-        <button className="add-client-btn" onClick={() => handleAddClientClick(null)}>Ajouter un client</button>
-        <button className="delete-all-btn" onClick={handleDeleteAll}>Supprimer tous les clients</button>
+        <button className="add-client-btn" onClick={openAddForm}>Ajouter un client</button>
+        <button className="delete-all-btn" onClick={handleDeleteAll}>Supprimer tout</button>
       </div>
 
       {isModalOpen && (
@@ -125,27 +160,39 @@ function MainClient() {
             <span className="close-btn" onClick={handleCloseModal}>&times;</span>
             <h3>{isEditMode ? 'Modifier un client' : 'Ajouter un client'}</h3>
             <form onSubmit={handleSubmit}>
+              {isEditMode && (
+                <div>
+                  <label>ID:</label>
+                  <input
+                    type="number"
+                    name="id"
+                    value={newClient.id}
+                    onChange={handleInputChange}
+                    readOnly
+                  />
+                </div>
+              )}
               <label>Nom:</label>
               <input
                 type="text"
-                name="nom"
-                value={newClient.nom}
+                name="name"
+                value={newClient.name || ''}
                 onChange={handleInputChange}
                 required
               />
               <label>Prénom:</label>
               <input
                 type="text"
-                name="prenom"
-                value={newClient.prenom}
+                name="surname"
+                value={newClient.surname || ''}
                 onChange={handleInputChange}
                 required
               />
               <label>Numéro de téléphone:</label>
               <input
                 type="tel"
-                name="telephone"
-                value={newClient.telephone}
+                name="phone"
+                value={newClient.phone || ''}
                 onChange={handleInputChange}
                 required
                 placeholder="Ex: 06 56 62 49 81"
@@ -153,8 +200,8 @@ function MainClient() {
               <label>Adresse:</label>
               <input
                 type="text"
-                name="adresse"
-                value={newClient.adresse}
+                name="address"
+                value={newClient.address || ''}
                 onChange={handleInputChange}
                 required
               />
@@ -166,16 +213,6 @@ function MainClient() {
           </div>
         </div>
       )}
-
-      <div className="search-bar">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          placeholder="Rechercher un client..."
-        />
-        <BsSearch className="search-icon" />
-      </div>
 
       <table className="clients-table">
         <thead>
@@ -189,31 +226,71 @@ function MainClient() {
           </tr>
         </thead>
         <tbody>
-          {currentClients.map((client) => (
-            <tr key={client.id}>
-              <td>{client.id}</td>
-              <td>{client.nom}</td>
-              <td>{client.prenom}</td>
-              <td>{client.adresse}</td>
-              <td>{client.telephone}</td>
-              <td>
-                <FaEdit className="action-icon edit-icon" onClick={() => handleAddClientClick(client)} />
-                <FaTrash className="action-icon delete-icon" onClick={() => handleDeleteClient(client.id)} />
-              </td>
+          {currentClients.length === 0 ? (
+            <tr>
+              <td colSpan={6} style={{ textAlign: 'center' }}>Aucun client ajouté</td>
             </tr>
-          ))}
+          ) : (
+            currentClients.map((client:any) => (
+              <React.Fragment key={client.id}>
+                <tr>
+                  <td>{client.id}</td>
+                  <td>{client.name}</td>
+                  <td>{client.surname}</td>
+                  <td>{client.address}</td>
+                  <td>{client.phone}</td>
+                  <td>
+                    <FaEdit
+                      className="action-icon edit-icon"
+                      title="Modifier"
+                      onClick={() => opendEditForm(client)}
+                    />
+                    <FaTrash
+                      className="action-icon delete-icon"
+                      title="Supprimer"
+                      onClick={() => handleDeleteClient(client.id)}
+                    />
+                  </td>
+                </tr>
+              </React.Fragment>
+            ))
+          )}
         </tbody>
       </table>
 
       <div className="pagination">
-        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>&lt;</button>
-        {pageNumbers.map((number) => (
-          <button key={number} onClick={() => paginate(number)}>{number}</button>
-        ))}
-        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === pageNumbers.length}>&gt;</button>
+        <span className="page-info">
+          {Math.min(indexOfLastClient, (clients || []).length)} sur {(clients || []).length} clients
+        </span>
+        <button 
+          onClick={() => paginate(currentPage - 1)} 
+          disabled={currentPage === 1}
+        >
+          &lt;
+        </button>
+        <button 
+          onClick={() => paginate(currentPage + 1)} 
+          disabled={currentPage === pageNumbers.length}
+        >
+          &gt;
+        </button>
       </div>
     </div>
   );
 }
+
+const ConfirmationModal = ({ message, onConfirm, onCancel }: any) => {
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        <p>{message}</p>
+        <div className="modal-buttons">
+          <button onClick={onConfirm}>Oui</button>
+          <button onClick={onCancel}>Annuler</button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default MainClient;

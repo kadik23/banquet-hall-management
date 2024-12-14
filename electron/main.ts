@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, } from "electron";
 import path from "path";
 import { createReceipt } from "./models/receiptsManager";
 import fs from "fs";
@@ -26,7 +26,13 @@ function createWindow() {
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
+
+  ipcMain.on('focus-fix', () => {
+    mainWindow?.blur();
+    mainWindow?.focus();
+  });
 }
+
 
 app.whenReady().then(() => {
   createWindow();
