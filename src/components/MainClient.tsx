@@ -279,18 +279,4 @@ function MainClient() {
   );
 }
 
-const ConfirmationModal = ({ message, onConfirm, onCancel }: any) => {
-  return (
-    <div className="modal">
-      <div className="modal-content">
-        <p>{message}</p>
-        <div className="modal-buttons">
-          <button onClick={onConfirm}>Oui</button>
-          <button onClick={onCancel}>Annuler</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default MainClient;
