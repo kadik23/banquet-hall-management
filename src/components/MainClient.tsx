@@ -1,7 +1,7 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
-function MainClient() {
+function MainClient({searchTerm}:{searchTerm:string}) {
   const loadFormStateFromLocalStorage = () => {
     const savedFormState = localStorage.getItem('newClient');
     return savedFormState ? JSON.parse(savedFormState) : { name: '', surname: '', address: '', phone: '' };
@@ -17,8 +17,16 @@ function MainClient() {
   const clientsPerPage = 7;
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
-  const currentClients =  (clients || []).slice(indexOfFirstClient, indexOfLastClient);
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  const filteredClients = clients.filter((client) =>
+    [client.name, client.surname, client.phone, client.address]
+      .join(' ')
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
+  const currentClients = filteredClients.slice(indexOfFirstClient, indexOfLastClient);
 
   useEffect(() => {
     const fetchClients = async () => {

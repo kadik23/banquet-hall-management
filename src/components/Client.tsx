@@ -19,7 +19,7 @@ function Client() {
       {/* Intégration du composant Header avec searchTerm et setSearchTerm */}
       <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       {/* Passer searchTerm à MainClient pour filtrage */}
-      <MainClient />
+      <MainClient searchTerm={searchTerm}/>
       <Sidebar openSidebarToggle={true} openSidebar={() => {}} onLogout={handleLogout} />
     </div>
   );
