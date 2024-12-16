@@ -2,55 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import '../App.css';
 
-function MainProduit() {
-  const [productsByDate, setProductsByDate] = useState({});
+function MainProduit({searchTerm}:{searchTerm:string}) {
+  const [productsByDate, setProductsByDate] = useState<Product[]>([]);
   const [currentDate, setCurrentDate] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [nextId, setNextId] = useState(1); // Compteur pour l'ID
-  const [deletedIds, setDeletedIds] = useState([]); // Suivi des IDs supprimés
-  const [newProduct, setNewProduct] = useState({
-    id: null,
-    nom: '',
-    prixUnitaire: '',
-    quantite: '',
-    montantTotal: '',
-    statut: '',
-    date: ''
+  const [products, setProducts] = useState<Product[]>([]);
+  const [nbrProducts, setNbrProducts] = useState(0)
+  const [newProduct, setNewProduct] = useState<Product>({
+    name: '',
+    unique_price: 0,
+    quantity: 0,
+    total_amount: 0,
+    status: 'not-paid',
+    date: currentDate
   });
-  const productsPerPage = 8;
   const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 5;
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
     setCurrentDate(today);
     setSelectedDate(today);
+    const fetchProducts = async () => {
+      try {
+        const data: Product[] = await window.sqliteProduct.getProducts();
+        const ProductsNumber= await window.sqliteStatistics.getNumProducts();
+        setNbrProducts(ProductsNumber)
+        setProductsByDate(data);
+        console.log(data)
+        setProducts(data)
+      } catch (err) {
+        alert(`Error: ${err}`);
+      }
+    };
 
-    const storedProducts = JSON.parse(localStorage.getItem('productsByDate')) || {};
-    setProductsByDate(storedProducts);
+    fetchProducts();
+  }, []);  
 
-    const storedNextId = localStorage.getItem('nextId');
-    if (storedNextId) {
-      setNextId(parseInt(storedNextId, 10));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('productsByDate', JSON.stringify(productsByDate));
-  }, [productsByDate]);
-
-  useEffect(() => {
-    localStorage.setItem('nextId', nextId); // Sauvegarder le compteur d'ID
-  }, [nextId]);
-
-  const formatDate = (date) => {
+  const formatDate = (date:string) => {
     const dateObj = new Date(date);
     return dateObj.toLocaleDateString('fr-FR');
   };
 
-  const handleFilterDateChange = (e) => {
+  const handleFilterDateChange = (e:any) => {
     const selected = e.target.value;
     if (selected <= currentDate) {
       setSelectedDate(selected);
@@ -61,7 +58,7 @@ function MainProduit() {
   };
   
 
-  const handleStatusChange = (e) => {
+  const handleStatusChange = (e:any) => {
     setSelectedStatus(e.target.value);
     setCurrentPage(1);
   };
@@ -69,18 +66,17 @@ function MainProduit() {
   const handleAddProductClick = () => {
     setIsEditMode(false);
     setNewProduct({
-      id: null,
-      nom: '',
-      prixUnitaire: '',
-      quantite: '',
-      montantTotal: '',
-      statut: 'Payé',
+      name: '',
+      unique_price: 0,
+      quantity: 0,
+      total_amount: 0,
+      status: 'not-paid',
       date: currentDate
     });
     setIsModalOpen(true);
   };
 
-  const handleEditProductClick = (product) => {
+  const handleEditProductClick = (product: Product) => {
     setIsEditMode(true);
     setNewProduct(product);
     setIsModalOpen(true);
@@ -90,7 +86,7 @@ function MainProduit() {
     setIsModalOpen(false);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:any) => {
     const { name, value } = e.target;
     setNewProduct({
       ...newProduct,
@@ -98,72 +94,99 @@ function MainProduit() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const updatedProductsByDate = { ...productsByDate };
-
-    let newProductWithId;
-    if (isEditMode) {
-      // Modifier un produit existant
-      const updatedProducts = productsByDate[selectedDate].map((product) =>
-        product.id === newProduct.id ? newProduct : product
-      );
-      updatedProductsByDate[selectedDate] = updatedProducts;
-    } else {
-      // Ajouter un nouveau produit
-      const currentProducts = productsByDate[selectedDate] || [];
-      
-      let newId;
-      if (deletedIds.length > 0) {
-        // Réutiliser un ID supprimé s'il y en a
-        newId = deletedIds[0];  // Utilise le premier ID supprimé disponible
-        setDeletedIds(deletedIds.slice(1)); // Retirer l'ID utilisé de la liste
-      } else {
-        // Si aucun ID supprimé n'est disponible, utilise nextId
-        newId = nextId;
-        setNextId(nextId + 1); // Incrémenter nextId
-      }
-      
-      newProductWithId = { ...newProduct, id: newId };
-      updatedProductsByDate[currentDate] = [
-        ...(productsByDate[currentDate] || []),
-        newProductWithId
-      ];
-    }
-
-    setProductsByDate(updatedProductsByDate);
+  const resetFormState = () => {
+    setNewProduct({
+      name: '',
+      unique_price: 0,
+      quantity: 0,
+      total_amount: 0,
+      status: 'not-paid',
+      date: ''
+    });
+    localStorage.removeItem('newClient');
     setIsModalOpen(false);
   };
 
-  const handleDeleteProduct = (id) => {
-    const updatedProducts = {
-      ...productsByDate,
-      [selectedDate]: productsByDate[selectedDate].filter((product) => product.id !== id)
-    };
+  const handleSubmit = async(e: React.FormEvent) => {
+    e.preventDefault();
+  
+    let updatedProducts = [...productsByDate];
+    try {
 
-    // Ajouter l'ID supprimé dans deletedIds
-    setDeletedIds([...deletedIds, id]);
-
-    setProductsByDate(updatedProducts);
-  };
-
-  const handleDeleteAll = () => {
-    const updatedProducts = {
-      ...productsByDate,
-      [selectedDate]: []
-    };
-    setProductsByDate(updatedProducts);
-    setNextId(1);  // Réinitialiser le compteur d'ID à 1
-    setDeletedIds([]); // Réinitialiser la liste des IDs supprimés
-  };
-
-  const currentProducts = productsByDate[selectedDate] || [];
-  const filteredProducts = currentProducts.filter((product) => {
-    if (selectedStatus && product.statut !== selectedStatus) {
-      return false;
+      if (isEditMode) {
+        // Edit an existing product
+        const data = await window.sqliteProduct.editProduct(newProduct.id as number, newProduct.name, newProduct.unique_price, newProduct.quantity, newProduct.total_amount, newProduct.status);
+          updatedProducts = updatedProducts.map((product: Product) =>
+            product.id === newProduct.id ? newProduct : product
+        );
+        window.alert(`Product ${data.productId} was edited successfully`);
+      } else {
+        // Add a new product
+        const data = await window.sqliteProduct.createProduct(newProduct.name, newProduct.unique_price, newProduct.quantity, newProduct.total_amount, newProduct.status, newProduct.date);
+        console.log(data)
+        updatedProducts.push(newProduct);
+        updatedProducts = [...currentProducts, { ...newProduct, id: data.productId }];
+        window.alert(`Product ${data.productId} was created successfully`);
+      }
+      window.electron.fixFocus();
+      setProductsByDate(updatedProducts);
+      resetFormState();
+    } catch (error) {
+      console.error("Error while submitting product:", error);
+      window.alert("An error occurred while processing the request.");
     }
-    return true;
+  }
+
+  const handleDeleteProduct = async(id:number) => {
+    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?");
+    if (confirmDelete) {
+      try {
+        const data = await window.sqliteProduct.deleteProduct(id);
+        window.alert(data.message)
+        const updatedProducts = productsByDate.filter(
+          (product) => product.id !== id || product.date !== selectedDate
+        );
+        setProductsByDate(updatedProducts);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    window.electron.fixFocus();
+  };
+
+  const handleDeleteAll = async() => {
+    const confirmDeleteAll = window.confirm("Êtes-vous sûr de vouloir supprimer tous les produits ?");
+    if (confirmDeleteAll) {
+      try{
+        const data = await window.sqliteProduct.deleteAllProducts();
+        const updatedProducts = {
+          ...productsByDate,
+          [selectedDate]: []
+        };
+        window.alert(data.message)
+
+        setProductsByDate(updatedProducts);
+      }catch(e){
+        console.log(e)
+      }
+    }
+    window.electron.fixFocus();
+  };
+
+  const currentProducts = productsByDate.filter(
+    (product) => product.date === selectedDate
+  );
+  const filteredProducts = currentProducts.filter((product: Product) => {
+    const matchesSearchTerm = [product.name, product.quantity, product.total_amount, product.unique_price]
+      .join(' ')
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+  
+    const matchesStatus = !selectedStatus || product.status === selectedStatus;
+  
+    return matchesSearchTerm && matchesStatus;
   });
+  
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -174,24 +197,24 @@ function MainProduit() {
     pageNumbers.push(i);
   }
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
 
-  const totalPaid = filteredProducts.filter((product) => product.statut === 'Payé')
-    .reduce((sum, product) => sum + parseFloat(product.montantTotal), 0);
-  const totalRemaining = filteredProducts.filter((product) => product.statut === 'Non payé')
-    .reduce((sum, product) => sum + parseFloat(product.montantTotal), 0);
+  const totalPaid = filteredProducts.filter((product:Product) => product.status === 'paid')
+    .reduce((sum:number, product:Product) => sum + parseFloat(product.total_amount.toString()), 0);
+  const totalRemaining = filteredProducts.filter((product:Product) => product.status === 'not-paid')
+    .reduce((sum:number, product:Product) => sum + parseFloat(product.total_amount.toString()), 0);
   const total = totalPaid + totalRemaining;
 
   useEffect(() => {
     // Si le prix unitaire et la quantité sont renseignés, calculer le montant total
-    if (newProduct.prixUnitaire && newProduct.quantite) {
-      const total = parseFloat(newProduct.prixUnitaire) * parseFloat(newProduct.quantite);
+    if (newProduct.unique_price && newProduct.quantity) {
+      const total = parseFloat(newProduct.unique_price.toString()) * parseFloat(newProduct.quantity.toString());
       setNewProduct(prevState => ({
         ...prevState,
-        montantTotal: total.toFixed(2) // Format du montant total avec 2 décimales
+        total_amount: parseInt(total.toFixed(2)) // Format du montant total avec 2 décimales
       }));
     }
-  }, [newProduct.prixUnitaire, newProduct.quantite]); // Ce useEffect s'exécute lorsque le prixUnitaire ou la quantité changent
+  }, [newProduct.unique_price, newProduct.quantity]); // Ce useEffect s'exécute lorsque le prixUnitaire ou la quantité changent
 
   return (
     <div className="main-container2">
@@ -214,8 +237,8 @@ function MainProduit() {
               <label htmlFor="filter-select" className="filt">Filtrer par statut :</label>
               <select id="filter-select" value={selectedStatus} onChange={handleStatusChange}>
                 <option value="">Tous</option>
-                <option value="Non payé">Non payé</option>
-                <option value="Payé">Payé</option>
+                <option value="not-paid">Non payé</option>
+                <option value="paid">Payé</option>
               </select>
             </div>
           </div>
@@ -247,8 +270,8 @@ function MainProduit() {
               <label>Nom du produit:</label>
               <input
                 type="text"
-                name="nom"
-                value={newProduct.nom}
+                name="name"
+                value={newProduct.name}
                 onChange={handleInputChange}
                 placeholder='Veuillez entrer le nom du produit'
                 required
@@ -257,9 +280,9 @@ function MainProduit() {
              <div className="input-container">
                 <input
                   type="text" // Utilisation de "text" pour afficher "DA" à l'intérieur de l'input
-                  name="prixUnitaire"
+                  name="unique_price"
                   placeholder="Veuillez entrer le prix du produit"
-                  value={newProduct.prixUnitaire} // Affiche le prix sans "DA" pendant la saisie
+                  value={newProduct.unique_price} // Affiche le prix sans "DA" pendant la saisie
                   onChange={handleInputChange} // Gère la modification du prix
                   onBlur={(e) => { // Quand l'utilisateur sort de l'input
                     const value = e.target.value;
@@ -267,14 +290,14 @@ function MainProduit() {
                     const valueWithDA = value && !value.includes("DA") ? `${value} DA` : value;
                     setNewProduct({
                       ...newProduct,
-                      prixUnitaire: valueWithDA
+                      unique_price: parseFloat(value)
                     });
                   }}
                   onFocus={(e) => { // Lorsque l'utilisateur clique dans l'input, retirer "DA"
                     if (e.target.value.includes(" DA")) {
                       setNewProduct({
                         ...newProduct,
-                        prixUnitaire: e.target.value.replace(" DA", "")
+                        unique_price: parseFloat(e.target.value.replace(" DA", ""))
                       });
                     }
                   }}
@@ -285,17 +308,17 @@ function MainProduit() {
               <label>Quantité:</label>
               <input
                 type="number"
-                name="quantite"
+                name="quantity"
                 placeholder='Veuillez entrer le nom du produit'
-                value={newProduct.quantite}
+                value={newProduct.quantity}
                 onChange={handleInputChange}
                 required
               />
               <label>Montant total:</label>
               <input
                 type="text" // Change to "text" pour pouvoir afficher " DA"
-                name="montantTotal"
-                value={`${newProduct.montantTotal} DA`} // Ajoute " DA" à la valeur affichée
+                name="total_amount"
+                value={`${newProduct.total_amount} DA`} // Ajoute " DA" à la valeur affichée
                 onChange={handleInputChange} // Gère les autres champs normalement
                 disabled // Désactive la modification manuelle
                 required
@@ -304,14 +327,14 @@ function MainProduit() {
 
               <label>Statut de paiement:</label>
               <select
-                name="statut"
-                value={newProduct.statut || 'Payé'} 
+                name="status"
+                value={newProduct.status || 'paid'} 
                 onChange={handleInputChange}
                 required
               >
                 {/* <option value="choisir l'etat"></option> */}
-                <option value="Payé">Payé</option>
-                <option value="Non payé">Non payé</option>
+                <option value="paid">Payé</option>
+                <option value="not-paid">Non payé</option>
               </select>
               <div className="modal-buttons">
                 <button type="submit">{isEditMode ? 'Modifier' : 'Ajouter'}</button>
@@ -352,14 +375,14 @@ function MainProduit() {
                 <td colSpan={7} style={{ textAlign: 'center' }}>Aucun produit trouvé</td>
               </tr>
             ) : (
-              displayedProducts.map((product:any) => (
+              displayedProducts.map((product:Product) => (
                 <tr key={product.id}>
                   <td>{product.id}</td>
-                  <td>{product.nom}</td>
-                  <td>{product.prixUnitaire} </td>
-                  <td>{product.quantite}</td>
-                  <td>{product.montantTotal} DA</td>
-                  <td>{product.statut}</td>
+                  <td>{product.name}</td>
+                  <td>{product.unique_price} </td>
+                  <td>{product.quantity}</td>
+                  <td>{product.total_amount} DA</td>
+                  <td>{product.status=='not-paid' ?'Not payé':'Payé'}</td>
                   <td>
                     <FaEdit
                       className="action-icon edit-icon"
@@ -369,7 +392,7 @@ function MainProduit() {
                     <FaTrash
                       className="action-icon delete-icon"
                       title="Supprimer"
-                      onClick={() => handleDeleteProduct(product.id)}
+                      onClick={() => handleDeleteProduct(product.id as number)}
                     />
                   </td>
                 </tr>

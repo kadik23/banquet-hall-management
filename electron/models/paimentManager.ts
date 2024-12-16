@@ -7,7 +7,6 @@ export const getPaiments = (): Paiment[] => {
     SELECT p.*, c.name, c.surname 
     FROM payments p
     JOIN clients c ON p.client_id = c.id
-    LIMIT ? OFFSET ?
   `;
   const stmt = database.prepare(qry);
   const res = stmt.all();
@@ -160,7 +159,6 @@ export const searchPayments = (searchTerm: string) => {
       remaining_balance = CAST(? AS INTEGER) OR 
       payment_date LIKE ? OR
       status LIKE ?
-    LIMIT ? OFFSET ?
   `;
 
   const stmt = database.prepare(qry);

@@ -20,8 +20,7 @@ export const getReceipts = (page = 1): Receipt[] => {
     FROM receipts r
     JOIN clients c ON r.client_id = c.id
     JOIN reservations res ON r.reservation_id = res.id
-    JOIN payments p ON r.payment_id = p.id
-    LIMIT ? OFFSET ?;
+    JOIN payments p ON r.payment_id = p.id;
   `;
   let stmt = database.prepare(qry);
   let res = stmt.all(limit, offset) as Receipt[];
@@ -140,7 +139,6 @@ export const searchReceipts = (searchTerm: string, page = 1) => {
       p.amount_paid = CAST(? AS REAL) OR 
       p.remaining_balance = CAST(? AS REAL) OR 
       r.pdf_path LIKE ?
-    LIMIT ? OFFSET ?
   `;
   
   let stmt = database.prepare(qry);
