@@ -29,7 +29,7 @@ export const editClient = (
   if (info.changes === 0) {
     return { success: false, message: "Client not found or no changes made" };
   }
-  return { success: true, message: "Client updated successfully" };
+  return { success: true, message: "Client updated successfully", clientId: id};
 };
 
 export const deleteClient = (id: number) => {
