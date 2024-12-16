@@ -75,11 +75,11 @@ const createTables = () => {
       );
     `).run();
 
-    // const insertSampleProduct = db.prepare(`
-    //   INSERT INTO products (name, unique_price, quantity, total_amount, status, date) 
-    //   VALUES ('product', 2000, 2, 4000, 'not-paid', '2024-12-16')
-    // `);
-    // insertSampleProduct.run();
+    const insertSampleProduct = db.prepare(`
+      INSERT INTO products (name, unique_price, quantity, total_amount, status, date) 
+      VALUES ('product', 2000, 2, 4000, 'not-paid', '2024-09-12')
+    `);
+    insertSampleProduct.run();
 
     console.log("Tables created and sample data inserted successfully.");
   } catch (error) {

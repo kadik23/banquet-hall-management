@@ -7,6 +7,7 @@ export const getReservations = (): Reservation[] => {
     SELECT r.*, c.name, c.surname 
     FROM reservations r
     JOIN clients c ON r.client_id = c.id
+    LIMIT ? OFFSET ?
   `;
   const stmt = database.prepare(qry);
   const res = stmt.all() as Reservation[];
@@ -170,6 +171,7 @@ export const searchReservations = (searchTerm: string) => {
       end_hour LIKE ? OR
       nbr_invites = CAST(? AS INTEGER) OR
       date_reservation LIKE ?
+    LIMIT ? OFFSET ?
   `;
 
   const stmt = database.prepare(qry);

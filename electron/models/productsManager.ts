@@ -3,7 +3,7 @@ import { Product, ProductResponse } from "../types";
 import {db as database} from "./dbManager";
 
 export const getProducts = (): Product[] => {
-  const qry = `SELECT * FROM products`;
+  const qry = `SELECT * FROM products LIMIT ? OFFSET ?`;
   const stmt = database.prepare(qry);
   const res = stmt.all() as Product[];
   return res;
@@ -101,7 +101,7 @@ export const editProduct = (
     };
   }
 
-  return { success: true, message: "Product updated successfully",productId: id  };
+  return { success: true, message: "Product updated successfully" };
 };
 
 export const deleteProduct = (id: number): ProductResponse => {
@@ -135,6 +135,7 @@ export const searchProducts = (searchTerm: string) => {
       total_amount = CAST(? AS INTEGER) OR
       status LIKE ? OR
       date LIKE ?
+    LIMIT ? OFFSET ?
   `;
 
   const stmt = database.prepare(qry);
