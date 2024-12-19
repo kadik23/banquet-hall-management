@@ -13,28 +13,50 @@ import fr from 'date-fns/locale/fr';  // Importer la locale française
 registerLocale('fr', fr);
 setDefaultLocale('fr');
 
-function MainReservation() {
-  const loadReservationsFromLocalStorage = () => {
-    const savedReservations = localStorage.getItem('reservations');
-    return savedReservations ? JSON.parse(savedReservations) : [];
-  };
-
-  const [reservations, setReservations] = useState(loadReservationsFromLocalStorage());
+function MainReservation({searchTerm}:{searchTerm:string}) {
+  const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [newReservation, setNewReservation] = useState({
-    id: '',
-    dateDebut: '',
-    heureDebut: '',
-    heureFin: '',
-    periode: 'matin',  // Valeur par défaut pour "periode"
-    nombreInvites: '',
-    dateReservation: '',
-    clientAssocie: '', // Valeur par défaut vide
+  const [newReservation, setNewReservation] = useState<Reservation>({
+    start_date: '',
+    start_hour: '',
+    end_hour: '',
+    period: 'morning',
+    nbr_invites: 0,
+    date_reservation: '',
+    client_id: 0, 
   });
+  const [clients, setClients] = useState<Client[]>([]);
+  const [filteredResercations, setFilteredResercations] = useState<Reservation[]>([])
+
+  useEffect(() => {
+    setFilteredResercations(reservations.filter((reservation) =>
+      [reservation.client_id, reservation.date_reservation, reservation.start_date, reservation.period, reservation.nbr_invites, reservation.surname, reservation.name]
+        .join(' ')
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    ));
+  }, [searchTerm, reservations])
+  
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const data: Reservation[] = await window.sqliteReservation.getReservations();
+        const clientData: Client[] = await window.sqliteClients.getClients();
+        setClients(clientData);
+        setReservations(data);
+      } catch (err) {
+        window.alert(`Error: ${err}`);
+        window.electron.fixFocus();
+      }
+    };
+  
+    fetchClients();
+  }, []);
 
   const getTakenDates = () => {
-    return reservations.map((reservation: any) => new Date(reservation.dateDebut));
+    return filteredResercations.map((reservation: any) => new Date(reservation.dateDebut));
   };
 
   const handleCloseModal = () => {
@@ -53,20 +75,20 @@ function MainReservation() {
   const handleAddReservationClick = () => {
     setIsEditMode(false);
     setNewReservation({
-      id: '',
-      dateDebut: '',
-      heureDebut: '',
-      heureFin: '',
-      periode: 'matin',  // Valeur par défaut pour "periode"
-      nombreInvites: '',
-      dateReservation: ''
+      start_date: '',
+      start_hour: '',
+      end_hour: '',
+      period: 'morning',
+      nbr_invites: 0,
+      date_reservation: '',
+      client_id: 0, 
     });
     setIsModalOpen(true);
   };
 
   const navigate = useNavigate();
   const handleClientDetails = () => {
-    navigate(`/clients/`); // Redirection vers la page des détails du client
+    navigate(`/clients: Client[]/`); // Redirection vers la page des détails du client
   };
 
   // Ouvrir la modale pour modifier une réservation
@@ -84,109 +106,113 @@ function MainReservation() {
     });
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit =async (e: any) => {
     e.preventDefault();
   
     // Vérifier si le client a été sélectionné
-    if (!newReservation.clientAssocie) {
+    if (!newReservation.client_id) {
       alert('Veuillez sélectionner un client associé.');
       return; // Empêche la soumission si aucun client n'est sélectionné
     }
   
     // Vérifier si tous les champs obligatoires sont remplis
-    if (!newReservation.dateDebut || !newReservation.heureDebut || !newReservation.heureFin || !newReservation.nombreInvites || !newReservation.dateReservation) {
+    if (!newReservation.start_date || !newReservation.start_hour || !newReservation.end_hour || !newReservation.nbr_invites || !newReservation.date_reservation) {
       alert('Veuillez remplir tous les champs obligatoires.');
       return; // Empêche la soumission si un champ est vide
     }
+    let newReservationWithId: Reservation = newReservation
+    if(isEditMode){
+      newReservationWithId = {
+        ...newReservation,
+        id: newReservation.id
+      };
+      const data = await window.sqliteReservation.editReservation(newReservationWithId.id as number, newReservationWithId.client_id, newReservationWithId.start_date, newReservation.period, newReservation.start_hour, newReservation.end_hour, newReservation.nbr_invites, newReservation.date_reservation);
+      window.alert(`Reservation ${newReservation.id} was edited successfully`);
+    }else{
+      const data = await window.sqliteReservation.createReservation( newReservationWithId.client_id, newReservationWithId.start_date, newReservation.period, newReservation.start_hour, newReservation.end_hour, newReservation.nbr_invites, newReservation.date_reservation);
+      newReservationWithId = {
+        ...newReservation,
+        id: data.reservationId
+      };
+      window.alert(`Reservation ${data.reservationId} was created successfully`);
+    }
 
-    const newReservationWithId = {
-      ...newReservation,
-      id: isEditMode ? newReservation.id : reservations.length ? reservations[reservations.length - 1].id + 1 : 1
-    };
     const updatedReservations = isEditMode
       ? reservations.map((reservation: any) => reservation.id === newReservation.id ? newReservationWithId : reservation)
       : [...reservations, newReservationWithId];
-
+    window.electron.fixFocus();
     setReservations(updatedReservations);
-    localStorage.setItem('reservations', JSON.stringify(updatedReservations));
     setIsModalOpen(false);
   };
 
   // Supprimer une réservation
-  const handleDeleteReservation = (id: number) => {
+  const handleDeleteReservation = async(id: number) => {
     const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?");
     if (confirmDelete) {
-      const updatedReservations = reservations.filter((reservation: any) => reservation.id !== id);
-      setReservations(updatedReservations);
-      localStorage.setItem('reservations', JSON.stringify(updatedReservations));
+      try {
+        const data = await window.sqliteReservation.deleteReservation(id);
+        window.alert(data.message)
+        const updatedReservations = reservations.filter((reservation: Reservation) => reservation.id !== id);
+        setReservations(updatedReservations);
+      } catch (e) {
+        console.error(e);
+      }
     }
+    window.electron.fixFocus();
   };
 
   // Supprimer toutes les réservations
-  const handleDeleteAll = () => {
+  const handleDeleteAll =async () => {
     const confirmDeleteAll = window.confirm("Êtes-vous sûr de vouloir supprimer toutes les réservations ?");
     if (confirmDeleteAll) {
-      setReservations([]);
-      localStorage.removeItem('reservations');
+      try{
+        const data = await window.sqliteReservation.deleteAllReservations();
+        window.alert(data.message)
+        setReservations([]);
+      }catch(e){
+        console.log(e)
+      }
     }
+    window.electron.fixFocus();
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const reservationsPerPage = 8;
+  const reservationsPerPage = 3;
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
-  const currentReservations = reservations.slice(indexOfFirstReservation, indexOfLastReservation);
+  const currentReservations = filteredResercations.slice(indexOfFirstReservation, indexOfLastReservation);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(reservations.length / reservationsPerPage); i++) {
+  for (let i = 1; i <= Math.ceil(filteredResercations.length / reservationsPerPage); i++) {
     pageNumbers.push(i);
   }
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const clients = [
-    { id: 1, nom: 'Jean', prenom: 'Dupont' },
-    { id: 2, nom: 'Marie', prenom: 'Martin' },
-    { id: 3, nom: 'Paul', prenom: 'Durand' },
-    { id: 3, nom: 'Paul', prenom: 'Durand' },
-    { id: 3, nom: 'Paul', prenom: 'Durand' },
-    { id: 3, nom: 'Paul', prenom: 'Durand' },
-    { id: 3, nom: 'Paul', prenom: 'Durand' },
-    { id: 3, nom: 'Paul', prenom: 'Durand' },
-    { id: 3, nom: 'Paul', prenom: 'Durand' },
-    // Ajoutez d'autres clients si nécessaire
-  ];
-
-  const handleSelectClient = (client) => {
+  const handleSelectClient = (client: Pick<Client, 'id' | 'name' | 'surname'>) => {
     setNewReservation({
       ...newReservation,
-      clientAssocie: `${client.nom} ${client.prenom}`,
+      client_id: client.id as number,
     });
     setIsDropdownOpen(false);
   };
   
 
 
-  const CustomInput = ({ value, onClick }) => (
+  const CustomInput = ({ value, onClick }: any) => (
     <button 
       style={{backgroundColor:'white', color:'black', border:'1px solid #ddd'}}
       
       onClick={onClick}
       type="button"
     >
-      <span st >{value || "Sélectionner une date"}</span>
+      <span >{value || "Sélectionner une date"}</span>
       <FaCalendarAlt style={{marginLeft:15}}  />
     </button>
   );
   
-
-
-
-
-
-
   return (
     <div className="main-container2">
       <div className="header-cl">
@@ -211,8 +237,8 @@ function MainReservation() {
               
               <label>Date de début du marriage:</label>
               <ReactDatePicker
-                selected={newReservation.dateDebut ? new Date(newReservation.dateDebut) : null}
-                onChange={(date: Date) => setNewReservation({ ...newReservation, dateDebut: date.toISOString().split('T')[0] })}
+                selected={newReservation.start_date ? new Date(newReservation.start_date) : null}
+                onChange={(date: Date | null) => setNewReservation({ ...newReservation, start_date: (date as Date).toISOString().split('T')[0] })}
                 minDate={new Date()} // Empêcher de sélectionner une date avant aujourd'hui
                 filterDate={date => !isDateTaken(date)} // Désactiver les dates prises
                 dateFormat="dd/MM/yyyy"
@@ -222,41 +248,41 @@ function MainReservation() {
               <label>Heure de début:</label>
               <input
                 type="time"
-                name="heureDebut"
-                value={newReservation.heureDebut}
+                name="start_hour"
+                value={newReservation.start_hour}
                 onChange={handleInputChange}
                 required
               />
               <label>Heure de fin:</label>
               <input
                 type="time"
-                name="heureFin"
-                value={newReservation.heureFin}
+                name="end_hour"
+                value={newReservation.end_hour}
                 onChange={handleInputChange}
                 required
               />
               <label>Période:</label>
               <select
-                name="periode"
-                value={newReservation.periode}
+                name="period"
+                value={newReservation.period}
                 onChange={handleInputChange}
                 required>
-                <option value="matin">Matin</option>
-                <option value="soir">Soir</option>
+                <option value="morning">Matin</option>
+                <option value="evening">Soir</option>
               </select>
               <label>Nombre d'invités:</label>
               <input
                 type="number"
-                name="nombreInvites"
-                value={newReservation.nombreInvites}
+                name="nbr_invites"
+                value={newReservation.nbr_invites}
                 onChange={handleInputChange}
                 required
               />
               <label>Date de réservation:</label>
               <input
                 type="date"
-                name="dateReservation"
-                value={newReservation.dateReservation}
+                name="date_reservation"
+                value={newReservation.date_reservation}
                 onChange={handleInputChange}
                 required
               />
@@ -266,8 +292,8 @@ function MainReservation() {
                 <div className="input-container">
                   <input
                     type="text"
-                    name="clientAssocie"
-                    value={newReservation.clientAssocie}
+                    name="client_id"
+                    value={newReservation.client_id}
                     readOnly
                     onClick={() => setIsDropdownOpen((prev) => !prev)}
                     placeholder="Cliquez pour sélectionner un client"
@@ -287,7 +313,7 @@ function MainReservation() {
                         onClick={() => handleSelectClient(client)}
                         className="client-item"
                       >
-                        <span>{client.id}</span> <span>{client.nom}</span> <span>{client.prenom}</span>
+                        <span>{client.id}</span> <span>{client.name}</span> <span>{client.surname}</span>
                       </li>
                     ))}
                   </ul>
@@ -323,21 +349,22 @@ function MainReservation() {
               <td colSpan={9}>Aucune réservation ajoutée</td>
             </tr>
           ) : (
-            currentReservations.map((reservation: any) => (
+            currentReservations.map((reservation: Reservation) => (
               <tr key={reservation.id}>
                 <td>{reservation.id}</td>
-                <td>{format(new Date(reservation.dateDebut), 'd-MM-yyyy')}</td>
-                <td>{reservation.heureDebut}</td>
-                <td>{reservation.heureFin}</td>
-                <td>{reservation.periode}</td>
-                <td>{reservation.nombreInvites}</td>
-                <td>{format(new Date(reservation.dateReservation), 'd-MM-yyyy')}</td>
+                <td>{format(new Date(reservation.start_date), 'd-MM-yyyy')}</td>
+                <td>{reservation.start_hour}</td>
+                <td>{reservation.end_hour}</td>
+                <td>{reservation.period}</td>
+                <td>{reservation.nbr_invites}</td>
+                <td>{format(new Date(reservation.date_reservation), 'd-MM-yyyy')}</td>
                 <td >
                     <span
-                      onClick={() => handleClientDetails(reservation.clientAssocie)}
+                      onClick={() => handleClientDetails()}
                       style={{ cursor: 'pointer',  }}
                     >
-                      {reservation.clientAssocie}
+                      {reservation.name ? ( <>{reservation.name} {reservation.surname}</> ) : (<>{reservation.id}</>)}
+                      
                     </span>
                     &nbsp;
                     
@@ -356,7 +383,7 @@ function MainReservation() {
                   <FaTrash
                     className="action-icon delete-icon"
                     title="Supprimer"
-                    onClick={() => handleDeleteReservation(reservation.id)}
+                    onClick={() => handleDeleteReservation(reservation.id as number)}
                   />
                 </td>
                 
@@ -368,7 +395,7 @@ function MainReservation() {
 
       <div className="pagination">
         <span className="page-info">
-          {Math.min(indexOfLastReservation, reservations.length)} sur {reservations.length} réservations
+          {Math.min(indexOfLastReservation, filteredResercations.length)} sur {filteredResercations.length} réservations
         </span>
         <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
           &lt;

@@ -37,6 +37,7 @@ function MainClient({searchTerm}:{searchTerm:string}) {
         setClients(data);
       } catch (err) {
         window.alert(`Error: ${err}`);
+        window.electron.fixFocus();
       }
     };
   

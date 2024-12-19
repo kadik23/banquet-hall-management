@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Importez useNavigate
 import Header from './Header'; 
 
@@ -11,6 +11,7 @@ import MainReservation from './MainReservation';
 
 function Reservation() {
   const navigate = useNavigate(); 
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleLogout = () => {
     
@@ -21,8 +22,8 @@ function Reservation() {
 
   return (
       <div className='grid-container'>
-        <Header /> 
-        <MainReservation />
+        <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm}/> 
+        <MainReservation searchTerm={searchTerm}/>
         <Sidebar openSidebarToggle={true} openSidebar={() => {}} onLogout={handleLogout} /> {/* Passez handleLogout à Sidebar */}
       </div>
   );
