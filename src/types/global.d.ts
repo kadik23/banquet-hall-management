@@ -117,6 +117,16 @@ declare global {
         reservation_id: number,
         paiment_id: number
       ) => Promise<any>;
+      openPDF: (
+        pdfPath: string,
+      ) => Promise<any>;
+      deleteFile: (
+        pdfPath: string,
+        id: number
+      ) => Promise<any>;
+      deleteAllFilesInFolder: (
+        folderPath: string
+      ) => Promise<any>;
     };
   }
 }

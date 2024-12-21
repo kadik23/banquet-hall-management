@@ -1,6 +1,6 @@
-import { app, BrowserWindow, ipcMain, } from "electron";
+import { app, BrowserWindow, ipcMain, shell, } from "electron";
 import path from "path";
-import { createReceipt } from "./models/receiptsManager";
+import { createReceipt, deleteAllReceipts, deleteReceipt } from "./models/receiptsManager";
 import fs from "fs";
 let mainWindow: Electron.BrowserWindow | null;
 
@@ -50,33 +50,84 @@ app.on("window-all-closed", () => {
   }
 });
 
-ipcMain.on(
+ipcMain.handle(
   "uploadPDF",
-  (event, pdfData, client_id, reservation_id, paiment_id) => {
+  async (_event, pdfData, client_id, reservation_id, paiment_id) => {
     const uploadsDir = path.join(app.getPath("userData"), "uploads");
+
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir);
     }
+
     try {
       const fileName = `receipt_${Date.now()}.pdf`;
       const filePath = path.join(uploadsDir, fileName);
 
+      // Write PDF file from base64 data
       fs.writeFileSync(filePath, Buffer.from(pdfData, "base64"));
 
-      const response = createReceipt(
+      // Create the receipt and return the response
+      const response = await createReceipt(
         client_id,
         reservation_id,
         paiment_id,
-        filePath
-      );
-
-      event.reply("uploadPDFResponse", response);
+        filePath 
+      ); 
+      console.log(filePath)
+      return { success: true, response };
     } catch (error) {
       console.error("Error uploading PDF:", error);
-      event.reply("uploadPDFResponse", {
-        success: false,
-        message: "Failed to upload PDF",
-      });
+      return { success: false, message: "Failed to upload PDF" };
     }
   }
 );
+
+ipcMain.handle("openPDF", async (_event, pdfPath: string) => {
+  try {
+    const result = await shell.openPath(pdfPath); 
+    if (result) {
+      console.error("Error opening PDF:", result);
+      return { success: false, message: result }; 
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error opening PDF:", error);
+    return { success: false, message: "Failed to open PDF" };
+  }
+});
+
+ipcMain.handle("deleteFile", async (_event, filePath: string, id:number) => {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath); 
+      const response = await deleteReceipt(id); 
+      return { success: true, message: "File deleted successfully", response };
+    } else {
+      return { success: false, message: "File does not exist" };
+    }
+  } catch (error) {
+    console.error("Error deleting file:", error);
+    return { success: false, message: "Failed to delete file" };
+  }
+});
+
+ipcMain.handle("deleteAllFilesInFolder", async (_event, folderPath: string) => {
+  try {
+    if (fs.existsSync(folderPath)) {
+      const files = fs.readdirSync(folderPath);
+      for (const file of files) {
+        const filePath = path.join(folderPath, file);
+        if (fs.lstatSync(filePath).isFile()) {
+          fs.unlinkSync(filePath); 
+        }
+      }
+      const response = await deleteAllReceipts(); 
+      return { success: true, message: "All files deleted successfully", response};
+    } else {
+      return { success: false, message: "Folder does not exist" };
+    }
+  } catch (error) {
+    console.error("Error deleting files:", error);
+    return { success: false, message: "Failed to delete files" };
+  }
+});

@@ -35,7 +35,7 @@ export const createReceipt = (
 ): ReceiptResponse => {
   const receiptQuery = `
   INSERT INTO receipts 
-  (client_id, reservation_id, paiment_id, pdf_path) 
+  (client_id, reservation_id, payment_id, pdf_path) 
   VALUES (?, ?, ?, ?)
 `;
   const receiptStmt = database.prepare(receiptQuery);

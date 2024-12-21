@@ -210,27 +210,14 @@ contextBridge.exposeInMainWorld("sqliteReceipt", {
     paiment_id: number,
     pdf_path: string
   ) => createReceipt(client_id, reservation_id, paiment_id, pdf_path),
-  // editReceipt: (
-  //   id: number,
-  //   name: string,
-  //   unique_price: number,
-  //   quantity: number,
-  //   total_amount: number,
-  //   status: 'waiting' | 'confirmed'
-  // ) =>
-  //   editReceipt(
-  //     id,
-  //     name,
-  //     unique_price,
-  //     quantity,
-  //     total_amount,
-  //     status
-  //   ),
   deleteReceipt: (id: number) => deleteReceipt(id),
   deleteAllReceipts: () => deleteAllReceipts(),
   searchReceipts: (searchItem: string,page:number) => searchReceipts(searchItem, page),   
-  uploadPDF: (pdfData: File, client_id: number,
-    reservation_id: number,
-    paiment_id: number,) =>
+  uploadPDF: (pdfData: File, client_id: number, reservation_id: number, paiment_id: number) =>
     ipcRenderer.invoke("uploadPDF", pdfData, client_id, reservation_id, paiment_id),
+  openPDF: (pdfPath: string) =>
+    ipcRenderer.invoke("openPDF", pdfPath),
+  deleteFile: (filePath: string, id:number) =>
+    ipcRenderer.invoke("deleteFile", filePath, id),
+  deleteAllFilesInFolder: (folderPath: string) => ipcRenderer.invoke("deleteAllFilesInFolder", folderPath), 
 });
