@@ -6,6 +6,7 @@ export const getProducts = (): Product[] => {
   const qry = `SELECT * FROM products`;
   const stmt = database.prepare(qry);
   const res = stmt.all() as Product[];
+  console.table(res)
   return res;
 };
 
@@ -115,13 +116,28 @@ export const deleteProduct = (id: number): ProductResponse => {
 };
 
 export const deleteAllProducts = (): ProductResponse => {
-  const qry = `DELETE FROM products`;
-  const stmt = database.prepare(qry);
-  const info = stmt.run();
-  return {
-    success: true,
-    message: `${info.changes} products deleted successfully`,
-  };
+  database.prepare("BEGIN TRANSACTION").run();
+  try {
+    const deleteProductsQuery = `DELETE FROM products`;
+    const deleteStmt = database.prepare(deleteProductsQuery);
+    const info = deleteStmt.run();
+    
+    const resetQry = `DELETE FROM sqlite_sequence WHERE name = 'products'`;
+    database.prepare(resetQry).run();
+
+    database.prepare("COMMIT").run();
+    return {
+      success: true,
+      message: `${info.changes} products deleted successfully`,
+    };
+  } catch (error: any) {
+    database.prepare("ROLLBACK").run();
+
+    return {
+      success: false,
+      message: `Error deleting products: ${error.message}`,
+    };
+  }
 };
 
 export const searchProducts = (searchTerm: string) => {

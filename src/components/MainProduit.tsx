@@ -159,13 +159,13 @@ function MainProduit({searchTerm}:{searchTerm:string}) {
     if (confirmDeleteAll) {
       try{
         const data = await window.sqliteProduct.deleteAllProducts();
-        const updatedProducts = {
-          ...productsByDate,
-          [selectedDate]: []
-        };
+        // const updatedProducts = {
+        //   ...productsByDate,
+        //   [selectedDate]: []
+        // };
         window.alert(data.message)
 
-        setProductsByDate(updatedProducts);
+        setProductsByDate([]);
       }catch(e){
         console.log(e)
       }
