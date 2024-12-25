@@ -355,7 +355,7 @@ function MainReservation({searchTerm}:{searchTerm:string}) {
                 <td>{format(new Date(reservation.start_date), 'd-MM-yyyy')}</td>
                 <td>{reservation.start_hour}</td>
                 <td>{reservation.end_hour}</td>
-                <td>{reservation.period}</td>
+                {reservation.period == 'morning' ? <td>Matin</td> : <td>Soir</td>}
                 <td>{reservation.nbr_invites}</td>
                 <td>{format(new Date(reservation.date_reservation), 'd-MM-yyyy')}</td>
                 <td >
