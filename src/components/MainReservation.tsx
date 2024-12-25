@@ -385,7 +385,7 @@ function MainReservation({ searchTerm }: { searchTerm: string }) {
                   >
                     {reservation.name ? (<>{reservation.name} {reservation.surname}</>) : (<>{reservation.id}</>)}
                   </span> */}
-                  {newReservation.client_id}
+                  {reservation.client_id}
                 </td>
                 <td>
                   <FaEdit
