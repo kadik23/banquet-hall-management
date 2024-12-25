@@ -897,7 +897,7 @@ input[name="clientAssocie"] {
   top: 0; /* Positionner la liste sur l'input */
   left: 0;
   width: 100%; /* Prendre la même largeur que l'input */
-  max-height: 150px;
+  max-height: 350px;
   overflow-y: auto;
   background-color: white;
   border: 1px solid #ccc;
@@ -956,7 +956,7 @@ ul.dropdown-list {
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 200px;
+  max-height: 100px;
   overflow-y: auto;
   background-color: white;
   border: 1px solid #ccc;
