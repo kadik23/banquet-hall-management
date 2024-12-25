@@ -25,6 +25,7 @@ declare global {
     };
     sqliteReservation: {
       getReservations: () => Promise<any>;
+      getReservationsByClientId: (client_id: number) => Promise<any>;
       createReservation: (
         client_id: number,
         start_date: string,

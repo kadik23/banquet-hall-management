@@ -13,6 +13,18 @@ export const getReservations = (): Reservation[] => {
   return res;
 };
 
+export const getReservationsByClientId = (client_id: number): Reservation[] => {
+  const qry = `
+    SELECT r.*, c.name, c.surname 
+    FROM reservations r
+    JOIN clients c ON r.client_id = c.id
+    WHERE r.client_id = ?;
+  `;
+  const stmt = database.prepare(qry);
+  const res = stmt.all(client_id) as Reservation[];
+  return res;
+};
+
 export const createReservation = (
   client_id: number,
   start_date: string,

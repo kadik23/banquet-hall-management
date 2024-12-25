@@ -104,11 +104,11 @@ export const editPaiment = (
   if (info.changes === 0) {
     return {
       success: false,
-      message: "Paiment not found or no changes made",
+      message: "Payment not found or no changes made",
     };
   }
 
-  return { success: true, message: "Paiment updated successfully" };
+  return { success: true, message: "Payment updated successfully",  };
 };
 
 export const deletePaiment = (id: number): PaimentResponse => {
@@ -116,9 +116,9 @@ export const deletePaiment = (id: number): PaimentResponse => {
   const stmt = database.prepare(qry);
   const info = stmt.run(id);
   if (info.changes === 0) {
-    return { success: false, message: "Payments not found" };
+    return { success: false, message: "Payment not found" };
   }
-  return { success: true, message: "Payments deleted successfully" };
+  return { success: true, message: "Payment deleted successfully" };
 };
 
 export const deleteAllPaiments = (): PaimentResponse => {
@@ -135,14 +135,14 @@ export const deleteAllPaiments = (): PaimentResponse => {
 
     return {
       success: true,
-      message: `${deleteInfo.changes} clients deleted successfully, and ID reset.`,
+      message: `${deleteInfo.changes} payments deleted successfully, and ID reset.`,
     };
   } catch (error: any) {
     database.prepare("ROLLBACK").run();
 
     return {
       success: false,
-      message: `Error deleting clients: ${error.message}`,
+      message: `Error deleting payments: ${error.message}`,
     };
   }
 };

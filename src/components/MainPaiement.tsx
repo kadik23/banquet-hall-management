@@ -1,136 +1,92 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaCaretDown } from 'react-icons/fa';
 import '../App.css';
-import Reservation from './Reservation';
 
-
-type Payment = {
-  id?: number; 
-  montantTotal: number; 
-  montantPaye: number; 
-  soldeRestant: number; 
-  datePaiement: string; 
-  client_id: number; 
-  reserv_id: number;
-  statut: 'Payé' | 'En attente'; 
-};
-
-
-type Client = {
-  id: number;
-  name: string;
-  surname: string;
-};
-
-
-type Reservation = {
-  id?: number;
-  start_date: string;
-  start_hour: string;
-  end_hour: string;
-  period: string;
-  nbr_invites: number;
-  date_reservation: string;
-  client_id: number;
-};
-
-function MainPaiement() {
+function MainPaiement({searchTerm}:{searchTerm:string}) {
   const [Paiments, setPaiments] = useState<Payment[]>([]);
-
- 
-  
-
   const [filter, setFilter] = useState('Tous');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [newPayment, setNewPayment] = useState<Payment>({
-    montantTotal: undefined, 
-    montantPaye: undefined, 
-    soldeRestant: undefined, 
-    datePaiement: '', 
-    client_id: undefined, 
-    reserv_id: undefined, 
-    statut: 'En attente' 
+    total_amount: 0, 
+    amount_paid: 0, 
+    remaining_balance: 0, 
+    payment_date: '', 
+    client_id: 0, 
+    reservation_id: 1, 
+    status: 'waiting' 
   });
-  
-  
-
   const [clients, setClients] = useState<Client[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const PaimentsPerPage = 8; // Nombre de paiements par page
-
+  const PaimentsPerPage = 7; // Nombre de paiements par page
   const indexOfLastPayment = currentPage * PaimentsPerPage;
   const indexOfFirstPayment = indexOfLastPayment - PaimentsPerPage;
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data: Payment[] = await window.sqlitePaiment.getPaiments();
+        const clientData: Client[] = await window.sqliteClients.getClients();
+        setClients(clientData);
+        setPaiments(data);
+      } catch (err) {
+        window.alert(`Error: ${err}`);
+        window.electron.fixFocus();
+      }
+    };
 
-    // useEffect(() => {
-    //   const fetchClients = async () => {
-    //     try {
-    //       const data: Payment[] = await window.sqliteReservation.getReservations();
-    //       const clientData: Client[] = await window.sqliteClients.getClients();
-    //       setClients(clientData);
-    //       setPaiments(data);
-    //     } catch (err) {
-    //       window.alert(`Error: ${err}`);
-    //       window.electron.fixFocus();
-    //     }
-    //   };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const getReservation =async () =>{
+      const reservationData: Reservation[] = await window.sqliteReservation.getReservationsByClientId(newPayment.client_id);
+      if(reservationData.length > 0){
+        setReservations(reservationData)
+      }else{
+        setNewPayment({...newPayment,reservation_id:0})
+        setReservations([])
+      }
+    }
+    if(newPayment.client_id !== 0){
+      getReservation()
+    }
+  }, [newPayment.client_id])
   
-    //   fetchClients();
-    // }, []);
-
-
-    
-    // useEffect(() => {
-    //   const fetchReservations = async () => {
-    //     try {
-    //       const data: Payment[] = await window.sqliteReservation.getReservations();
-    //       const reservationData: Reservation[] = await window.sqliteReservation. getReservations();
-    //       setReservations(reservationData);
-    //       setPaiments(data);
-    //     } catch (err) {
-    //       window.alert(`Error: ${err}`);
-    //       window.electron.fixFocus();
-    //     }
-    //   };
-  
-    //   fetchReservations();
-    // }, []);
 
   const handleFilterChange = (e:any) => {
     setFilter(e.target.value);
     setCurrentPage(1);
   };
 
-  const filteredPaiments = Paiments.filter(
-    (payment) => filter === 'Tous' || payment.statut === filter
-  );
+  const filteredPaiments = Paiments.filter((payment) => {
+    const matchesSearchTerm = [payment.amount_paid, payment.total_amount, payment.payment_date]
+      .join(' ')
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+  
+    return (filter === 'Tous' || payment.status === filter) && matchesSearchTerm;
+  });  
 
   const currentPaiments = filteredPaiments.slice(indexOfFirstPayment, indexOfLastPayment);
-
   const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
-
-  
-
 
   const handleAddPaymentClick = () => {
     setIsEditMode(false);
     setNewPayment({
-      montantTotal: undefined, 
-      montantPaye: undefined, 
-      soldeRestant: undefined, 
-      datePaiement: '', 
-      client_id: undefined, 
-      reserv_id: undefined, 
-      statut: 'En attente' 
+      total_amount: 0, 
+      amount_paid: 0, 
+      remaining_balance: 0, 
+      payment_date: '', 
+      client_id: 0, 
+      reservation_id: 0, 
+      status: 'waiting' 
     });
     setIsModalOpen(true);
   };
   
-  
-
-  const handleEditPaymentClick = (payment:any) => {
+  const handleEditPaymentClick = (payment:Payment) => {
     setIsEditMode(true);
     setNewPayment(payment);
     setIsModalOpen(true);
@@ -148,23 +104,61 @@ function MainPaiement() {
     });
   };
 
-  const handleSubmit = (e:any) => {
+  const handleSubmit = async(e:any) => {
     e.preventDefault();
-    if (isEditMode) {
-      setPaiments(Paiments.map((payment:any) => payment.id === newPayment.id ? newPayment : payment));
-    } else {
-      const newPaymentWithId = { id: Date.now(), ...newPayment };
-      setPaiments([...Paiments, newPaymentWithId]);
+    if(newPayment.client_id == 0 || newPayment.reservation_id == 0){
+      alert('Please select reservation id or payment id')
+    }else{
+        if (newPayment.amount_paid + newPayment.remaining_balance !== newPayment.total_amount) {
+          alert('Total amount must equal the sum of amount paid and remaining balance.');
+        }
+        else if (newPayment.amount_paid === 0 && newPayment.remaining_balance === 0) {
+          alert('Payment cannot have both amount paid and remaining balance as zero.');
+        }
+        else{
+          if (isEditMode) {
+            setPaiments(Paiments.map((payment:any) => payment.id === newPayment.id ? newPayment : payment));
+            const data = await window.sqlitePaiment.editPaiment(newPayment.id as number, newPayment.client_id, newPayment.reservation_id, newPayment.total_amount, newPayment.amount_paid, newPayment.remaining_balance, newPayment.payment_date, newPayment.status);
+            window.alert(`Payment ${newPayment.id} was edited successfully`);
+  
+          } else {
+            const data = await window.sqlitePaiment.createPaiment(newPayment.client_id, newPayment.reservation_id, newPayment.total_amount, newPayment.amount_paid, newPayment.remaining_balance, newPayment.payment_date, newPayment.status);
+            const newPaymentWithId = { id: data.paimentId, ...newPayment };
+            setPaiments([...Paiments, newPaymentWithId]);
+            window.alert(`Payment ${data.paimentId} was created successfully`);
+          }
+          setIsModalOpen(false);
+        }
     }
-    setIsModalOpen(false);
+    window.electron.fixFocus();
   };
 
-  const handleDeletePayment = (id:number) => {
-    setPaiments(Paiments.filter(payment => payment.id !== id));
+  const handleDeletePayment = async (id:number) => {
+    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette paiment ?");
+    if (confirmDelete) {
+      try {
+        const data = await window.sqlitePaiment.deletePaiment(id);
+        window.alert(data.message);
+        setPaiments(Paiments.filter(payment => payment.id !== id));
+      } catch (e) {
+        console.error('Error deleting payment:', e);
+      }
+      window.electron.fixFocus();
+    }
   };
 
-  const handleDeleteAll = () => {
-    setPaiments([]);
+  const handleDeleteAll = async() => {
+    const confirmDeleteAll = window.confirm("Êtes-vous sûr de vouloir supprimer toutes les paiments ?");
+    if (confirmDeleteAll) {
+      try {
+        const data = await window.sqlitePaiment.deleteAllPaiments();
+        window.alert(data.message);
+        setPaiments([]);
+      } catch (e) {
+        console.error('Error deleting all paiments:', e);
+      }
+    }
+    window.electron.fixFocus();
   };
 
   const pageNumbers = [];
@@ -173,16 +167,17 @@ function MainPaiement() {
   }
 
 
-   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+   const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
+   const [isReservationDropdownOpen, setIsReservationDropdownOpen] = useState(false);
 
   //  reservation
   
     const handleSelectReservation = (reserv: Pick<Reservation, 'id' | 'date_reservation' >) => {
       setNewPayment({
         ...newPayment,
-        reserv_id: Reservation.id,
+        reservation_id: reserv.id as number,
       });
-      setIsDropdownOpen(false);
+      setIsReservationDropdownOpen(false);
     };
 
 
@@ -191,13 +186,10 @@ function MainPaiement() {
   const handleSelectClient = (client: Pick<Client, 'id' | 'name' | 'surname'>) => {
     setNewPayment({
       ...newPayment,
-      client_id: client.id,
+      client_id: client.id as number,
     });
-    setIsDropdownOpen(false);
+    setIsClientDropdownOpen(false);
   };
-
-
-
 
   return (
     <div className="main-container2">
@@ -214,8 +206,8 @@ function MainPaiement() {
           <label htmlFor="filter-select" className="filt">Filtrer par statut :</label>
           <select id="filter-select" value={filter} onChange={handleFilterChange}>
             <option value="Tous">Tous</option>
-            <option value="En attente">En attente</option>
-            <option value="Payé">Payé</option>
+            <option value="waiting">En attente</option>
+            <option value="confirmed">Payé</option>
           </select>
         </div>
         <button className="delete-all-btn" onClick={handleDeleteAll}>
@@ -232,9 +224,9 @@ function MainPaiement() {
               {/* Montant total */}
               <label>Montant total:</label>
               <input
-                type="text"
-                name="montantTotal"
-                value={newPayment.montantTotal ?? ''} 
+                type="number"
+                name="total_amount"
+                value={newPayment.total_amount ?? 0} 
                 placeholder="Entrez le montant total"
                 onChange={(e) => {
 
@@ -242,7 +234,7 @@ function MainPaiement() {
                   if (/^\d*\.?\d*$/.test(value)) {
                     setNewPayment({
                       ...newPayment,
-                      montantTotal: value 
+                      total_amount: parseFloat(value) 
                     });
                   }
                 }}
@@ -252,7 +244,7 @@ function MainPaiement() {
                   if (!isNaN(value) && value >= 0) {
                     setNewPayment({
                       ...newPayment,
-                      montantTotal: value 
+                      total_amount: value 
                     });
                   }
                 }}
@@ -263,9 +255,9 @@ function MainPaiement() {
               {/* Montant payé */}
               <label>Montant payé:</label>
               <input
-                type="text"
-                name="montantPaye"
-                value={newPayment.montantPaye ?? ''}
+                type="number"
+                name="amount_paid"
+                value={newPayment.amount_paid ?? 0}
                 placeholder="Entrez le montant payé"
                 onChange={(e) => {
                   
@@ -273,17 +265,17 @@ function MainPaiement() {
                   if (/^\d*\.?\d*$/.test(value)) {
                     setNewPayment({
                       ...newPayment,
-                      montantPaye: value 
+                      amount_paid: parseFloat(value) 
                     });
                   }
                 }}
                 onBlur={(e) => {
                   // Convertit la valeur en nombre à la fin de la saisie
                   const value = parseFloat(e.target.value);
-                  if (!isNaN(value) && value >= 0) {
+                  if (!isNaN(value)) {
                     setNewPayment({
                       ...newPayment,
-                      montantPaye: value // Sauvegarde la valeur comme nombre
+                      amount_paid: value // Sauvegarde la valeur comme nombre
                     });
                   }
                 }}
@@ -294,9 +286,9 @@ function MainPaiement() {
               {/* Solde restant */}
               <label>Solde restant:</label>
               <input
-                type="text"
-                name="soldeRestant"
-                value={newPayment.soldeRestant ?? ''} 
+                type="number"
+                name="remaining_balance"
+                value={newPayment.remaining_balance ?? 0} 
                 placeholder="Entrez le solde restant"
                 onChange={(e) => {
                  
@@ -304,17 +296,17 @@ function MainPaiement() {
                   if (/^\d*\.?\d*$/.test(value)) {
                     setNewPayment({
                       ...newPayment,
-                      soldeRestant: value 
+                      remaining_balance: parseFloat(value) 
                     });
                   }
                 }}
                 onBlur={(e) => {
                  
                   const value = parseFloat(e.target.value);
-                  if (!isNaN(value) && value >= 0) {
+                  if (!isNaN(value)) {
                     setNewPayment({
                       ...newPayment,
-                      soldeRestant: value // Sauvegarde la valeur comme nombre
+                      remaining_balance: value // Sauvegarde la valeur comme nombre
                     });
                   } 
                 }}
@@ -326,8 +318,8 @@ function MainPaiement() {
               <label>Date de paiement:</label>
               <input
                 type="date"
-                name="datePaiement"
-                value={newPayment.datePaiement}
+                name="payment_date"
+                value={newPayment.payment_date}
                 onChange={handleInputChange}
                 required
               />
@@ -341,18 +333,18 @@ function MainPaiement() {
                     name="client_id"
                     value={newPayment.client_id}
                     readOnly
-                    onClick={() => setIsDropdownOpen((prev) => !prev)}
+                    onClick={() => setIsClientDropdownOpen((prev) => !prev)}
                     placeholder="Cliquez pour sélectionner un client"
                     required
                   />
                   <FaCaretDown
                     className="dropdown-icon"
-                    onClick={() => setIsDropdownOpen((prev) => !prev)}
+                    onClick={() => setIsClientDropdownOpen((prev) => !prev)}
                   />
                 </div>
-                {isDropdownOpen && (
+                {isClientDropdownOpen && (
                   <ul className="dropdown-list">
-                    {clients.map((client) => (
+                    {clients.map((client: Client) => (
                       <li
                         key={client.id}
                         onClick={() => handleSelectClient(client)}
@@ -371,19 +363,19 @@ function MainPaiement() {
                 <div className="input-container">
                   <input
                     type="text"
-                    name="reserv_id"
-                    value={newPayment.reserv_id}
+                    name="reservation_id"
+                    value={newPayment.reservation_id}
                     readOnly
-                    onClick={() => setIsDropdownOpen((prev) => !prev)}
+                    onClick={() => setIsReservationDropdownOpen((prev) => !prev)}
                     placeholder="Cliquez pour sélectionner une réservation"
                     required
                   />
                   <FaCaretDown
                     className="dropdown-icon"
-                    onClick={() => setIsDropdownOpen((prev) => !prev)}
+                    onClick={() => setIsReservationDropdownOpen((prev) => !prev)}
                   />
                 </div>
-                {isDropdownOpen && (
+                {isReservationDropdownOpen && (
                   <ul className="dropdown-list">
                     {reservations.map((reservation) => (
                       <li
@@ -401,8 +393,8 @@ function MainPaiement() {
               {/* Statut */}
               <label>Statut:</label>
               <select
-                name="statut"
-                value={newPayment.statut}
+                name="status"
+                value={newPayment.status}
                 onChange={handleInputChange}
                 required
               >
@@ -444,13 +436,13 @@ function MainPaiement() {
             currentPaiments.map((payment) => (
               <tr key={payment.id}>
                 <td>{payment.id}</td>
-                <td>{payment.montantTotal}</td>
-                <td>{payment.montantPaye}</td>
-                <td>{payment.soldeRestant}</td>
-                <td>{payment.datePaiement}</td>
+                <td>{payment.total_amount}</td>
+                <td>{payment.amount_paid}</td>
+                <td>{payment.remaining_balance}</td>
+                <td>{payment.payment_date}</td>
                 <td>{payment.client_id}</td>
-                <td>{payment.reserv_id}</td>
-                <td>{payment.statut}</td>
+                <td>{payment.reservation_id}</td>
+                <td>{payment.status == 'waiting' ? 'En attente' : 'Payé'}</td>
                 <td>
                   <FaEdit
                     className="action-icon edit-icon"
@@ -460,7 +452,7 @@ function MainPaiement() {
                   <FaTrash
                     className="action-icon delete-icon"
                     title="Supprimer"
-                    onClick={() => handleDeletePayment(payment.id)}
+                    onClick={() => handleDeletePayment(payment.id as number)}
                   />
                 </td>
               </tr>

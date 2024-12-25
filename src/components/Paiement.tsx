@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Importez useNavigate
 import Header from './Header'; 
 // import Home from './Home'; 
@@ -10,6 +10,7 @@ import '../App.css';
 
 function Paiement() {
   const navigate = useNavigate(); 
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleLogout = () => {
     
@@ -20,8 +21,8 @@ function Paiement() {
 
   return (
       <div className='grid-container'>
-        <Header /> 
-        <MainPaiement />
+        <Header  searchTerm={searchTerm} setSearchTerm={setSearchTerm} /> 
+        <MainPaiement searchTerm={searchTerm}/>
         <Sidebar openSidebarToggle={true} openSidebar={() => {}} onLogout={handleLogout} /> {/* Passez handleLogout à Sidebar */}
       </div>
   );

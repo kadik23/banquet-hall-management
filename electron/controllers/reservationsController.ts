@@ -4,6 +4,10 @@ export const getReservations = () => {
   return reservationMgr.getReservations();
 };
 
+export const getReservationsByClientId = (client_id: number) => {
+  return reservationMgr.getReservationsByClientId(client_id);
+};
+
 export const createReservation = (
   client_id: number,
   start_date: string,

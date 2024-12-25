@@ -24,9 +24,6 @@ export const createPaiment = (
   if (
     !client_id ||
     !reservation_id ||
-    !total_amount ||
-    !amount_paid ||
-    !remaining_balance ||
     !payment_date ||
     !status
   ) {

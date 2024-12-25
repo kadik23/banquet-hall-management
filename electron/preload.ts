@@ -6,7 +6,9 @@ import {
   editReservation,
   deleteReservation,
   deleteAllReservations,
-  searchReservations
+  searchReservations,
+  getReservationsByClientId
+
 } from "./controllers/reservationsController";
 
 import {
@@ -15,7 +17,7 @@ import {
   editClient,
   deleteClient,
   deleteAllClients,
-  searchClients
+  searchClients,
 } from "./controllers/clientsController";
 
 import {
@@ -86,6 +88,7 @@ contextBridge.exposeInMainWorld("sqliteStatistics", {
 
 contextBridge.exposeInMainWorld("sqliteReservation", {
   getReservations: () => getReservations(),
+  getReservationsByClientId: (client_id: number) => getReservationsByClientId(client_id),
   createReservation: (
     client_id: number,
     start_date: string,
