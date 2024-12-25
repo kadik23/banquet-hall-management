@@ -13,18 +13,6 @@ import fr from 'date-fns/locale/fr';  // Importer la locale française
 registerLocale('fr', fr);
 setDefaultLocale('fr');
 
-// Types pour Reservation et Client
-type Reservation = {
-  id?: number;
-  start_date: string;
-  start_hour: string;
-  end_hour: string;
-  period: string;
-  nbr_invites: number;
-  date_reservation: string;
-  client_id: number;
-};
-
 type Client = {
   id: number;
   name: string;
@@ -198,7 +186,7 @@ function MainReservation({ searchTerm }: { searchTerm: string }) {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const reservationsPerPage = 3;
+  const reservationsPerPage = 5;
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
   const currentReservations = filteredReservations.slice(indexOfFirstReservation, indexOfLastReservation);
