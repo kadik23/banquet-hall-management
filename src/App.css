@@ -1,0 +1,1094 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #D19EE2;
+  color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  
+}
+ul {
+  list-style-type: none; /* Retire les points */
+  margin: 0; /* Retire le décalage par défaut */
+  padding: 0; /* Retire le remplissage par défaut */
+}
+
+li {
+  list-style-type: none; /* Redondant, mais peut être utilisé pour les listes imbriquées */
+}
+
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 280px 1fr; 
+  grid-template-rows: 60px 1fr; 
+  grid-template-areas:
+      'sidebar header'
+      'sidebar main';
+  height: 100vh;
+}
+
+/* Header */
+.header {
+  grid-area: header;
+  height: 66px;
+  display: flex;
+  background-color: #622D77;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  box-shadow: 0 6px 7px -3px rgba(0, 0, 0, 0.35);
+}
+
+
+.header-left {
+  flex: 1; 
+  display: flex;
+  align-items: center; 
+}
+
+.header-right h1 {
+  font-size: 23px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center; 
+  border-radius: 4px; 
+  padding: 5px; 
+  width: 85%; 
+  position: relative;
+  border: 1px solid #ccc; 
+  background-color: #fff;
+  height: 28px;
+}
+
+.search-bar {
+  border: none;
+  outline: none; 
+  padding: 8px; 
+  width: 100%; 
+  padding-right: 40px; 
+}
+
+.search-icon {
+  position: absolute; 
+  right: 10px; 
+  color: #000000; 
+}
+
+.menu-icon {
+  display: none;
+}
+
+
+/* Sidebar */
+#sidebar {
+  grid-area: sidebar;
+  display: f;
+  height: 100%;
+  width: 280px; 
+  background-color: #622D77;
+  overflow-y: auto;
+  transition: all 0.5s;
+}
+
+
+
+/* Styles de la sidebar */
+.sidebar-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px 0 30px;
+  margin-bottom: 30px;
+}
+
+.sidebar-title > span {
+  display: none;
+}
+
+.sidebar-list {
+  margin-bottom: 70px;
+}
+
+.sidebar-brand {
+  margin-top: 15px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.sidebar-brand .brand-name{
+  font-size: 1.7rem;
+}
+
+.sidebar-list {
+  padding: 0;
+  list-style-type: none;
+}
+
+.sidebar-list-item {
+  padding: 20px;
+  font-size: 18px;
+}
+
+.sidebar-list-item.active{
+  background-color: #57166D;
+}
+
+.sidebar-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+
+
+
+.sidebar-list-item > a {
+  text-decoration: none;
+  color: #ebe8e8;
+}
+
+.sidebar-responsive {
+  display: inline !important;
+  position: absolute;
+  z-index: 12 !important;
+}
+
+
+.wedding-icon {
+  font-size: 38px;
+}
+
+.brand-name {
+  color: white;
+}
+
+.logout-button .logt{
+  margin-right: 8px;
+}
+
+.logout-button {
+  background-color: transparent; 
+  border: none;
+  cursor: pointer;
+  padding: 15px;
+  padding-left: 50px;
+  padding-right: 50px;
+  display: flex;
+  border-radius: 5%;
+  text-align: center;
+  align-items: center;
+  background-color: #57166D;
+  color: white;
+  font-size: 18px;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* End of Sidebar */
+
+/* Principal */  
+.main-container {
+  grid-area: main;
+  overflow-y: auto;
+  padding: 20px 20px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.main-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+
+
+.main-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+  gap: 11px;
+  margin: 17px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; 
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 8px 15px;
+  border-radius: 5px;
+  height: 250px;
+  flex: 1 1 calc(33.33% - 10px); 
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-sizing: border-box; 
+}
+
+.card:first-child {
+  background-color: #84558B;
+}
+
+.card:nth-child(2) {
+  background-color: #D1A015;
+}
+
+.card:nth-child(3) {
+  background-color: #4CAF50;
+}
+
+.card:nth-child(4) {
+  background-color: #F4511E;
+}
+.card:nth-child(5) {
+  background-color: #2E7D32;
+}
+.card:nth-child(6) {
+  background-color: #0055FF;
+}
+
+.card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.card-inner > .card_icon {
+  font-size: 25px;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 60px;
+  height: 300px;
+}
+
+.main-title h3 {
+  /* text-align: center; */
+  /* font-size: 1.8rem; */
+  margin-bottom: 20px;
+  color: #000000;
+  font-size: 24px;
+}
+
+
+.card h3 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.card h1 {
+  font-size: 2.5rem;
+  
+}
+
+.card_icon {
+  font-size: 2rem;
+}
+
+/* End of main section */
+
+
+
+/* CSS clients and reservations and payments */
+
+
+.main-container2 {
+  grid-area: main;
+  overflow: hidden; /* Masque la barre de défilement du conteneur principal */
+  padding: 20px 20px;
+  color: rgba(0, 0, 0, 0.95);
+}
+
+.header-cl {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+
+
+.header-cl h3{
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+
+.client-count, .reservation-count  {
+  font-size: 18px;
+  color: #161414;
+}
+
+
+
+.clients-table ,.reservations-table, .payments-table ,.recus-table, .products-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Assurer que la table ne dépasse pas la largeur de son parent */
+  overflow: hidden; /* Masque la barre de défilement dans la table */
+}
+
+
+.clients-table th, .reservations-table th, .recus-table th, .payments-table th, .products-table th {
+  background-color: #c164e665;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payments-table td,
+.payments-table td,
+.recus-table td,
+.products-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #000000;
+  word-wrap: break-word;
+}
+
+
+
+
+/* ppppp */
+
+
+
+
+/* .payments-table .action-icon {
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.payments-table .edit-icon {
+  color: #622D77;
+} */
+
+
+
+.payments-table .edit-icon:hover,
+.payments-table .delete-icon:hover {
+  opacity: 0.7;
+}
+
+/* Style pour la pagination spécifique à la table */
+.payments-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+
+/* Styles du bouton d'ajout de réservation */
+.delete-all-btn, .add-recu-btn {
+  padding: 10px 20px;
+  background-color: #622D77;
+  color: white;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+
+.filter-buttons .filt{
+  font-weight:600;
+  font-size: 1.06rem;
+}
+
+
+
+/* Style pour le texte de la valeur par défaut dans le select */
+#filter-select {
+color: white;  /* Rendre le texte de la valeur par défaut en blanc */
+background-color: #622D77; /* Fond violet pour le select */
+border: none; /* Enlever les bordures par défaut */
+padding: 10px; /* Ajouter un peu de padding */
+padding-right: 10px;
+padding-left: 10px;
+border-radius: 5px; /* Ajouter des coins arrondis */
+}
+
+/* Style pour les options du select */
+#filter-select option {
+/* text-align: center; */
+color: white;  /* Rendre le texte des options en blanc */
+background-color: #622D77; /* Fond violet pour les options */
+}
+
+
+/* fin ppp */
+
+
+.clients-table th, .clients-table td,
+.reservations-table th, .reservations-table td, .products-table th {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #000000;
+  word-wrap: break-word; 
+}
+
+
+
+
+
+.action-icon {
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 18px;
+  color: #622D77;
+}
+
+
+
+.delete-icon {
+  color: #dc3545;
+}
+
+/* Styles pour les boutons */
+.footer-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.add-client-btn, .delete-all-btn, .add-reservation-btn, .add-payment-btn, .add-product-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #622D77;
+  color: white;
+}
+
+
+
+/* Styles pour le modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-top: 10px;
+}
+
+form input, form select, .react-datepicker-wrapper {
+  margin-bottom: 10px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%; /* Tous les champs auront la même largeur */
+}
+
+form button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #622D77;
+  color: white;
+  margin-top: 10px;
+}
+
+form button[type="button"] {
+  background-color: #f44336; /* Rouge pour le bouton Annuler */
+}
+
+/* Style pour la select (menu déroulant) */
+form select {
+  background-color: #f9f9f9;
+  font-size: 14px;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Style pour le DatePicker */
+.react-datepicker-wrapper {
+  width: 100%; /* Assure que le DatePicker prend toute la largeur disponible */
+}
+
+.react-datepicker__input-container input {
+  width: 100%; /* Même largeur que les autres champs */
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.react-datepicker__triangle {
+  display: none; /* Masquer le triangle de la date picker */
+}
+
+.react-datepicker__header {
+  background-color: #622D77; /* Vous pouvez personnaliser cette couleur */
+  color: white;
+}
+
+.react-datepicker__day {
+  font-size: 14px;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f1f1f1;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-top: 10px;
+}
+
+form input, form select, .react-datepicker-wrapper {
+  margin-bottom: 10px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 95%; /* Uniformité de la largeur des champs */
+}
+
+form button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #622D77;
+  color: white;
+  margin-top: 10px;
+}
+
+form button[type="button"] {
+  background-color: #f44336; /* Rouge pour le bouton Annuler */
+}
+
+/* Style pour la select (menu déroulant) */
+form select {
+  background-color: #f9f9f9;
+  font-size: 14px;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Style pour le DatePicker */
+.react-datepicker-wrapper {
+  width: 95%; /* Assure que le DatePicker prend toute la largeur disponible */
+}
+
+.react-datepicker__input-container input {
+  width: 95%; /* Même largeur que les autres champs */
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.react-datepicker__triangle {
+  display: none; /* Masquer le triangle de la date picker */
+}
+
+.react-datepicker__header {
+  background-color: #622D77; /* Vous pouvez personnaliser cette couleur */
+  color: white;
+}
+
+.react-datepicker__day {
+  font-size: 14px;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f1f1f1;
+}
+
+
+/* Styles pour la pagination */
+.pagination {
+  display: flex;
+  justify-content: flex-end; /* Aligner à droite */
+  align-items: center;
+  margin-top: 20px;
+}
+
+
+.pagination button {
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #622D77;
+  color: white;
+  margin: 0 5px;
+}
+
+.pagination button:disabled {
+  background-color: #943cb677; /* Désactiver les boutons avec une couleur différente */
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 16px;
+  color: #161414;
+  margin-right: 15px;
+}
+
+
+
+
+
+/* login */
+.login-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; 
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #622D77; 
+}
+
+.login-form {
+  background: #B57CC8;
+  padding: 20px;
+  padding-top: 3px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 28%; 
+}
+
+.login-form h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.login-form div {
+  margin-bottom: 10px;
+}
+
+.login-form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.login-form input {
+  width: 95%;
+  padding: 8px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  border: none;
+  height: 35px;
+}
+
+.login-form input:focus {
+  border: 2px solid #622D77; 
+  outline: none; 
+}
+
+.login-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #622D77;
+  height: 35px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-top: 22px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.login-form button:hover {
+  background-color: #8b34a8;
+}
+
+
+
+/* btn */
+.footer-buttons {
+  display: flex;
+  justify-content: space-between; /* Sépare les éléments à gauche et à droite */
+  align-items: center;
+  /* padding: 10px; */
+}
+
+.left-buttons {
+  display: flex;
+  gap: 15px; /* Espace entre les boutons et les filtres à gauche */
+  align-items: center;
+}
+
+.right-buttons {
+  display: flex;
+  gap: 15px; /* Espace entre les champs de date et le bouton à droite */
+  align-items: center;
+}
+
+.filter-status, .filter-date {
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+}
+
+.add-product-btn, .delete-all-btn {
+  padding: 8px 15px;
+  background-color: #622D77;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-product-btn:hover, .delete-all-btn:hover {
+  /* background-color: #0056b3; */
+}
+
+.filt {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#filter-select, #filter-date {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #622D77;
+  color: #ffffff;
+}
+
+#filter-select:hover, #filter-date:hover {
+  border-color: #007bff;
+}
+
+
+
+
+/* #filter-select, #filter-date {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #622D77;
+  color: #ffffff;
+} */
+
+
+#filter-date::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Rend l'icône blanche */
+  cursor: pointer;
+}
+
+#filter-date::-ms-expand {
+  display: none; /* Cache l'icône sur Internet Explorer */
+}
+
+#filter-date:hover, #filter-select:hover {
+  border-color: #ffffff; /* Change la couleur de la bordure au survol */
+}
+
+
+
+
+.balance-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.balance-item {
+  /* flex: 1; */
+  text-align: center;
+}
+
+.balance-item strong {
+  /* margin-right: 10px; */
+}
+
+
+
+/* Style pour la zone dropdown */
+.dropdown-wrapper {
+  position: relative;
+}
+
+input[name="clientAssocie"] {
+  cursor: pointer;
+}
+
+.input-container input {
+  cursor: pointer;
+}
+
+
+.dropdown-list {
+  position: absolute; 
+  top: 0; /* Positionner la liste sur l'input */
+  left: 0;
+  width: 100%; /* Prendre la même largeur que l'input */
+  max-height: 350px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-top: 4px; /* Pour espacer légèrement la liste de l'input */
+}
+
+
+.dropdown-list li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdown-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.client-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd; /* Pour ajouter une séparation entre les lignes */
+}
+
+.client-item span {
+  margin-right: 10px; /* Espacement entre chaque élément (id, nom, prénom) */
+}
+
+
+.dropdown-wrapper {
+  position: relative;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+input {
+  width: 100%;
+  padding-right: 30px; /* Ajoutez un peu d'espace à droite pour l'icône */
+}
+
+.dropdown-icon {
+  position: absolute;
+  right: 10px; /* Positionne l'icône à droite de l'input */
+  cursor: pointer;
+  font-size: 1.2em; /* Ajustez la taille de l'icône */
+}
+
+ul.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 100px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li.client-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+li.client-item:hover {
+  background-color: #f0f0f0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Animation pour le modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Bouton de fermeture */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+/* Titre du modal */
+.modal-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+}
+
+/* Input pour le fichier */
+.modal-content input[type="file"] {
+  /* display: block; */
+  margin: 10px auto;
+  padding: 5px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  /* width: 100%;
+  max-width: 400px; */
+}
+
+/* Paragraphe pour le nom du fichier */
+.modal-content p {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+  margin: 10px 0;
+}
+
+/* Boutons dans le modal */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  flex: 1;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.modal-buttons .save-btn {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.modal-buttons .save-btn:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.modal-buttons .print-btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.modal-buttons .print-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.modal-buttons .cancel-btn {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.modal-buttons .cancel-btn:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
