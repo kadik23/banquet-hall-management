@@ -2,25 +2,32 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaPrint, FaTrash, FaCaretDown } from 'react-icons/fa';
 
 function MainRecu() {
-   const [newRecu, setNewRecu] = useState<Recu>({
+   const [newRecu, setNewRecu] = useState<Receipt>({
     client_id :0,
     reservation_id: 0,
     paiment_id: 0,
-   
+    reservation_date: '',
+    name: '',
+    surname: '',
+    start_date: '',
+    total_amount: 0,
+    status: '',
+    amount_paid: 0,
+    remaining_balance: 0
    });
 
   const [clients, setClients] = useState<Client[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
-   const [Paiments, setPaiments] = useState<Payment[]>([]);
+  const [Paiments, setPaiments] = useState<Payment[]>([]);
   
   const [recus, setRecus] = useState(() => {
       const savedRecus = localStorage.getItem('recus');
       return savedRecus ? JSON.parse(savedRecus) : [];
-    });
+  });
   const [modalitesFile, setModalitesFile] = useState(null);
   const [modalitesFileName, setModalitesFileName] = useState(() => {
-      return localStorage.getItem('modalitesFileName') || '';
-    });
+    return localStorage.getItem('modalitesFileName') || '';
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
  
@@ -34,25 +41,38 @@ function MainRecu() {
  
   const [isEditMode, setIsEditMode] = useState(false);
 
-
-
   const [currentPage, setCurrentPage] = useState(1);
   const recusPerPage = 8;
   const indexOfLastRecu = currentPage * recusPerPage;
   const indexOfFirstRecu = indexOfLastRecu - recusPerPage;
-  const currentRecus = recus.slice(indexOfFirstRecu, indexOfLastRecu);
+  const currentRecus: Receipt[] = recus.slice(indexOfFirstRecu, indexOfLastRecu);
   const pageNumbers = Array.from({ length: Math.ceil(recus.length / recusPerPage) }, (_, i) => i + 1);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
+  const paginate = (pageNumber:any) => setCurrentPage(pageNumber);
 
   const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
   const [isReservationDropdownOpen, setIsReservationDropdownOpen] = useState(false);
   const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const payData: Payment[] = await window.sqlitePaiment.getPaiments();
+        const resData: Reservation[] = await window.sqliteReservation.getReservations();
+        const clientData: Client[] = await window.sqliteClients.getClients();
+        setClients(clientData);
+        setReservations(resData);
+        setPaiments(payData);
+      } catch (err) {
+        window.alert(`Error: ${err}`);
+        window.electron.fixFocus();
+      }
+    };
 
+    fetchData();
+  }, []);
+  
   // clients
-
   const handleSelectClient = (client: Pick<Client, 'id' | 'name' | 'surname'>) => {
     setNewRecu({
       ...newRecu,
@@ -63,7 +83,6 @@ function MainRecu() {
 
 
   //  reservation
-  
   const handleSelectReservation = (reserv: Pick<Reservation, 'id' | 'date_reservation' >) => {
     setNewRecu({
       ...newRecu,
@@ -91,7 +110,7 @@ function MainRecu() {
 
   
 
-  const handleSelect = (field, item) => {
+  const handleSelect = (field:string, item:any) => {
     setNewRecu({
       ...newRecu,
       [`${field}Id`]: item.id
@@ -99,7 +118,7 @@ function MainRecu() {
     setIsDropdownOpen(prev => ({ ...prev, [field]: false }));
   };
 
-  const handleClickOutside = (event) => {
+  const handleClickOutside = (event:any) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsDropdownOpen({ client: false, reservation: false, paiement: false });
     }
@@ -112,21 +131,21 @@ function MainRecu() {
     };
   }, []);
 
-  const handleRecuChange = (e) => {
+  const handleRecuChange = (e:any) => {
     const { name, value } = e.target;
-    setNewRecu((prevRecu) => ({
+    setNewRecu((prevRecu:any) => ({
       ...prevRecu,
       [name]: value
     }));
   };
 
-  const handleSaveRecu = (e) => {
+  const handleSaveRecu = (e:any) => {
     e.preventDefault();
-    if (newRecu.clientId && newRecu.reservationId && newRecu.montantPaye) {
+    if (newRecu.client_id && newRecu.reservation_id && newRecu.total_amount) {
       const newRecuData = {
         id: recus.length + 1,
         ...newRecu,
-        soldeRestant: 500 - parseFloat(newRecu.montantPaye),
+        soldeRestant: 500 - newRecu.total_amount,
         statut: 'En attente',
         dateReservation: new Date().toISOString().split('T')[0],
         dateDebut: new Date().toISOString().split('T')[0],
@@ -162,7 +181,7 @@ function MainRecu() {
     }
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = (e:any) => {
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
       setModalitesFile(file);
@@ -204,11 +223,7 @@ function MainRecu() {
   const handleCloseModal2 = () => {
     setIsModalOpen(false);
     setIsPrintModalOpen(false);
-  };
-
-
-
-  
+  };  
 
   return (
     <div className="main-container2">
@@ -379,17 +394,17 @@ function MainRecu() {
                       readOnly
                       onClick={() => setIsPaymentDropdownOpen((prev) => !prev)}
                       placeholder="Cliquez pour sélectionner un paiement"
+                      required
                     />
                     <FaCaretDown
                       className="dropdown-icon"
                       onClick={() => setIsPaymentDropdownOpen((prev) => !prev)}
-                      
                     />
                   </div>
-                  {isDropdownOpen.paiement && (
+                  {isPaymentDropdownOpen && (
                     <ul className="dropdown-list">
                       {Paiments.map((payment) => (
-                        <li className="client-item" key={payment.id} onClick={() => handleSelect('paiement', payment)}>
+                        <li className="client-item" onClick={() => handleSelectPayment(payment)} key={payment.id}>
                           <span>{payment.id}</span>
                           <span>{payment.payment_date}</span>
                         </li>
@@ -437,14 +452,14 @@ function MainRecu() {
             currentRecus.map((recu) => (
               <tr key={recu.id}>
                 <td>{recu.id}</td>
-                <td>{recu.nom}</td>
-                <td>{recu.prenom}</td>
-                <td>{recu.dateReservation}</td>
-                <td>{recu.dateDebut}</td>
-                <td>{recu.total}</td>
-                <td>{recu.montantPaye}</td>
-                <td>{recu.soldeRestant}</td>
-                <td>{recu.statut}</td>
+                <td>{recu.name}</td>
+                <td>{recu.surname}</td>
+                <td>{recu.reservation_date}</td>
+                <td>{recu.start_date}</td>
+                <td>{recu.total_amount}</td>
+                <td>{recu.amount_paid}</td>
+                <td>{recu.remaining_balance}</td>
+                <td>{recu.status}</td>
                 <td>
                   <FaPrint className="action-icon" title="Imprimer" />
                   <FaTrash
