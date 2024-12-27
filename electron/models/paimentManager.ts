@@ -126,18 +126,35 @@ export const editPaiment = (
 };
 
 export const deletePaiment = (id: number): PaimentResponse => {
-  const qry = `DELETE FROM payments WHERE id = ?`;
-  const stmt = database.prepare(qry);
-  const info = stmt.run(id);
-  if (info.changes === 0) {
-    return { success: false, message: "Payment not found" };
+  database.prepare("BEGIN TRANSACTION").run();
+  try {
+    database.prepare(`DELETE FROM receipts WHERE payment_id = ?`).run(id);
+
+    const qry = `DELETE FROM payments WHERE id = ?`;
+    const stmt = database.prepare(qry);
+    const info = stmt.run(id);
+    if (info.changes === 0) {
+      return { success: false, message: "Payment not found" };
+    }
+    database.prepare("COMMIT").run();
+
+    return { success: true, message: "Payment deleted successfully" };
+
+  } catch (error: any) {
+    database.prepare("ROLLBACK").run();
+
+    return {
+      success: false,
+      message: `Error deleting payments: ${error.message}`,
+    };
   }
-  return { success: true, message: "Payment deleted successfully" };
 };
 
 export const deleteAllPaiments = (): PaimentResponse => {
   database.prepare("BEGIN TRANSACTION").run();
   try {
+    database.prepare(`DELETE FROM receipts`).run();
+
     const deleteQry = `DELETE FROM payments`;
     const deleteStmt = database.prepare(deleteQry);
     const deleteInfo = deleteStmt.run();

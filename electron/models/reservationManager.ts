@@ -120,8 +120,8 @@ export const deleteReservation = (id: number): ReservationResponse => {
   database.prepare("BEGIN TRANSACTION").run();
 
   try {
-    database.prepare(`DELETE FROM payments WHERE reservation_id = ?`).run(id);
     database.prepare(`DELETE FROM receipts WHERE reservation_id = ?`).run(id);
+    database.prepare(`DELETE FROM payments WHERE reservation_id = ?`).run(id);
     const qry = `DELETE FROM reservations WHERE id = ?`;
     const stmt = database.prepare(qry);
     const info = stmt.run(id);
@@ -145,8 +145,8 @@ export const deleteAllReservations = (): ReservationResponse => {
   database.prepare("BEGIN TRANSACTION").run();
 
   try {
-    database.prepare(`DELETE FROM payments`).run();
     database.prepare(`DELETE FROM receipts`).run();
+    database.prepare(`DELETE FROM payments`).run();
     const deleteQry = `DELETE FROM reservations`;
     const deleteStmt = database.prepare(deleteQry);
     const deleteInfo = deleteStmt.run();

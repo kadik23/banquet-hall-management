@@ -33,25 +33,28 @@ export const editClient = (
 };
 
 export const deleteClient = (id: number) => {
-  database.prepare('BEGIN TRANSACTION').run();
-
   try {
-    database.prepare(`DELETE FROM reservations WHERE client_id = ?`).run(id);
-    database.prepare(`DELETE FROM payments WHERE client_id = ?`).run(id);
-    database.prepare(`DELETE FROM receipts WHERE client_id = ?`).run(id);
+    database.prepare('BEGIN TRANSACTION').run();
 
+    database.prepare(`DELETE FROM receipts WHERE client_id = ?`).run(id);
+    database.prepare(`DELETE FROM payments WHERE client_id = ?`).run(id);
+    database.prepare(`DELETE FROM reservations WHERE client_id = ?`).run(id);
+
+    // Delete client
     const qry = `DELETE FROM clients WHERE id = ?`;
-    const stmt = database.prepare(qry);
-    const info = stmt.run(id);
+    const info = database.prepare(qry).run(id);
 
     if (info.changes === 0) {
+      // Client not found
       database.prepare('ROLLBACK').run();
-      return { success: false, message: "Client not found", clientId: id };
+      return { success: false, message: 'Client not found', clientId: id };
     }
 
+    // Commit transaction
     database.prepare('COMMIT').run();
     return { success: true, message: `Client ${id} and related records deleted successfully` };
   } catch (error: any) {
+    // Rollback transaction on error
     database.prepare('ROLLBACK').run();
     return { success: false, message: `Error deleting client: ${error.message}` };
   }
@@ -62,9 +65,9 @@ export const deleteAllClients = () => {
   database.prepare('BEGIN TRANSACTION').run();
 
   try {
-    database.prepare(`DELETE FROM reservations`).run();
-    database.prepare(`DELETE FROM payments`).run();
     database.prepare(`DELETE FROM receipts`).run();
+    database.prepare(`DELETE FROM payments`).run();
+    database.prepare(`DELETE FROM reservations`).run();
     const deleteQry = `DELETE FROM clients`;
     const deleteStmt = database.prepare(deleteQry);
     const deleteInfo = deleteStmt.run();
