@@ -25,7 +25,7 @@ export const getNumReservation = () => {
 export const getNumPendingPayments = () => {
   try {
     const qry =
-      "SELECT COUNT(*) AS count FROM payments WHERE status = 'pending';";
+      "SELECT COUNT(*) AS count FROM payments WHERE status = 'waiting';";
     const result = database.prepare(qry).get();
     return result.count;
   } catch (error) {

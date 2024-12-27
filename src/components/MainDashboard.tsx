@@ -8,23 +8,28 @@ import {
   BsFillFileEarmarkTextFill,
 } from 'react-icons/bs';
 
-function MainDashboard() {
-  const [nbrClients, setNbrClients] = useState(0);
-  const navigate = useNavigate(); // Hook pour la navigation
-
+function MainDashboard({searchTerm}:{searchTerm:string}) {
+  const [clients, setclients] = useState(0)
+  const [waitingReservation, setwaitingReservation] = useState(0)
+  const [waitingPayments, setwaitingPayments] = useState(0)
+  const [confirmPayments, setconfirmPayments] = useState(0)
+  const [receipts, setreceipts] = useState(0)
   useEffect(() => {
-    const fetchNbrClients = async () => {
+    const getStatistics = async () => { 
       try {
-        const totalClients = await window.sqliteStatistics.getNumClients();
-        setNbrClients(totalClients);
+        setclients(await window.sqliteStatistics.getNumClients())
+        setwaitingReservation(await window.sqliteStatistics.getNumPendingPayments())
+        setwaitingPayments(await window.sqliteStatistics.getNumPendingPayments())
+        setconfirmPayments(await window.sqliteStatistics.getNumConfirmPayments())
+        setreceipts(await window.sqliteStatistics.getNumReceipts())
       } catch (error) {
-        console.error('Erreur lors de la récupération du nombre de clients :', error);
+        alert(error)
+        window.electron.fixFocus
       }
-    };
-
-    fetchNbrClients();
-  }, []);
-
+    }
+    getStatistics()
+  }, [])
+  
   return (
     <main className="main-container">
       <div className="main-title">
@@ -41,35 +46,35 @@ function MainDashboard() {
             <h3>CLIENTS</h3>
             <BsPeopleFill className="card_icon" />
           </div>
-          <h1>{nbrClients}</h1>
+          {clients && (<h1>{clients}</h1>)}
         </div>
         <div className="card">
           <div className="card-inner">
             <h3>RÉSERVATIONS EN ATTENTE</h3>
             <BsFillCalendarFill className="card_icon" />
           </div>
-          <h1>65</h1>
+          {waitingReservation && (<h1>{waitingReservation}</h1>)}
         </div>
         <div className="card">
           <div className="card-inner">
             <h3>PAIEMENTS EN ATTENTE</h3>
             <BsFillCreditCardFill className="card_icon" />
           </div>
-          <h1>05</h1>
+          <h1>{waitingPayments}</h1>
         </div>
         <div className="card">
           <div className="card-inner">
             <h3>PAIEMENTS CONFIRMÉS</h3>
             <BsFillWalletFill className="card_icon" />
           </div>
-          <h1>60</h1>
+          {confirmPayments && (<h1>{confirmPayments}</h1>)}
         </div>
         <div className="card">
           <div className="card-inner">
             <h3>REÇUS GÉNÉRÉS</h3>
             <BsFillFileEarmarkTextFill className="card_icon" />
           </div>
-          <h1>60</h1>
+          {receipts && (<h1>{receipts}</h1>)}
         </div>
       </div>
     </main>
