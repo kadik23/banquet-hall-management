@@ -2,12 +2,10 @@ import { Receipt, ReceiptResponse } from "../types";
 
 import {db as database} from "./dbManager";
 
-export const getReceipts = (page = 1): Receipt[] => {
-  const limit = 10;
-  const offset = (page - 1) * limit;
+export const getReceipts = (): Receipt[] => {
   const qry = `
     SELECT 
-      r.id AS receipt_id,
+      r.id,
       c.name,
       c.surname,
       res.date_reservation,
@@ -23,7 +21,7 @@ export const getReceipts = (page = 1): Receipt[] => {
     JOIN payments p ON r.payment_id = p.id;
   `;
   let stmt = database.prepare(qry);
-  let res = stmt.all(limit, offset) as Receipt[];
+  let res = stmt.all() as Receipt[];
   return res;
 };
 
@@ -39,52 +37,30 @@ export const createReceipt = (
   VALUES (?, ?, ?, ?)
 `;
   const receiptStmt = database.prepare(receiptQuery);
-  receiptStmt.run(client_id, reservation_id, paiment_id, pdf_path);
-  return { success: true, receiptId: receiptStmt.lastInsertRowid };
+  const info = receiptStmt.run(client_id, reservation_id, paiment_id, pdf_path);
+  const receiptId = info.lastInsertRowid;
+
+  const fetchQuery = `
+    SELECT 
+      r.id,
+      c.name,
+      c.surname,
+      res.date_reservation,
+      res.start_date,
+      p.status,
+      p.total_amount,
+      p.amount_paid,
+      p.remaining_balance
+    FROM receipts r
+    JOIN clients c ON r.client_id = c.id
+    JOIN reservations res ON r.reservation_id = res.id
+    JOIN payments p ON r.payment_id = p.id
+    WHERE r.id = ?;
+  `;
+  const fetchStmt = database.prepare(fetchQuery);
+  const receipt = fetchStmt.get(receiptId);
+  return { success: true, receipt};
 };
-
-// export const editProduct = (
-//   id: number,
-//   name: string,
-//   unique_price: number,
-//   quantity: number,
-//   total_amount: number,
-//   status: "waiting" | "confirmed"
-// ): ProductResponse => {
-//   const updates = {
-//     name,
-//     unique_price,
-//     quantity,
-//     total_amount,
-//     status,
-//   };
-//   const keysToUpdate = Object.keys(updates).filter(
-//     (key) => updates[key] !== null
-//   );
-//   const valuesToUpdate = keysToUpdate.map((key) => updates[key]);
-//   if (keysToUpdate.length === 0) {
-//     return { success: false, message: "No updates provided" };
-//   }
-//   const setClause = keysToUpdate.map((key) => `${key} = ?`).join(", ");
-//   const qry = `
-//       UPDATE products
-//       SET ${setClause}
-//       WHERE id = ?
-//     `;
-//   valuesToUpdate.push(id);
-
-//   let stmt = database.prepare(qry);
-//   let info = stmt.run(...valuesToUpdate);
-
-//   if (info.changes === 0) {
-//     return {
-//       success: false,
-//       message: "Product not found or no changes made",
-//     };
-//   }
-
-//   return { success: true, message: "Product updated successfully" };
-// };
 
 export const deleteReceipt = (id: number): ReceiptResponse => {
   const qry = `DELETE FROM receipts WHERE id = ?`;

@@ -13,6 +13,20 @@ export const getPaiments = (): Paiment[] => {
   return res;
 };
 
+export const getPaimentsByReservationId = (reservation_id: number) => { 
+  console.log(reservation_id)
+  const qry =  `
+    SELECT p.*, c.name, c.surname 
+    FROM payments p
+    JOIN clients c ON p.client_id = c.id
+    WHERE p.reservation_id = ?
+  `;
+  const stmt = database.prepare(qry);
+  const res = stmt.all(reservation_id);
+  console.table(res)
+  return res;
+}
+
 export const getConfirmedPaimentsCount = () => {
   const qry = `
    SELECT COUNT(*) as count 

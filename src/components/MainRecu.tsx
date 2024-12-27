@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaPrint, FaTrash, FaCaretDown } from 'react-icons/fa';
 
-function MainRecu() {
+function MainRecu({searchTerm}:{searchTerm:string}) {
+
    const [newRecu, setNewRecu] = useState<Receipt>({
     client_id :0,
     reservation_id: 0,
     paiment_id: 0,
-    reservation_date: '',
+    date_reservation: '',
     name: '',
     surname: '',
     start_date: '',
@@ -15,63 +16,132 @@ function MainRecu() {
     amount_paid: 0,
     remaining_balance: 0
    });
-
   const [clients, setClients] = useState<Client[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [Paiments, setPaiments] = useState<Payment[]>([]);
-  
-  const [recus, setRecus] = useState(() => {
-      const savedRecus = localStorage.getItem('recus');
-      return savedRecus ? JSON.parse(savedRecus) : [];
-  });
-  const [modalitesFile, setModalitesFile] = useState(null);
+  const [recus, setRecus] = useState<Receipt[]>([]);
+  const [modalitesFile, setModalitesFile] = useState<Blob | null>(null);
   const [modalitesFileName, setModalitesFileName] = useState(() => {
     return localStorage.getItem('modalitesFileName') || '';
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
- 
-   // Sauvegarde de l'état du bouton (Ajouter ou Imprimer)
-   const [isFileAdded, setIsFileAdded] = useState(() => {
-     return localStorage.getItem('isFileAdded') === 'true';
-   });
-
-
+  // Sauvegarde de l'état du bouton (Ajouter ou Imprimer)
+  const [isFileAdded, setIsFileAdded] = useState(() => {
+    return localStorage.getItem('isFileAdded') === 'true';
+  });
   const [isRecuModalOpen, setIsRecuModalOpen] = useState(false);
- 
   const [isEditMode, setIsEditMode] = useState(false);
-
   const [currentPage, setCurrentPage] = useState(1);
-  const recusPerPage = 8;
+  const recusPerPage = 5;
   const indexOfLastRecu = currentPage * recusPerPage;
   const indexOfFirstRecu = indexOfLastRecu - recusPerPage;
-  const currentRecus: Receipt[] = recus.slice(indexOfFirstRecu, indexOfLastRecu);
-  const pageNumbers = Array.from({ length: Math.ceil(recus.length / recusPerPage) }, (_, i) => i + 1);
-
-  const paginate = (pageNumber:any) => setCurrentPage(pageNumber);
-
+  const filteredRecus = recus.filter((recu) => {
+    return [
+      recu.name,
+      recu.surname,
+      recu.date_reservation,
+      recu.start_date,
+      recu.total_amount?.toString(),
+      recu.amount_paid.toString(),
+      recu.remaining_balance.toString(),
+      recu.status,
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+  });
+  const currentRecus: Receipt[] = filteredRecus.slice(indexOfFirstRecu, indexOfLastRecu);
+  const pageNumbers = Array.from({ length: Math.ceil(filteredRecus.length / recusPerPage) }, (_, i) => i + 1);
   const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
   const [isReservationDropdownOpen, setIsReservationDropdownOpen] = useState(false);
   const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState({
+    client: false,
+    reservation: false,
+    paiement: false
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchClientData = async () => {
       try {
-        const payData: Payment[] = await window.sqlitePaiment.getPaiments();
-        const resData: Reservation[] = await window.sqliteReservation.getReservations();
         const clientData: Client[] = await window.sqliteClients.getClients();
+        const receiptData: Receipt[] = await window.sqliteReceipt.getReceipts();
+        console.table(receiptData)
         setClients(clientData);
-        setReservations(resData);
-        setPaiments(payData);
+        setRecus(receiptData)
       } catch (err) {
         window.alert(`Error: ${err}`);
         window.electron.fixFocus();
       }
     };
 
-    fetchData();
+    fetchClientData();
   }, []);
-  
+
+  useEffect(() => {
+    const getReservations =async () =>{
+      const reservationData: Reservation[] = await window.sqliteReservation.getReservationsByClientId(newRecu.client_id);
+      if(reservationData.length > 0){
+        setReservations(reservationData)
+      }else{
+        setNewRecu({...newRecu,reservation_id:0})
+        setReservations([])
+      }
+    }
+    if(newRecu.client_id !== 0){
+      getReservations()
+    }
+  }, [newRecu.client_id])
+
+  useEffect(() => {
+    const getPayments =async () =>{
+      const paymentsData: Payment[] = await window.sqlitePaiment.getPaimentsByReservationId(newRecu.reservation_id);
+      if(paymentsData.length > 0){
+        setPaiments(paymentsData)
+      }else{
+        setNewRecu({...newRecu,paiment_id:0})
+        setPaiments([])
+      }
+    }
+    if(newRecu.client_id !== 0 && newRecu.reservation_id !== 0){
+      getPayments()
+    }
+  }, [newRecu.reservation_id])
+
+  // Sauvegarder les reçus et autres états dans le stockage local
+  useEffect(() => {
+    localStorage.setItem('recus', JSON.stringify(recus));
+  }, [recus]);
+
+  useEffect(() => {
+    localStorage.setItem('modalitesFileName', modalitesFileName);
+  }, [modalitesFileName]);
+
+  useEffect(() => {
+    localStorage.setItem('isFileAdded', isFileAdded);
+  }, [isFileAdded]);
+
+    
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const savedFileData = localStorage.getItem('modalitesFile');
+    if (savedFileData) {
+      const fileData = new Uint8Array(JSON.parse(savedFileData));
+      const fileBlob = new Blob([fileData], { type: 'application/pdf' });
+      setModalitesFile(fileBlob);
+    }
+  }, []);
+
+  const paginate = (pageNumber:any) => setCurrentPage(pageNumber);
+
   // clients
   const handleSelectClient = (client: Pick<Client, 'id' | 'name' | 'surname'>) => {
     setNewRecu({
@@ -80,7 +150,6 @@ function MainRecu() {
     });
     setIsClientDropdownOpen(false);
   };
-
 
   //  reservation
   const handleSelectReservation = (reserv: Pick<Reservation, 'id' | 'date_reservation' >) => {
@@ -99,24 +168,6 @@ function MainRecu() {
     });
     setIsPaymentDropdownOpen(false);
   };
-  
-
-  const dropdownRef = useRef(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState({
-    client: false,
-    reservation: false,
-    paiement: false
-  });
-
-  
-
-  const handleSelect = (field:string, item:any) => {
-    setNewRecu({
-      ...newRecu,
-      [`${field}Id`]: item.id
-    });
-    setIsDropdownOpen(prev => ({ ...prev, [field]: false }));
-  };
 
   const handleClickOutside = (event:any) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -124,54 +175,34 @@ function MainRecu() {
     }
   };
 
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const handleRecuChange = (e:any) => {
-    const { name, value } = e.target;
-    setNewRecu((prevRecu:any) => ({
-      ...prevRecu,
-      [name]: value
-    }));
-  };
-
-  const handleSaveRecu = (e:any) => {
+  const handleSaveRecu =async (e:any) => {
     e.preventDefault();
-    if (newRecu.client_id && newRecu.reservation_id && newRecu.total_amount) {
-      const newRecuData = {
-        id: recus.length + 1,
-        ...newRecu,
-        soldeRestant: 500 - newRecu.total_amount,
-        statut: 'En attente',
-        dateReservation: new Date().toISOString().split('T')[0],
-        dateDebut: new Date().toISOString().split('T')[0],
-        total: 500
-      };
-      setRecus([...recus, newRecuData]);
-      alert('Reçu ajouté avec succès');
-      handleCloseModal();
+    if (newRecu.client_id && newRecu.reservation_id && newRecu.paiment_id) {
+      const {success, receipt}: {success:boolean, receipt: Receipt} = await window.sqliteReceipt.createReceipt(newRecu.client_id, newRecu.reservation_id, newRecu.paiment_id, 'pdf_url');
+      if(success){
+        console.log(receipt)
+          const newRecuData: Receipt = {
+            id: receipt.id,
+            ...newRecu,
+            name: receipt.name,
+            surname: receipt.surname,
+            remaining_balance: receipt.remaining_balance,
+            status: receipt.status,
+            date_reservation: receipt.date_reservation,
+            start_date: receipt.start_date,
+            total_amount: receipt.total_amount
+          };
+          setRecus([...recus, newRecuData]);
+          alert('Reçu ajouté avec succès');
+          handleCloseModal();
+      }else{
+        alert('Something wrong...')
+      }
     } else {
       alert('Veuillez remplir tous les champs');
     }
+    window.electron.fixFocus()
   };
-
-
-   // Sauvegarder les reçus et autres états dans le stockage local
-    useEffect(() => {
-      localStorage.setItem('recus', JSON.stringify(recus));
-    }, [recus]);
-  
-    useEffect(() => {
-      localStorage.setItem('modalitesFileName', modalitesFileName);
-    }, [modalitesFileName]);
-  
-    useEffect(() => {
-      localStorage.setItem('isFileAdded', isFileAdded);
-    }, [isFileAdded]);
 
   const handleAddModalitesClick = () => {
     if (isFileAdded) {
@@ -181,16 +212,19 @@ function MainRecu() {
     }
   };
 
-  const handleFileUpload = (e:any) => {
+  const handleFileUpload = async (e: any) => {
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
+      // Save the file in IndexedDB or send it to the backend
+      const fileData = await file.arrayBuffer(); // Convert file to binary
+      localStorage.setItem('modalitesFile', JSON.stringify(Array.from(new Uint8Array(fileData))));
       setModalitesFile(file);
       setModalitesFileName(file.name);
-      setIsFileAdded(true); // Mettre à jour l'état du bouton
+      setIsFileAdded(true);
     } else {
       alert('Veuillez sélectionner un fichier PDF.');
     }
-  };
+  };  
 
   const handlePrint = () => {
     if (modalitesFile) {
@@ -200,8 +234,10 @@ function MainRecu() {
         printWindow.focus();
         printWindow.print();
       }
+    } else {
+      alert("Aucun fichier modalités disponible. Veuillez télécharger à nouveau.");
     }
-  };
+  };  
 
   const handleDeleteFile = () => {
     setModalitesFile(null);
@@ -226,12 +262,12 @@ function MainRecu() {
   };  
 
 
-  const handlePrintRecu = (recu) => {
+  const handlePrintRecu = (recu: Receipt) => {
     const printWindow = window.open('', '_blank');
     const content = `
       <html>
         <head>
-          <title>Reçu - ${recu.nom} ${recu.prenom}</title>
+          <title>Reçu - ${recu.name} ${recu.surname}</title>
           <style>
             body { font-family: Arial, sans-serif; }
             .receipt { padding: 20px; }
@@ -246,22 +282,50 @@ function MainRecu() {
           <div class="receipt">
             <h2>Reçu de réservation</h2>
             <table>
-              <tr><th>Nom</th><td>${recu.nom}</td></tr>
-              <tr><th>Prénom</th><td>${recu.prenom}</td></tr>
-              <tr><th>Date de réservation</th><td>${recu.dateReservation}</td></tr>
-              <tr><th>Date de début</th><td>${recu.dateDebut}</td></tr>
-              <tr><th>Total</th><td>${recu.total}</td></tr>
-              <tr><th>Montant payé</th><td>${recu.montantPaye}</td></tr>
-              <tr><th>Solde restant</th><td>${recu.soldeRestant}</td></tr>
-              <tr><th>Statut</th><td>${recu.statut}</td></tr>
+              <tr><th>Nom</th><td>${recu.name}</td></tr>
+              <tr><th>Prénom</th><td>${recu.surname}</td></tr>
+              <tr><th>Date de réservation</th><td>${recu.date_reservation}</td></tr>
+              <tr><th>Date de début</th><td>${recu.start_date}</td></tr>
+              <tr><th>Total</th><td>${recu.total_amount}</td></tr>
+              <tr><th>Montant payé</th><td>${recu.amount_paid}</td></tr>
+              <tr><th>Solde restant</th><td>${recu.remaining_balance}</td></tr>
+              <tr><th>Statut</th><td>${recu.status}</td></tr>
             </table>
           </div>
         </body>
       </html>
     `;
-    printWindow.document.write(content);
-    printWindow.document.close();
-    printWindow.print();
+    printWindow?.document.write(content);
+    printWindow?.document.close();
+    printWindow?.print();
+  };
+
+  const handleDeleteReceiptById = async (receipt_id: number) => { 
+    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette recu ?");
+    if (confirmDelete) {
+      try {
+        const data = await window.sqliteReceipt.deleteReceipt(receipt_id);
+        window.alert(data.message);
+        setRecus(currentRecus.filter((r) => r.id !== receipt_id))
+      } catch (error) {
+        alert(`Error: ${error}`)
+      }
+    }
+    window.electron.fixFocus()
+  } 
+
+  const handleDeleteAll = async () => {
+    const confirmDeleteAll = window.confirm("Êtes-vous sûr de vouloir supprimer toutes les recus ?");
+    if (confirmDeleteAll) {
+      try {
+        const data = await window.sqliteReceipt.deleteAllReceipts();
+        window.alert(data.message);
+        setRecus([]);
+      } catch (e) {
+        console.error('Error deleting all recus:', e);
+      }
+    }
+    window.electron.fixFocus();
   };
 
   return (
@@ -278,7 +342,7 @@ function MainRecu() {
             {modalitesFile ? 'Imprimer les modalités' : 'Ajouter les modalités'}
           </button>
         </div>
-        <button className="delete-all-btn" onClick={() => setRecus([])}>Supprimer tout</button>
+        <button className="delete-all-btn" onClick={handleDeleteAll}>Supprimer tout</button>
       </div>
 
        {/* Modal pour ajouter un fichier */}
@@ -317,7 +381,6 @@ function MainRecu() {
             <span className="close-btn" onClick={handleCloseModal2}>&times;</span>
             <h3>Imprimer ou remplacer les modalités</h3>
             <input
-              
               type="file"
               accept="application/pdf"
               onChange={handleFileUpload}
@@ -493,7 +556,7 @@ function MainRecu() {
                 <td>{recu.id}</td>
                 <td>{recu.name}</td>
                 <td>{recu.surname}</td>
-                <td>{recu.reservation_date}</td>
+                <td>{recu.date_reservation}</td>
                 <td>{recu.start_date}</td>
                 <td>{recu.total_amount}</td>
                 <td>{recu.amount_paid}</td>
@@ -505,7 +568,7 @@ function MainRecu() {
                   <FaTrash
                   className="action-icon delete-icon"
                   title="Supprimer"
-                  onClick={() => setRecus(currentRecus.filter((r) => r.id !== recu.id))}
+                  onClick={() => { handleDeleteReceiptById(recu.id as number)} }
                 />
                 </td>
               </tr>

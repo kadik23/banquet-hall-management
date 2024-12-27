@@ -3,7 +3,7 @@ interface Receipt {
     client_id: number;
     reservation_id: number;
     paiment_id: number;
-    reservation_date: string;
+    date_reservation: string;
     name: string;
     surname: string;
     start_date: string;

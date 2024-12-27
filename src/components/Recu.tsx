@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Importez useNavigate
 import Header from './Header'; 
 import Home from './MainDashboard'; 
@@ -10,6 +10,7 @@ import { ImPrevious } from 'react-icons/im';
 
 function Recu() {
   const navigate = useNavigate(); 
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleLogout = () => {
     
@@ -20,8 +21,8 @@ function Recu() {
 
   return (
       <div className='grid-container'>
-        <Header /> 
-        <MainRecu />
+        <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm}/> 
+        <MainRecu searchTerm={searchTerm}/>
         <Sidebar openSidebarToggle={true} openSidebar={() => {}} onLogout={handleLogout} /> {/* Passez handleLogout à Sidebar */}
       </div>
   );

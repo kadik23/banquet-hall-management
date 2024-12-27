@@ -37,7 +37,8 @@ import {
   deleteAllPaiments,
   searchPaiments,
   getConfirmedPaimentsCount,
-  getWaitedPaimentsCount
+  getWaitedPaimentsCount,
+  getPaimentsByReservationId
 } from "./controllers/paimentsController";
 
 import {
@@ -134,6 +135,7 @@ contextBridge.exposeInMainWorld("sqliteReservation", {
 
 contextBridge.exposeInMainWorld("sqlitePaiment", {
   getPaiments: () => getPaiments(),
+  getPaimentsByReservationId: (reservation_id:number) => getPaimentsByReservationId(reservation_id),
   getConfirmedPaimentsCount: () => getConfirmedPaimentsCount(),
   getWaitedPaimentsCount: () => getWaitedPaimentsCount(),
   createPaiment: (
@@ -206,7 +208,7 @@ contextBridge.exposeInMainWorld("sqliteProduct", {
 });
 
 contextBridge.exposeInMainWorld("sqliteReceipt", {
-  getReceipts: (page: number) => getReceipts(page),
+  getReceipts: () => getReceipts(),
   createReceipt: (
     client_id: number,
     reservation_id: number,

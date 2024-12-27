@@ -4,6 +4,10 @@ export const getPaiments = () => {
   return paimentMgr.getPaiments();
 };
 
+export const getPaimentsByReservationId = (reservation_id: number) => {
+  return paimentMgr.getPaimentsByReservationId(reservation_id);
+};
+
 export const getWaitedPaimentsCount = () => {
   return paimentMgr.getWaitedPaimentsCount();
 };

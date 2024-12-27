@@ -1,7 +1,7 @@
 import * as receiptMgr from "../models/receiptsManager";
 
-export const getReceipts = (page = 1) => {
-  return receiptMgr.getReceipts(page);
+export const getReceipts = () => {
+  return receiptMgr.getReceipts();
 };
 
 export const createReceipt = (

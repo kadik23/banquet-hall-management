@@ -51,6 +51,7 @@ declare global {
     };
     sqlitePaiment: {
       getPaiments: () => Promise<any>;
+      getPaimentsByReservationId: (reservation_id: number) => Promise<any>;
       getConfirmedPaimentsCount: () => Promise<number>;
       getWaitedPaimentsCount: () => Promise<number>;
       createPaiment: (
@@ -102,7 +103,7 @@ declare global {
       searchProducts: (searchItem: string) => Promise<any>;
     };
     sqliteReceipt: {
-      getReceipts: (page: number) => Promise<any>;
+      getReceipts: () => Promise<any>;
       createReceipt: (
         client_id: number,
         reservation_id: number,

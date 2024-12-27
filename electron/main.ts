@@ -1,13 +1,14 @@
-import { app, BrowserWindow, ipcMain, shell, } from "electron";
+import { app, BrowserWindow, ipcMain, shell, screen } from "electron";
 import path from "path";
 import { createReceipt, deleteAllReceipts, deleteReceipt } from "./models/receiptsManager";
 import fs from "fs";
 let mainWindow: Electron.BrowserWindow | null;
 
 function createWindow() {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width,
+    height,
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, "preload.js"),
@@ -15,7 +16,7 @@ function createWindow() {
     },
   });
 
-  // mainWindow.setMenu(null);
+  mainWindow.setMenu(null);
 
   if (process.env.NODE_ENV === "development") {
     mainWindow.loadURL("http://localhost:8080");

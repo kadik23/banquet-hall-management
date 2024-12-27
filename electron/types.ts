@@ -67,4 +67,5 @@ export interface ReceiptResponse {
   success: boolean;
   message?: string;
   receiptId?: number;
+  receipt?: Receipt
 }
