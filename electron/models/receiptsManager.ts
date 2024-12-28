@@ -73,13 +73,29 @@ export const deleteReceipt = (id: number): ReceiptResponse => {
 };
 
 export const deleteAllReceipts = (): ReceiptResponse => {
-  const qry = `DELETE FROM receipts`;
-  let stmt = database.prepare(qry);
-  let info = stmt.run();
-  return {
-    success: true,
-    message: `${info.changes} receipts deleted successfully`,
-  };
+  database.prepare("BEGIN TRANSACTION").run();
+  try {
+    const qry = `DELETE FROM receipts`;
+    let stmt = database.prepare(qry);
+    let info = stmt.run();
+
+    const resetQry = `DELETE FROM sqlite_sequence WHERE name = 'receipts'`;
+    database.prepare(resetQry).run();
+
+    database.prepare("COMMIT").run();
+
+    return {
+      success: true,
+      message: `${info.changes} receipts deleted successfully`,
+    };
+  } catch (error: any) {
+    database.prepare("ROLLBACK").run();
+
+    return {
+      success: false,
+      message: `Error deleting receipts: ${error.message}`,
+    };
+  }
 };
 
 export const searchReceipts = (searchTerm: string, page = 1) => {
