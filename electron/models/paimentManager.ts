@@ -60,22 +60,51 @@ export const createPaiment = (
   payment_date: string,
   status: "waiting" | "confirmed"
 ): PaimentResponse => {
-  const qry = `
-    INSERT INTO payments 
-    (client_id, reservation_id, total_amount, amount_paid, remaining_balance, payment_date, status) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-  const stmt = database.prepare(qry);
-  const info = stmt.run(
-    client_id,
-    reservation_id,
-    total_amount,
-    amount_paid,
-    remaining_balance,
-    payment_date,
-    status
-  );
-  return { success: true, paimentId: info.lastInsertRowid };
+  try {
+    database.prepare("BEGIN TRANSACTION").run();
+
+    const checkQry = `
+      SELECT COUNT(*) as count 
+      FROM payments 
+      WHERE client_id = ? AND reservation_id = ?
+    `;
+    const checkStmt = database.prepare(checkQry);
+    const { count } = checkStmt.get(client_id, reservation_id);
+
+    if (count > 0) {
+      database.prepare("ROLLBACK").run();
+      return {
+        success: false,
+        message: "A payment already exists for this client and reservation.",
+      };
+    }
+
+    const insertQry = `
+      INSERT INTO payments 
+      (client_id, reservation_id, total_amount, amount_paid, remaining_balance, payment_date, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const insertStmt = database.prepare(insertQry);
+    const info = insertStmt.run(
+      client_id,
+      reservation_id,
+      total_amount,
+      amount_paid,
+      remaining_balance,
+      payment_date,
+      status
+    );
+
+    database.prepare("COMMIT").run();
+
+    return { success: true, paimentId: info.lastInsertRowid };
+  } catch (error: any) {
+    database.prepare("ROLLBACK").run();
+    return {
+      success: false,
+      message: `Error creating payment: ${error.message}`,
+    };
+  }
 };
 
 export const editPaiment = (

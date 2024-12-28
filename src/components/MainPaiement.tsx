@@ -19,7 +19,7 @@ function MainPaiement({searchTerm}:{searchTerm:string}) {
   const [clients, setClients] = useState<Client[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const PaimentsPerPage = 7; // Nombre de paiements par page
+  const PaimentsPerPage = 5; // Nombre de paiements par page
   const indexOfLastPayment = currentPage * PaimentsPerPage;
   const indexOfFirstPayment = indexOfLastPayment - PaimentsPerPage;
 
@@ -120,14 +120,18 @@ function MainPaiement({searchTerm}:{searchTerm:string}) {
             setPaiments(Paiments.map((payment:any) => payment.id === newPayment.id ? newPayment : payment));
             const data = await window.sqlitePaiment.editPaiment(newPayment.id as number, newPayment.client_id, newPayment.reservation_id, newPayment.total_amount, newPayment.amount_paid, newPayment.remaining_balance, newPayment.payment_date, newPayment.status);
             window.alert(`Payment ${newPayment.id} was edited successfully`);
-  
+            setIsModalOpen(false);              
           } else {
             const data = await window.sqlitePaiment.createPaiment(newPayment.client_id, newPayment.reservation_id, newPayment.total_amount, newPayment.amount_paid, newPayment.remaining_balance, newPayment.payment_date, newPayment.status);
-            const newPaymentWithId = { id: data.paimentId, ...newPayment };
-            setPaiments([...Paiments, newPaymentWithId]);
-            window.alert(`Payment ${data.paimentId} was created successfully`);
+            if(data.success){
+              const newPaymentWithId = { id: data.paimentId, ...newPayment };
+              setPaiments([...Paiments, newPaymentWithId]);
+              window.alert(`Payment ${data.paimentId} was created successfully`);
+              setIsModalOpen(false);
+            }else{
+              window.alert(data.message)
+            }
           }
-          setIsModalOpen(false);
         }
     }
     window.electron.fixFocus();
