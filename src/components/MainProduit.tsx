@@ -9,8 +9,6 @@ function MainProduit({searchTerm}:{searchTerm:string}) {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [nbrProducts, setNbrProducts] = useState(0)
   const [newProduct, setNewProduct] = useState<Product>({
     name: '',
     unique_price: 0,
@@ -29,11 +27,8 @@ function MainProduit({searchTerm}:{searchTerm:string}) {
     const fetchProducts = async () => {
       try {
         const data: Product[] = await window.sqliteProduct.getProducts();
-        const ProductsNumber= await window.sqliteStatistics.getNumProducts();
-        setNbrProducts(ProductsNumber)
         setProductsByDate(data);
         console.log(data)
-        setProducts(data)
       } catch (err) {
         alert(`Error: ${err}`);
       }
