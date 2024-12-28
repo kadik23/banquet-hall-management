@@ -86,10 +86,10 @@ function MainReservation({ searchTerm }: { searchTerm: string }) {
       start_date: '',
       start_hour: '',
       end_hour: '',
-      period: 'morning',
-      nbr_invites: 0,
+      period: '',
+      nbr_invites: '',
       date_reservation: '',
-      client_id: 0,
+      client_id: '',
     });
     setIsModalOpen(true);
   };
@@ -258,6 +258,7 @@ function MainReservation({ searchTerm }: { searchTerm: string }) {
                 name="start_hour"
                 value={newReservation.start_hour}
                 onChange={handleInputChange}
+                placeholder="HH:MM"
                 required
               />
               <label>Heure de fin:</label>
@@ -266,33 +267,49 @@ function MainReservation({ searchTerm }: { searchTerm: string }) {
                 name="end_hour"
                 value={newReservation.end_hour}
                 onChange={handleInputChange}
+                placeholder="HH:MM"
                 required
               />
-              <label>Période:</label>
-              <select
-                name="period"
-                value={newReservation.period}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="morning">Matin</option>
-                <option value="evening">Soir</option>
-              </select>
+
+            <label>Période:</label>
+            <select
+              name="period"
+              value={newReservation.period}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="" disabled selected style={{ color: 'gray', fontStyle: 'italic' }}>
+                Choisissez une période
+              </option>
+              <option value="morning">Matin</option>
+              <option value="evening">Soir</option>
+            </select>
+
+           
+
               <label>Nombre d'invités:</label>
               <input
-                type="number"
+                type="text"
                 name="nbr_invites"
                 value={newReservation.nbr_invites}
-                onChange={handleInputChange}
+                placeholder="Entrez le nombre d'invités"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Permet uniquement les nombres positifs
+                  if (/^\d*$/.test(value)) {
+                    handleInputChange(e);
+                  }
+                }}
                 required
               />
               <label>Date de réservation:</label>
               <input
-                type="date"
-                name="date_reservation"
-                value={newReservation.date_reservation}
-                onChange={handleInputChange}
-                required
+              type="date"
+              name="date_reservation"
+              value={newReservation.date_reservation}
+              onChange={handleInputChange}
+              required
+             
               />
   
               <label>Client associé:</label>

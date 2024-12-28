@@ -185,6 +185,7 @@ function MainClient({searchTerm}:{searchTerm:string}) {
               <input
                 type="text"
                 name="name"
+                placeholder="Entrez le nom"
                 value={newClient.name || ''}
                 onChange={handleInputChange}
                 required
@@ -193,6 +194,7 @@ function MainClient({searchTerm}:{searchTerm:string}) {
               <input
                 type="text"
                 name="surname"
+                placeholder="Entrez le prénom"
                 value={newClient.surname || ''}
                 onChange={handleInputChange}
                 required
@@ -210,6 +212,7 @@ function MainClient({searchTerm}:{searchTerm:string}) {
               <input
                 type="text"
                 name="address"
+                placeholder="Entrez l'adresse"
                 value={newClient.address || ''}
                 onChange={handleInputChange}
                 required
