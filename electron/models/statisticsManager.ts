@@ -13,7 +13,7 @@ export const getNumClients = () => {
 
 export const getNumReservation = () => {
   try {
-    const qry = "SELECT COUNT(*) AS count FROM reservation;";
+    const qry = "SELECT COUNT(*) AS count FROM reservations;";
     const result = database.prepare(qry).get();
     return result.count;
   } catch (error) {

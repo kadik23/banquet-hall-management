@@ -18,7 +18,7 @@ function MainDashboard({searchTerm}:{searchTerm:string}) {
     const getStatistics = async () => { 
       try {
         setclients(await window.sqliteStatistics.getNumClients())
-        setwaitingReservation(await window.sqliteStatistics.getNumPendingPayments())
+        setwaitingReservation(await window.sqliteStatistics.getNumReservation())
         setwaitingPayments(await window.sqliteStatistics.getNumPendingPayments())
         setconfirmPayments(await window.sqliteStatistics.getNumConfirmPayments())
         setreceipts(await window.sqliteStatistics.getNumReceipts())
@@ -50,7 +50,7 @@ function MainDashboard({searchTerm}:{searchTerm:string}) {
         </div>
         <div className="card">
           <div className="card-inner">
-            <h3>RÉSERVATIONS EN ATTENTE</h3>
+            <h3>RÉSERVATIONS TOTALE</h3>
             <BsFillCalendarFill className="card_icon" />
           </div>
           {waitingReservation && (<h1>{waitingReservation}</h1>)}
