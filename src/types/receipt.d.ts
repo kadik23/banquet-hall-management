@@ -6,7 +6,7 @@ interface Receipt {
     date_reservation: string;
     name: string;
     surname: string;
-    start_date: string;
+    payment_date: string;
     total_amount?: number;
     status?: string;
     amount_paid: number;

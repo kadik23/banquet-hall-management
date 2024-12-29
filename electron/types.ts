@@ -55,7 +55,7 @@ export interface Receipt{
   name: string;
   surname: string;
   date_reservation: string;
-  start_date: string;
+  payment_date: string;
   total_amount: number;
   amount_paid: number;
   remaining_balance: number;

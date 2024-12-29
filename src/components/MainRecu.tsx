@@ -5,9 +5,9 @@ import { format } from 'date-fns';
 function MainRecu({searchTerm}:{searchTerm:string}) {
 
    const [newRecu, setNewRecu] = useState<Receipt>({
-    client_id :'',
-    reservation_id: '',
-    paiment_id: '',
+    client_id :0,
+    reservation_id: 0,
+    paiment_id: 0,
     date_reservation: '',
     name: '',
     surname: '',
@@ -298,7 +298,7 @@ function MainRecu({searchTerm}:{searchTerm:string}) {
               <tr><th>Total</th><td>${recu.total_amount}</td></tr>
               <tr><th>Montant payé</th><td>${recu.amount_paid}</td></tr>
               <tr><th>Solde restant</th><td>${recu.remaining_balance}</td></tr>
-              <tr><th>Statut</th><td>${recu.status}</td></tr>
+              <tr><th>Statut</th><td>${recu.status == 'waiting' ? 'En attente' : 'Payé'}</td></tr>
             </table>
           </div>
         </body>
@@ -573,7 +573,7 @@ function MainRecu({searchTerm}:{searchTerm:string}) {
                 <td>{recu.total_amount}</td>
                 <td>{recu.amount_paid}</td>
                 <td>{recu.remaining_balance}</td>
-                <td>{recu.status}</td>
+                <td>{recu.status == 'waiting' ? 'En attente' : 'Payé'}</td>
                 <td>
                   <FaPrint onClick={() => handlePrintRecu(recu)} className="action-icon" title="Imprimer" />
                   

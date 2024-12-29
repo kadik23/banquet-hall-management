@@ -9,7 +9,7 @@ export const getReceipts = (): Receipt[] => {
       c.name,
       c.surname,
       res.date_reservation,
-      res.start_date,
+      p.payment_date,
       p.status,
       p.total_amount,
       p.amount_paid,
@@ -46,7 +46,7 @@ export const createReceipt = (
       c.name,
       c.surname,
       res.date_reservation,
-      res.start_date,
+      p.payment_date,
       p.status,
       p.total_amount,
       p.amount_paid,
@@ -107,7 +107,7 @@ export const searchReceipts = (searchTerm: string, page = 1) => {
       c.name,
       c.surname,
       res.date_reservation,
-      res.start_date,
+      p.payment_date,
       p.status,
       p.total_amount,
       p.amount_paid,
@@ -125,7 +125,7 @@ export const searchReceipts = (searchTerm: string, page = 1) => {
       r.reservation_id = CAST(? AS INTEGER) OR 
       r.payment_id = CAST(? AS INTEGER) OR 
       res.date_reservation LIKE ? OR 
-      res.start_date LIKE ? OR 
+      p.payment_date LIKE ? OR 
       p.status LIKE ? OR 
       p.total_amount = CAST(? AS REAL) OR 
       p.amount_paid = CAST(? AS REAL) OR 
