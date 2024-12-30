@@ -1,5 +1,4 @@
 import { Paiment, PaimentResponse } from "../types";
-
 import { db as database } from "./dbManager";
 
 export const getPaiments = (): Paiment[] => {
@@ -14,7 +13,7 @@ export const getPaiments = (): Paiment[] => {
 };
 
 export const getPaimentsByReservationId = (reservation_id: number) => { 
-  console.log(reservation_id)
+  console.log(`ID de réservation : ${reservation_id}`);
   const qry =  `
     SELECT p.*, c.name, c.surname 
     FROM payments p
@@ -23,9 +22,9 @@ export const getPaimentsByReservationId = (reservation_id: number) => {
   `;
   const stmt = database.prepare(qry);
   const res = stmt.all(reservation_id);
-  console.table(res)
+  console.table(res);
   return res;
-}
+};
 
 export const getConfirmedPaimentsCount = () => {
   const qry = `
@@ -75,7 +74,7 @@ export const createPaiment = (
       database.prepare("ROLLBACK").run();
       return {
         success: false,
-        message: "A payment already exists for this client and reservation.",
+        message: "Un paiement existe déjà pour ce client et cette réservation.",
       };
     }
 
@@ -102,7 +101,7 @@ export const createPaiment = (
     database.prepare("ROLLBACK").run();
     return {
       success: false,
-      message: `Error creating payment: ${error.message}`,
+      message: `Erreur lors de la création du paiement : ${error.message}`,
     };
   }
 };
@@ -131,7 +130,7 @@ export const editPaiment = (
   );
   const valuesToUpdate = keysToUpdate.map((key) => updates[key]);
   if (keysToUpdate.length === 0) {
-    return { success: false, message: "No updates provided" };
+    return { success: false, message: "Aucune mise à jour fournie" };
   }
   const setClause = keysToUpdate.map((key) => `${key} = ?`).join(", ");
   const qry = `
@@ -147,11 +146,11 @@ export const editPaiment = (
   if (info.changes === 0) {
     return {
       success: false,
-      message: "Payment not found or no changes made",
+      message: "Paiement introuvable ou aucune modification effectuée",
     };
   }
 
-  return { success: true, message: "Payment updated successfully",  };
+  return { success: true, message: "Paiement mis à jour avec succès" };
 };
 
 export const deletePaiment = (id: number): PaimentResponse => {
@@ -163,18 +162,18 @@ export const deletePaiment = (id: number): PaimentResponse => {
     const stmt = database.prepare(qry);
     const info = stmt.run(id);
     if (info.changes === 0) {
-      return { success: false, message: "Payment not found" };
+      return { success: false, message: "Paiement introuvable" };
     }
     database.prepare("COMMIT").run();
 
-    return { success: true, message: "Payment deleted successfully" };
+    return { success: true, message: "Paiement supprimé avec succès" };
 
   } catch (error: any) {
     database.prepare("ROLLBACK").run();
 
     return {
       success: false,
-      message: `Error deleting payments: ${error.message}`,
+      message: `Erreur lors de la suppression du paiement : ${error.message}`,
     };
   }
 };
@@ -195,14 +194,14 @@ export const deleteAllPaiments = (): PaimentResponse => {
 
     return {
       success: true,
-      message: `${deleteInfo.changes} payments deleted successfully, and ID reset.`,
+      message: `${deleteInfo.changes} paiements supprimés avec succès et ID réinitialisé.`,
     };
   } catch (error: any) {
     database.prepare("ROLLBACK").run();
 
     return {
       success: false,
-      message: `Error deleting payments: ${error.message}`,
+      message: `Erreur lors de la suppression des paiements : ${error.message}`,
     };
   }
 };
@@ -233,5 +232,6 @@ export const searchPayments = (searchTerm: string) => {
     `%${searchTerm}%`
   );
 
+  console.log(`Résultats de recherche pour "${searchTerm}" :`, res);
   return res;
 };

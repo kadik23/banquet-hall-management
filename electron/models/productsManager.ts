@@ -1,12 +1,11 @@
 import { Product, ProductResponse } from "../types";
-
-import {db as database} from "./dbManager";
+import { db as database } from "./dbManager";
 
 export const getProducts = (): Product[] => {
   const qry = `SELECT * FROM products`;
   const stmt = database.prepare(qry);
   const res = stmt.all() as Product[];
-  console.table(res)
+  console.table(res);
   return res;
 };
 
@@ -50,7 +49,7 @@ export const createProduct = (
   quantity: number,
   total_amount: number,
   status: "paid" | "not-paid",
-  date:string,
+  date: string
 ): ProductResponse => {
   const qry = `
     INSERT INTO products 
@@ -82,7 +81,7 @@ export const editProduct = (
   );
   const valuesToUpdate = keysToUpdate.map((key) => updates[key]);
   if (keysToUpdate.length === 0) {
-    return { success: false, message: "No updates provided" };
+    return { success: false, message: "Aucune mise à jour fournie" };
   }
   const setClause = keysToUpdate.map((key) => `${key} = ?`).join(", ");
   const qry = `
@@ -98,11 +97,11 @@ export const editProduct = (
   if (info.changes === 0) {
     return {
       success: false,
-      message: "Product not found or no changes made",
+      message: "Produit introuvable ou aucune modification effectuée",
     };
   }
 
-  return { success: true, message: "Product updated successfully",productId: id  };
+  return { success: true, message: "Produit mis à jour avec succès", productId: id };
 };
 
 export const deleteProduct = (id: number): ProductResponse => {
@@ -110,9 +109,9 @@ export const deleteProduct = (id: number): ProductResponse => {
   const stmt = database.prepare(qry);
   const info = stmt.run(id);
   if (info.changes === 0) {
-    return { success: false, message: "Product not found" };
+    return { success: false, message: "Produit introuvable" };
   }
-  return { success: true, message: "Product deleted successfully" };
+  return { success: true, message: "Produit supprimé avec succès" };
 };
 
 export const deleteAllProducts = (): ProductResponse => {
@@ -128,14 +127,14 @@ export const deleteAllProducts = (): ProductResponse => {
     database.prepare("COMMIT").run();
     return {
       success: true,
-      message: `${info.changes} products deleted successfully`,
+      message: `${info.changes} produits supprimés avec succès`,
     };
   } catch (error: any) {
     database.prepare("ROLLBACK").run();
 
     return {
       success: false,
-      message: `Error deleting products: ${error.message}`,
+      message: `Erreur lors de la suppression des produits : ${error.message}`,
     };
   }
 };
@@ -164,5 +163,6 @@ export const searchProducts = (searchTerm: string) => {
     `%${searchTerm}%`
   );
 
+  console.log(`Résultats de recherche pour "${searchTerm}" :`, res);
   return res;
 };

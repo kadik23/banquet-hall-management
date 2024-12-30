@@ -1,6 +1,5 @@
 import { Receipt, ReceiptResponse } from "../types";
-
-import {db as database} from "./dbManager";
+import { db as database } from "./dbManager";
 
 export const getReceipts = (): Receipt[] => {
   const qry = `
@@ -59,7 +58,7 @@ export const createReceipt = (
   `;
   const fetchStmt = database.prepare(fetchQuery);
   const receipt = fetchStmt.get(receiptId);
-  return { success: true, receipt};
+  return { success: true, receipt };
 };
 
 export const deleteReceipt = (id: number): ReceiptResponse => {
@@ -67,9 +66,9 @@ export const deleteReceipt = (id: number): ReceiptResponse => {
   let stmt = database.prepare(qry);
   let info = stmt.run(id);
   if (info.changes === 0) {
-    return { success: false, message: "Receipt not found" };
+    return { success: false, message: "Reçu introuvable" };
   }
-  return { success: true, message: "Receipt deleted successfully" };
+  return { success: true, message: "Reçu supprimé avec succès" };
 };
 
 export const deleteAllReceipts = (): ReceiptResponse => {
@@ -86,14 +85,14 @@ export const deleteAllReceipts = (): ReceiptResponse => {
 
     return {
       success: true,
-      message: `${info.changes} receipts deleted successfully`,
+      message: `${info.changes} reçus supprimés avec succès`,
     };
   } catch (error: any) {
     database.prepare("ROLLBACK").run();
 
     return {
       success: false,
-      message: `Error deleting receipts: ${error.message}`,
+      message: `Erreur lors de la suppression des reçus : ${error.message}`,
     };
   }
 };

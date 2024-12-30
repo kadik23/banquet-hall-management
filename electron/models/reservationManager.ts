@@ -1,5 +1,4 @@
 import { Reservation, ReservationResponse } from "../types";
-
 import { db as database } from "./dbManager";
 
 export const getReservations = (): Reservation[] => {
@@ -53,18 +52,17 @@ export const createReservation = (
       date_reservation
     );
 
-    // eslint-disable-next-line prefer-const
     reservationId = reservationInfo.lastInsertRowid;
 
     return {
       success: true,
       reservationId,
-      message: "Reservation created successfully.",
+      message: "Réservation créée avec succès.",
     };
   } catch (error: any) {
     return {
       success: false,
-      message: `Error creating reservation and receipt: ${error.message}`,
+      message: `Erreur lors de la création de la réservation : ${error.message}`,
     };
   }
 };
@@ -93,7 +91,7 @@ export const editReservation = (
   );
   const valuesToUpdate = keysToUpdate.map((key) => updates[key]);
   if (keysToUpdate.length === 0) {
-    return { success: false, message: "No updates provided" };
+    return { success: false, message: "Aucune mise à jour fournie" };
   }
   const setClause = keysToUpdate.map((key) => `${key} = ?`).join(", ");
   const qry = `
@@ -109,11 +107,11 @@ export const editReservation = (
   if (info.changes === 0) {
     return {
       success: false,
-      message: "Reservation not found or no changes made",
+      message: "Réservation introuvable ou aucune modification effectuée",
     };
   }
 
-  return { success: true, message: "Reservation updated successfully" };
+  return { success: true, message: "Réservation mise à jour avec succès" };
 };
 
 export const deleteReservation = (id: number): ReservationResponse => {
@@ -127,16 +125,16 @@ export const deleteReservation = (id: number): ReservationResponse => {
     const info = stmt.run(id);
     if (info.changes === 0) {
       database.prepare("ROLLBACK").run();
-      return { success: false, message: "Reservation not found" };
+      return { success: false, message: "Réservation introuvable" };
     }
     database.prepare("COMMIT").run();
 
-    return { success: true, message: "Reservation deleted successfully" };
+    return { success: true, message: "Réservation supprimée avec succès" };
   } catch (error: any) {
     database.prepare("ROLLBACK").run();
     return {
       success: false,
-      message: `Error deleting client: ${error.message}`,
+      message: `Erreur lors de la suppression de la réservation : ${error.message}`,
     };
   }
 };
@@ -158,14 +156,14 @@ export const deleteAllReservations = (): ReservationResponse => {
 
     return {
       success: true,
-      message: `${deleteInfo.changes} reservations deleted successfully, and ID reset.`,
+      message: `${deleteInfo.changes} réservations supprimées avec succès, et ID réinitialisé.`,
     };
   } catch (error: any) {
     database.prepare("ROLLBACK").run();
 
     return {
       success: false,
-      message: `Error deleting reservations: ${error.message}`,
+      message: `Erreur lors de la suppression des réservations : ${error.message}`,
     };
   }
 };

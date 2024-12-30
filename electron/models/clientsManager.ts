@@ -27,9 +27,9 @@ export const editClient = (
   const stmt = database.prepare(qry);
   const info = stmt.run(name, surname, phone, address, id);
   if (info.changes === 0) {
-    return { success: false, message: "Client not found or no changes made" };
+    return { success: false, message: "Client introuvable ou aucune modification effectuée" };
   }
-  return { success: true, message: "Client updated successfully", clientId: id};
+  return { success: true, message: "Client mis à jour avec succès", clientId: id };
 };
 
 export const deleteClient = (id: number) => {
@@ -47,16 +47,16 @@ export const deleteClient = (id: number) => {
     if (info.changes === 0) {
       // Client not found
       database.prepare('ROLLBACK').run();
-      return { success: false, message: 'Client not found', clientId: id };
+      return { success: false, message: 'Client introuvable', clientId: id };
     }
 
     // Commit transaction
     database.prepare('COMMIT').run();
-    return { success: true, message: `Client ${id} and related records deleted successfully` };
+    return { success: true, message: `Client ${id} et ses enregistrements associés supprimés avec succès` };
   } catch (error: any) {
     // Rollback transaction on error
     database.prepare('ROLLBACK').run();
-    return { success: false, message: `Error deleting client: ${error.message}` };
+    return { success: false, message: `Erreur lors de la suppression du client : ${error.message}` };
   }
 };
 
@@ -79,14 +79,14 @@ export const deleteAllClients = () => {
 
     return {
       success: true,
-      message: `${deleteInfo.changes} clients deleted successfully, and ID reset.`,
+      message: `${deleteInfo.changes} clients supprimés avec succès et les ID réinitialisés.`,
     };
   } catch (error:any) {
     database.prepare('ROLLBACK').run();
 
     return {
       success: false,
-      message: `Error deleting clients: ${error.message}`,
+      message: `Erreur lors de la suppression des clients : ${error.message}`,
     };
   }
 };
